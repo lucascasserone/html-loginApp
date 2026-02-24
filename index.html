@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CorpSystem | Gestão Pro</title>
+    <title>CorpSystem | Enterprise Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -13,176 +13,256 @@
         [x-cloak] { display: none !important; }
         .bg-corporate { background-color: #003366; }
         .text-corporate { color: #003366; }
+        .animate-pulse-custom { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
 <body class="bg-gray-50 font-sans" x-data="systemAuth()">
 
     <div x-show="view === 'login'" x-cloak class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md border-t-8 border-[#003366]">
-            <h2 class="text-3xl font-extrabold text-[#003366] text-center mb-8 uppercase">Login</h2>
+        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md border-t-8 border-corporate">
+            <h2 class="text-3xl font-black text-corporate text-center mb-8 uppercase">Acesso Restrito</h2>
             <form @submit.prevent="handleLogin">
-                <input type="email" x-model="email" placeholder="E-mail" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-blue-500">
-                <input type="password" x-model="password" placeholder="Senha" class="w-full px-4 py-3 border-2 rounded-lg mb-6 outline-none focus:border-blue-500">
-                <button type="submit" class="w-full bg-[#003366] text-white py-3 rounded-lg font-bold hover:brightness-110 transition">ACESSAR</button>
+                <input type="email" x-model="email" placeholder="E-mail Corporativo" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-blue-500 transition" required>
+                <input type="password" x-model="password" placeholder="Senha" class="w-full px-4 py-3 border-2 rounded-lg mb-2 outline-none focus:border-blue-500 transition" required>
+                <div class="text-right mb-6">
+                    <button type="button" @click="view = 'recover'" class="text-xs font-bold text-blue-600 hover:underline">Esqueci minha senha</button>
+                </div>
+                <button type="submit" :disabled="loading" class="w-full bg-corporate text-white py-3 rounded-lg font-bold hover:brightness-110 flex justify-center items-center shadow-lg">
+                    <span x-show="!loading">ENTRAR NO SISTEMA</span>
+                    <div x-show="loading" class="animate-spin border-4 border-white border-t-transparent rounded-full w-6 h-6"></div>
+                </button>
             </form>
         </div>
     </div>
 
+    <div x-show="view === 'recover'" x-cloak class="min-h-screen flex items-center justify-center p-4 text-center">
+        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-sm">
+            <div class="text-4xl mb-4">🔐</div>
+            <h2 class="text-xl font-bold mb-2">Recuperar Acesso</h2>
+            <p class="text-sm text-gray-500 mb-6">Enviaremos um link para: <br><strong x-text="email"></strong></p>
+            <button @click="handleRecovery" class="w-full bg-gray-800 text-white py-3 rounded-lg font-bold mb-4">ENVIAR E-MAIL</button>
+            <button @click="view = 'login'" class="text-sm text-gray-400 font-bold hover:text-gray-600">VOLTAR</button>
+        </div>
+    </div>
+
+    <div x-show="view === 'reset_password'" x-cloak class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md border-t-8 border-green-600">
+            <h2 class="text-2xl font-bold mb-6">Definir Nova Senha</h2>
+            <input type="password" x-model="newPassword" placeholder="Mínimo 6 caracteres" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-green-600">
+            <button @click="handleUpdatePassword" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">SALVAR NOVA SENHA</button>
+        </div>
+    </div>
+
     <div x-show="view === 'dashboard'" x-cloak class="min-h-screen flex flex-col">
-        <nav class="bg-corporate text-white px-8 py-4 flex justify-between items-center shadow-xl">
-            <div class="flex items-center gap-6">
-                <span class="font-black text-xl tracking-tighter italic">CORP<span class="font-light">SYS</span></span>
-                <div class="flex gap-4 ml-6">
-                    <button @click="tab = 'users'" :class="tab === 'users' ? 'border-b-2 border-white' : 'opacity-50'" class="pb-1 text-sm font-bold uppercase transition">Usuários</button>
-                    <template x-if="userRole === 'Administrador'">
-                        <button @click="tab = 'roles'" :class="tab === 'roles' ? 'border-b-2 border-white' : 'opacity-50'" class="pb-1 text-sm font-bold uppercase transition">Configurações</button>
-                    </template>
+        <nav class="bg-corporate text-white px-8 py-4 flex justify-between items-center shadow-md sticky top-0 z-40">
+            <div class="flex items-center gap-8">
+                <span class="font-black text-xl italic tracking-tighter">CORP<span class="font-light">SYS</span></span>
+                <div class="flex gap-4">
+                    <button @click="tab = 'users'" :class="tab === 'users' ? 'text-white' : 'opacity-50'" class="text-xs font-bold uppercase transition">Usuários</button>
+                    <button x-show="isAdmin" @click="tab = 'audit'" :class="tab === 'audit' ? 'text-white' : 'opacity-50'" class="text-xs font-bold uppercase transition">Logs de Auditoria</button>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <span class="text-xs bg-white/10 px-3 py-1 rounded-full uppercase font-bold" x-text="userRole"></span>
-                <button @click="handleLogout" class="bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-lg active:scale-95">Sair do Sistema</button>
+                <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full border border-white/20" x-text="userEmail"></span>
+                <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 p-2 rounded-lg transition shadow-inner">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                </button>
             </div>
         </nav>
 
-        <main class="p-8 max-w-6xl mx-auto w-full">
+        <main class="p-8 max-w-6xl mx-auto w-full flex-grow">
             <div x-show="tab === 'users'">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-                        <p class="text-gray-400 text-xs font-bold uppercase">Total na Base</p>
-                        <p class="text-4xl font-black text-gray-800" x-text="totalUsers"></p>
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                    <div class="relative w-full md:w-96">
+                        <input type="text" x-model="searchQuery" placeholder="Buscar por nome ou e-mail..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:border-corporate outline-none shadow-sm">
+                        <span class="absolute left-3 top-2.5 opacity-30">🔍</span>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 md:col-span-2">
-                        <p class="text-gray-400 text-xs font-bold uppercase">Seu Acesso</p>
-                        <p class="text-xl font-bold text-gray-800">Você está logado como <span class="text-blue-600" x-text="userRole"></span></p>
+                    <div class="flex gap-3">
+                        <button x-show="isAdmin" @click="openModalCreate" class="bg-corporate text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg hover:brightness-125 transition">+ Novo</button>
+                        <div x-show="isAdmin" class="relative bg-white px-6 py-2 rounded-xl font-bold text-sm border cursor-pointer hover:bg-gray-50 transition">
+                            📤 Importar Excel
+                            <input type="file" @change="handleExcelUpload" class="absolute inset-0 opacity-0 cursor-pointer">
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border p-10" x-show="userRole !== 'Visualizador'">
-                    <h3 class="font-bold text-lg mb-4">📥 Importação em Massa</h3>
-                    <div class="border-4 border-dashed border-gray-100 rounded-2xl p-12 text-center hover:border-[#003366] transition relative">
-                        <input type="file" @change="handleExcelUpload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <p class="text-gray-500">Arraste seu arquivo de colaboradores aqui</p>
-                    </div>
-                </div>
-                
-                <div class="mt-6 p-4 bg-yellow-50 text-yellow-800 rounded-lg text-sm" x-show="userRole === 'Visualizador'">
-                    ⚠️ Seu perfil possui apenas permissão de <b>leitura</b>. O upload de arquivos está desativado.
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            <tr>
+                                <th class="p-4">Colaborador</th>
+                                <th class="p-4">Cargo / Setor</th>
+                                <th class="p-4 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <template x-if="loadingData">
+                                <template x-for="i in 5">
+                                    <tr class="animate-pulse-custom">
+                                        <td class="p-4"><div class="h-4 bg-gray-100 rounded w-3/4"></div></td>
+                                        <td class="p-4"><div class="h-4 bg-gray-100 rounded w-1/2"></div></td>
+                                        <td class="p-4"><div class="h-8 bg-gray-50 rounded-full w-12 mx-auto"></div></td>
+                                    </tr>
+                                </template>
+                            </template>
+
+                            <template x-for="user in filteredUsers" :key="user.id">
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="p-4">
+                                        <p class="font-bold text-gray-800" x-text="user.nome_completo"></p>
+                                        <p class="text-xs text-gray-400" x-text="user.email"></p>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-xs font-semibold px-2 py-1 bg-blue-50 text-blue-600 rounded-md mr-2" x-text="user.cargo"></span>
+                                        <span class="text-[10px] text-gray-400 uppercase" x-text="user.setor"></span>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <button x-show="isAdmin" @click="deleteUser(user)" class="text-red-300 hover:text-red-600 p-2 transition">🗑️</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div x-show="tab === 'roles'" class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 font-bold text-xs uppercase text-gray-400">
-                        <tr>
-                            <th class="p-4">Perfil</th>
-                            <th class="p-4">Pode Importar?</th>
-                            <th class="p-4">Pode Deletar?</th>
-                            <th class="p-4">Pode Gerenciar Roles?</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y text-sm">
-                        <tr>
-                            <td class="p-4 font-bold">Administrador</td>
-                            <td class="p-4 text-green-600">Sim</td>
-                            <td class="p-4 text-green-600">Sim</td>
-                            <td class="p-4 text-green-600">Sim</td>
-                        </tr>
-                        <tr>
-                            <td class="p-4 font-bold">Colaborador</td>
-                            <td class="p-4 text-green-600">Sim</td>
-                            <td class="p-4 text-red-600">Não</td>
-                            <td class="p-4 text-red-600">Não</td>
-                        </tr>
-                        <tr>
-                            <td class="p-4 font-bold">Visualizador</td>
-                            <td class="p-4 text-red-600">Não</td>
-                            <td class="p-4 text-red-600">Não</td>
-                            <td class="p-4 text-red-600">Não</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div x-show="tab === 'audit'" class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <div class="p-4 bg-gray-900 text-white flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-widest text-green-400">Log de Auditoria em Tempo Real</span>
+                </div>
+                <div class="max-h-[500px] overflow-y-auto p-4 font-mono text-[11px] space-y-2 bg-gray-50">
+                    <template x-for="log in auditLogs">
+                        <div class="border-l-2 border-gray-300 pl-3 py-1">
+                            <span class="text-gray-400" x-text="new Date(log.created_at).toLocaleString()"></span> | 
+                            <span class="text-blue-600 font-bold" x-text="log.admin_email"></span>: 
+                            <span class="font-bold" x-text="log.acao"></span> -> 
+                            <span class="italic" x-text="log.alvo"></span>
+                        </div>
+                    </template>
+                </div>
             </div>
         </main>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://nqdlxiyzsxkntypyzkie.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xZGx4aXl6c3hrbnR5cHl6a2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjY1ODIsImV4cCI6MjA4NzU0MjU4Mn0.8npxzHMR3VdaufiqmsJKdLR2zpXDOFzDldFwdth18f0';
+        const SUPABASE_KEY = 'SUA_ANON_KEY';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         function systemAuth() {
             return {
-                view: 'login',
-                tab: 'users',
-                loading: false,
-                email: '',
-                password: '',
-                userEmail: '',
-                userRole: 'Visualizador', // Default
-                totalUsers: 0,
+                view: 'login', tab: 'users', loading: false, loadingData: false,
+                email: '', password: '', newPassword: '', searchQuery: '',
+                userEmail: '', isAdmin: false,
+                usersList: [], auditLogs: [],
 
                 async init() {
+                    if (window.location.hash.includes('type=recovery')) {
+                        this.view = 'reset_password';
+                        return;
+                    }
                     const { data: { session } } = await supabaseClient.auth.getSession();
                     if (session) {
                         this.userEmail = session.user.email;
                         this.view = 'dashboard';
-                        await this.fetchUserRole();
-                        await this.updateCounters();
+                        await this.loadAll();
                     }
                 },
 
-                async fetchUserRole() {
-                    // Busca na sua acessTable qual o cargo deste email
-                    const { data, error } = await supabaseClient
-                        .from('acessTable')
-                        .select('cargo')
-                        .eq('email', this.userEmail)
-                        .single();
+                async loadAll() {
+                    this.loadingData = true;
+                    // 1. Verificar Permissão
+                    const { data: profile } = await supabaseClient.from('acessTable').select('cargo').eq('email', this.userEmail).single();
+                    this.isAdmin = (profile && ['CEO', 'Diretor'].includes(profile.cargo));
                     
-                    if (data) {
-                        // Mapeia cargos do banco para roles do sistema
-                        if (data.cargo === 'CEO' || data.cargo === 'Diretor') this.userRole = 'Administrador';
-                        else if (data.cargo === 'Gerente') this.userRole = 'Colaborador';
-                        else this.userRole = 'Visualizador';
+                    // 2. Carregar Usuários
+                    const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
+                    this.usersList = users || [];
+
+                    // 3. Carregar Logs (se admin)
+                    if (this.isAdmin) {
+                        const { data: logs } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
+                        this.auditLogs = logs || [];
                     }
+                    this.loadingData = false;
                 },
 
-                async updateCounters() {
-                    const { count, error } = await supabaseClient
-                        .from('acessTable')
-                        .select('*', { count: 'exact', head: true });
-                    this.totalUsers = count || 0;
+                get filteredUsers() {
+                    if (!this.searchQuery) return this.usersList;
+                    const q = this.searchQuery.toLowerCase();
+                    return this.usersList.filter(u => 
+                        u.nome_completo.toLowerCase().includes(q) || 
+                        u.email.toLowerCase().includes(q)
+                    );
                 },
 
                 async handleLogin() {
                     this.loading = true;
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({
-                        email: this.email,
-                        password: this.password,
-                    });
-
-                    if (error) {
-                        Swal.fire('Erro', 'Verifique suas credenciais.', 'error');
-                    } else {
-                        window.location.reload(); // Recarrega para rodar o init()
-                    }
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email: this.email, password: this.password });
+                    if (error) Swal.fire('Erro', 'Credenciais Inválidas', 'error');
+                    else window.location.reload();
                     this.loading = false;
                 },
 
-                async handleLogout() {
-                    const { error } = await supabaseClient.auth.signOut();
-                    if (error) console.error(error);
-                    window.location.href = window.location.pathname; // Força retorno à URL limpa
+                async handleRecovery() {
+                    const { error } = await supabaseClient.auth.resetPasswordForEmail(this.email, { redirectTo: window.location.origin + window.location.pathname });
+                    if (error) Swal.fire('Erro', error.message, 'error');
+                    else Swal.fire('Enviado', 'Confira seu e-mail corporativo.', 'success');
                 },
 
-                handleExcelUpload(e) {
-                    if (this.userRole === 'Visualizador') {
-                        Swal.fire('Bloqueado', 'Você não tem permissão para upload.', 'warning');
-                        return;
+                async handleUpdatePassword() {
+                    const { error } = await supabaseClient.auth.updateUser({ password: this.newPassword });
+                    if (error) Swal.fire('Erro', error.message, 'error');
+                    else {
+                        await Swal.fire('Sucesso', 'Senha atualizada.', 'success');
+                        window.location.href = window.location.pathname;
                     }
-                    // Lógica de leitura do excel...
-                    Swal.fire('Sucesso', 'Arquivo lido com sucesso!', 'success');
+                },
+
+                async registerAudit(acao, alvo, detalhes = "") {
+                    await supabaseClient.from('audit_logs').insert([{ admin_email: this.userEmail, acao, alvo, detalhes }]);
+                },
+
+                async handleExcelUpload(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = async (evt) => {
+                        const wb = XLSX.read(evt.target.result, { type: 'binary' });
+                        const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                        
+                        // MELHORIA C: VALIDAÇÃO DE MAPEAMENTO
+                        if (data.length > 0) {
+                            const keys = Object.keys(data[0]);
+                            if (!keys.includes('email') || !keys.includes('nome_completo')) {
+                                Swal.fire('Erro de Formato', 'A planilha deve conter as colunas: "nome_completo" e "email".', 'error');
+                                return;
+                            }
+                            
+                            await this.registerAudit("Carga Excel", `${data.length} usuários`, "Importação em massa iniciada");
+                            Swal.fire('Processando', 'A carga foi registrada no log.', 'info');
+                        }
+                    };
+                    reader.readAsBinaryString(file);
+                },
+
+                async deleteUser(user) {
+                    const conf = await Swal.fire({ title: 'Deletar Colaborador?', text: 'Esta ação é irreversível.', icon: 'warning', showCancelButton: true });
+                    if (conf.isConfirmed) {
+                        const { error } = await supabaseClient.from('acessTable').delete().eq('email', user.email);
+                        if (!error) {
+                            await this.registerAudit("Exclusão", user.email, `Admin removendo ${user.nome_completo}`);
+                            await this.loadAll();
+                            Swal.fire('Removido', '', 'success');
+                        }
+                    }
+                },
+
+                async handleLogout() {
+                    await supabaseClient.auth.signOut();
+                    window.location.reload();
                 }
             }
         }
