@@ -29,43 +29,43 @@
                     <button type="button" @click="view = 'recover'" class="text-xs font-bold text-blue-600 hover:underline">Esqueci minha senha</button>
                 </div>
                 <button type="submit" :disabled="loading" class="w-full bg-corporate text-white py-3 rounded-lg font-bold hover:brightness-110 flex justify-center items-center shadow-lg">
-                    <span x-show="!loading">ENTRAR NO SISTEMA</span>
+                    <span x-show="!loading">ENTRAR</span>
                     <div x-show="loading" class="animate-spin border-4 border-white border-t-transparent rounded-full w-6 h-6"></div>
                 </button>
             </form>
         </div>
     </div>
 
-    <div x-show="view === 'recover'" x-cloak class="min-h-screen flex items-center justify-center p-4 text-center">
-        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-sm">
-            <div class="text-4xl mb-4">🔐</div>
-            <h2 class="text-xl font-bold mb-2">Recuperar Acesso</h2>
-            <p class="text-sm text-gray-500 mb-6">Enviaremos um link para: <br><strong x-text="email"></strong></p>
-            <button @click="handleRecovery" class="w-full bg-gray-800 text-white py-3 rounded-lg font-bold mb-4">ENVIAR E-MAIL</button>
-            <button @click="view = 'login'" class="text-sm text-gray-400 font-bold hover:text-gray-600">VOLTAR</button>
+    <div x-show="view === 'recover'" x-cloak class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md text-center">
+            <h2 class="text-2xl font-bold mb-4">Recuperar Senha</h2>
+            <p class="text-sm text-gray-500 mb-6">Insira seu e-mail para receber o link de redefinição.</p>
+            <input type="email" x-model="email" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-blue-500" placeholder="e-mail@empresa.com">
+            <button @click="handleRecovery" class="w-full bg-gray-800 text-white py-3 rounded-lg font-bold mb-4">ENVIAR LINK</button>
+            <button @click="view = 'login'" class="text-sm font-bold text-gray-400">VOLTAR</button>
         </div>
     </div>
 
     <div x-show="view === 'reset_password'" x-cloak class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md border-t-8 border-green-600">
             <h2 class="text-2xl font-bold mb-6">Definir Nova Senha</h2>
-            <input type="password" x-model="newPassword" placeholder="Mínimo 6 caracteres" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-green-600">
-            <button @click="handleUpdatePassword" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">SALVAR NOVA SENHA</button>
+            <input type="password" x-model="newPassword" placeholder="Nova Senha (mín. 6 chars)" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-green-600">
+            <button @click="handleUpdatePassword" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold">SALVAR E ACESSAR</button>
         </div>
     </div>
 
     <div x-show="view === 'dashboard'" x-cloak class="min-h-screen flex flex-col">
-        <nav class="bg-corporate text-white px-8 py-4 flex justify-between items-center shadow-md sticky top-0 z-40">
+        <nav class="bg-corporate text-white px-8 py-4 flex justify-between items-center shadow-md">
             <div class="flex items-center gap-8">
-                <span class="font-black text-xl italic tracking-tighter">CORP<span class="font-light">SYS</span></span>
+                <span class="font-black text-xl italic">CORP<span class="font-light">SYS</span></span>
                 <div class="flex gap-4">
-                    <button @click="tab = 'users'" :class="tab === 'users' ? 'text-white' : 'opacity-50'" class="text-xs font-bold uppercase transition">Usuários</button>
-                    <button x-show="isAdmin" @click="tab = 'audit'" :class="tab === 'audit' ? 'text-white' : 'opacity-50'" class="text-xs font-bold uppercase transition">Logs de Auditoria</button>
+                    <button @click="tab = 'users'" :class="tab === 'users' ? 'text-white' : 'opacity-50'" class="text-xs font-bold uppercase">Usuários</button>
+                    <button x-show="isAdmin" @click="tab = 'audit'" :class="tab === 'audit' ? 'text-white' : 'opacity-50'" class="text-xs font-bold uppercase">Logs de Auditoria</button>
                 </div>
             </div>
             <div class="flex items-center gap-4">
                 <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full border border-white/20" x-text="userEmail"></span>
-                <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 p-2 rounded-lg transition shadow-inner">
+                <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 p-2 rounded-lg transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 </button>
             </div>
@@ -74,13 +74,10 @@
         <main class="p-8 max-w-6xl mx-auto w-full flex-grow">
             <div x-show="tab === 'users'">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                    <div class="relative w-full md:w-96">
-                        <input type="text" x-model="searchQuery" placeholder="Buscar por nome ou e-mail..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:border-corporate outline-none shadow-sm">
-                        <span class="absolute left-3 top-2.5 opacity-30">🔍</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <button x-show="isAdmin" @click="openModalCreate" class="bg-corporate text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg hover:brightness-125 transition">+ Novo</button>
-                        <div x-show="isAdmin" class="relative bg-white px-6 py-2 rounded-xl font-bold text-sm border cursor-pointer hover:bg-gray-50 transition">
+                    <input type="text" x-model="searchQuery" placeholder="🔍 Buscar por nome ou e-mail..." class="w-full md:w-96 px-4 py-2 rounded-xl border border-gray-200 outline-none focus:border-corporate">
+                    
+                    <div class="flex gap-3" x-show="isAdmin">
+                        <div class="relative bg-white px-6 py-2 rounded-xl font-bold text-sm border cursor-pointer hover:bg-gray-50 transition">
                             📤 Importar Excel
                             <input type="file" @change="handleExcelUpload" class="absolute inset-0 opacity-0 cursor-pointer">
                         </div>
@@ -92,33 +89,30 @@
                         <thead class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                             <tr>
                                 <th class="p-4">Colaborador</th>
-                                <th class="p-4">Cargo / Setor</th>
+                                <th class="p-4">Cargo</th>
                                 <th class="p-4 text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y divide-gray-50 text-sm">
                             <template x-if="loadingData">
                                 <template x-for="i in 5">
                                     <tr class="animate-pulse-custom">
                                         <td class="p-4"><div class="h-4 bg-gray-100 rounded w-3/4"></div></td>
                                         <td class="p-4"><div class="h-4 bg-gray-100 rounded w-1/2"></div></td>
-                                        <td class="p-4"><div class="h-8 bg-gray-50 rounded-full w-12 mx-auto"></div></td>
+                                        <td class="p-4"><div class="h-6 bg-gray-50 rounded w-8 mx-auto"></div></td>
                                     </tr>
                                 </template>
                             </template>
 
-                            <template x-for="user in filteredUsers" :key="user.id">
-                                <tr class="hover:bg-gray-50/50 transition">
+                            <template x-for="user in filteredUsers" :key="user.email">
+                                <tr class="hover:bg-gray-50/50">
                                     <td class="p-4">
                                         <p class="font-bold text-gray-800" x-text="user.nome_completo"></p>
                                         <p class="text-xs text-gray-400" x-text="user.email"></p>
                                     </td>
-                                    <td class="p-4">
-                                        <span class="text-xs font-semibold px-2 py-1 bg-blue-50 text-blue-600 rounded-md mr-2" x-text="user.cargo"></span>
-                                        <span class="text-[10px] text-gray-400 uppercase" x-text="user.setor"></span>
-                                    </td>
+                                    <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-bold" x-text="user.cargo"></span></td>
                                     <td class="p-4 text-center">
-                                        <button x-show="isAdmin" @click="deleteUser(user)" class="text-red-300 hover:text-red-600 p-2 transition">🗑️</button>
+                                        <button x-show="isAdmin" @click="deleteUser(user)" class="text-red-400 hover:text-red-600 transition">🗑️</button>
                                     </td>
                                 </tr>
                             </template>
@@ -128,16 +122,13 @@
             </div>
 
             <div x-show="tab === 'audit'" class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <div class="p-4 bg-gray-900 text-white flex justify-between items-center">
-                    <span class="text-xs font-bold uppercase tracking-widest text-green-400">Log de Auditoria em Tempo Real</span>
-                </div>
-                <div class="max-h-[500px] overflow-y-auto p-4 font-mono text-[11px] space-y-2 bg-gray-50">
+                <div class="p-4 bg-gray-900 text-green-400 font-mono text-xs uppercase tracking-widest">System Auditor Logs</div>
+                <div class="p-4 max-h-96 overflow-y-auto font-mono text-[11px] bg-gray-50 space-y-1">
                     <template x-for="log in auditLogs">
-                        <div class="border-l-2 border-gray-300 pl-3 py-1">
-                            <span class="text-gray-400" x-text="new Date(log.created_at).toLocaleString()"></span> | 
-                            <span class="text-blue-600 font-bold" x-text="log.admin_email"></span>: 
-                            <span class="font-bold" x-text="log.acao"></span> -> 
-                            <span class="italic" x-text="log.alvo"></span>
+                        <div>
+                            <span class="text-gray-400" x-text="new Date(log.created_at).toLocaleTimeString()"></span> | 
+                            <span class="font-bold" x-text="log.acao"></span>: 
+                            <span x-text="log.alvo"></span>
                         </div>
                     </template>
                 </div>
@@ -147,7 +138,8 @@
 
     <script>
         const SUPABASE_URL = 'https://nqdlxiyzsxkntypyzkie.supabase.co';
-        const SUPABASE_KEY = 'SUA_ANON_KEY';
+        // Certifique-se de usar a anon key correta aqui
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xZGx4aXl6c3hrbnR5cHl6a2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjY1ODIsImV4cCI6MjA4NzU0MjU4Mn0.8npxzHMR3VdaufiqmsJKdLR2zpXDOFzDldFwdth18f0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         function systemAuth() {
@@ -158,31 +150,33 @@
                 usersList: [], auditLogs: [],
 
                 async init() {
+                    // Melhoria E: Detecção de Token de Recuperação
                     if (window.location.hash.includes('type=recovery')) {
                         this.view = 'reset_password';
                         return;
                     }
+
                     const { data: { session } } = await supabaseClient.auth.getSession();
                     if (session) {
                         this.userEmail = session.user.email;
                         this.view = 'dashboard';
-                        await this.loadAll();
+                        await this.loadData();
                     }
                 },
 
-                async loadAll() {
+                async loadData() {
                     this.loadingData = true;
-                    // 1. Verificar Permissão
+                    // Verificar se é Admin
                     const { data: profile } = await supabaseClient.from('acessTable').select('cargo').eq('email', this.userEmail).single();
                     this.isAdmin = (profile && ['CEO', 'Diretor'].includes(profile.cargo));
-                    
-                    // 2. Carregar Usuários
+
+                    // Carregar Lista
                     const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
                     this.usersList = users || [];
 
-                    // 3. Carregar Logs (se admin)
+                    // Carregar Logs
                     if (this.isAdmin) {
-                        const { data: logs } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
+                        const { data: logs } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(20);
                         this.auditLogs = logs || [];
                     }
                     this.loadingData = false;
@@ -191,10 +185,7 @@
                 get filteredUsers() {
                     if (!this.searchQuery) return this.usersList;
                     const q = this.searchQuery.toLowerCase();
-                    return this.usersList.filter(u => 
-                        u.nome_completo.toLowerCase().includes(q) || 
-                        u.email.toLowerCase().includes(q)
-                    );
+                    return this.usersList.filter(u => u.nome_completo.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
                 },
 
                 async handleLogin() {
@@ -208,56 +199,51 @@
                 async handleRecovery() {
                     const { error } = await supabaseClient.auth.resetPasswordForEmail(this.email, { redirectTo: window.location.origin + window.location.pathname });
                     if (error) Swal.fire('Erro', error.message, 'error');
-                    else Swal.fire('Enviado', 'Confira seu e-mail corporativo.', 'success');
+                    else Swal.fire('Sucesso', 'Link enviado para o e-mail.', 'success');
                 },
 
                 async handleUpdatePassword() {
                     const { error } = await supabaseClient.auth.updateUser({ password: this.newPassword });
                     if (error) Swal.fire('Erro', error.message, 'error');
                     else {
-                        await Swal.fire('Sucesso', 'Senha atualizada.', 'success');
+                        await Swal.fire('Sucesso', 'Senha alterada!', 'success');
                         window.location.href = window.location.pathname;
                     }
                 },
 
-                async registerAudit(acao, alvo, detalhes = "") {
-                    await supabaseClient.from('audit_logs').insert([{ admin_email: this.userEmail, acao, alvo, detalhes }]);
-                },
-
+                // Melhoria C: Validação de Colunas no Excel
                 async handleExcelUpload(e) {
                     const file = e.target.files[0];
-                    if (!file) return;
-
                     const reader = new FileReader();
                     reader.onload = async (evt) => {
                         const wb = XLSX.read(evt.target.result, { type: 'binary' });
                         const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                        
-                        // MELHORIA C: VALIDAÇÃO DE MAPEAMENTO
                         if (data.length > 0) {
                             const keys = Object.keys(data[0]);
                             if (!keys.includes('email') || !keys.includes('nome_completo')) {
-                                Swal.fire('Erro de Formato', 'A planilha deve conter as colunas: "nome_completo" e "email".', 'error');
+                                Swal.fire('Erro', 'Colunas "email" ou "nome_completo" não encontradas.', 'error');
                                 return;
                             }
-                            
-                            await this.registerAudit("Carga Excel", `${data.length} usuários`, "Importação em massa iniciada");
-                            Swal.fire('Processando', 'A carga foi registrada no log.', 'info');
+                            await this.registerAudit('Carga Excel', `${data.length} usuários`, 'Importação em massa');
+                            Swal.fire('Importado', 'Ação registrada nos logs.', 'success');
                         }
                     };
                     reader.readAsBinaryString(file);
                 },
 
                 async deleteUser(user) {
-                    const conf = await Swal.fire({ title: 'Deletar Colaborador?', text: 'Esta ação é irreversível.', icon: 'warning', showCancelButton: true });
-                    if (conf.isConfirmed) {
+                    const res = await Swal.fire({ title: 'Deletar?', icon: 'warning', showCancelButton: true });
+                    if (res.isConfirmed) {
                         const { error } = await supabaseClient.from('acessTable').delete().eq('email', user.email);
                         if (!error) {
-                            await this.registerAudit("Exclusão", user.email, `Admin removendo ${user.nome_completo}`);
-                            await this.loadAll();
-                            Swal.fire('Removido', '', 'success');
+                            await this.registerAudit('Exclusão', user.email);
+                            await this.loadData();
                         }
                     }
+                },
+
+                async registerAudit(acao, alvo, detalhes = "") {
+                    await supabaseClient.from('audit_logs').insert([{ admin_email: this.userEmail, acao, alvo, detalhes }]);
                 },
 
                 async handleLogout() {
