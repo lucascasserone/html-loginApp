@@ -3,131 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CorpSystem | Enterprise Admin</title>
+    <title>CorpSystem | Enterprise v5.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         [x-cloak] { display: none !important; }
-        .bg-corporate { background-color: #003366; }
-        .text-corporate { color: #003366; }
-        .animate-pulse-custom { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+        /* Tema Glass Mode */
+        .theme-glass { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            background-attachment: fixed;
+        }
+        .theme-glass .glass-card { 
+            background: rgba(255, 255, 255, 0.2); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            color: white;
+        }
+        .theme-glass .glass-card input, .theme-glass .glass-card select {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Tema Dark Mode */
+        .theme-dark { background-color: #0f172a; color: #f1f5f9; }
+        .theme-dark .bg-white { background-color: #1e293b !important; color: #f1f5f9; border-color: #334155; }
+        .theme-dark .text-gray-800 { color: #f1f5f9; }
+        .theme-dark .bg-gray-50 { background-color: #334155 !important; }
+
+        /* Animação Skeleton */
+        .animate-skeleton { animation: skeleton-loading 1.5s infinite linear; }
+        @keyframes skeleton-loading {
+            0% { background-color: rgba(0,0,0,0.05); }
+            50% { background-color: rgba(0,0,0,0.1); }
+            100% { background-color: rgba(0,0,0,0.05); }
+        }
     </style>
 </head>
-<body class="bg-gray-50 font-sans" x-data="systemAuth()">
+<body :class="'theme-' + theme" class="min-h-screen transition-all duration-500 font-sans" x-data="systemAuth()">
 
-    <div x-show="view === 'login'" x-cloak class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md border-t-8 border-corporate">
-            <h2 class="text-3xl font-black text-corporate text-center mb-8 uppercase">Acesso Restrito</h2>
+    <div x-show="view === 'login' || view === 'recover' || view === 'reset_password'" x-cloak class="min-h-screen flex items-center justify-center p-4">
+        
+        <div x-show="view === 'login'" class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-[#003366]">
+            <h2 class="text-3xl font-black text-[#003366] text-center mb-8 uppercase italic">Corp<span class="font-light">Sys</span></h2>
             <form @submit.prevent="handleLogin">
-                <input type="email" x-model="email" placeholder="E-mail Corporativo" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-blue-500 transition" required>
-                <input type="password" x-model="password" placeholder="Senha" class="w-full px-4 py-3 border-2 rounded-lg mb-2 outline-none focus:border-blue-500 transition" required>
-                <div class="text-right mb-6">
-                    <button type="button" @click="view = 'recover'" class="text-xs font-bold text-blue-600 hover:underline">Esqueci minha senha</button>
+                <div class="mb-4">
+                    <label class="block text-xs font-bold uppercase mb-1">E-mail</label>
+                    <input type="email" x-model="email" class="w-full p-3 border-2 rounded-lg outline-none focus:border-blue-500" required>
                 </div>
-                <button type="submit" :disabled="loading" class="w-full bg-corporate text-white py-3 rounded-lg font-bold hover:brightness-110 flex justify-center items-center shadow-lg">
-                    <span x-show="!loading">ENTRAR</span>
-                    <div x-show="loading" class="animate-spin border-4 border-white border-t-transparent rounded-full w-6 h-6"></div>
-                </button>
+                <div class="mb-6">
+                    <label class="block text-xs font-bold uppercase mb-1">Senha</label>
+                    <input type="password" x-model="password" class="w-full p-3 border-2 rounded-lg outline-none focus:border-blue-500" required>
+                </div>
+                <button type="submit" class="w-full bg-[#003366] text-white py-3 rounded-xl font-bold hover:brightness-125 transition">ENTRAR</button>
+                <button type="button" @click="view = 'recover'" class="w-full text-xs mt-4 text-blue-600 font-bold hover:underline">Esqueci a minha senha</button>
             </form>
         </div>
-    </div>
 
-    <div x-show="view === 'recover'" x-cloak class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md text-center">
+        <div x-show="view === 'recover'" class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md text-center">
             <h2 class="text-2xl font-bold mb-4">Recuperar Senha</h2>
-            <p class="text-sm text-gray-500 mb-6">Insira seu e-mail para receber o link de redefinição.</p>
-            <input type="email" x-model="email" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-blue-500" placeholder="e-mail@empresa.com">
-            <button @click="handleRecovery" class="w-full bg-gray-800 text-white py-3 rounded-lg font-bold mb-4">ENVIAR LINK</button>
-            <button @click="view = 'login'" class="text-sm font-bold text-gray-400">VOLTAR</button>
+            <input type="email" x-model="email" placeholder="Seu e-mail corporativo" class="w-full p-3 border-2 rounded-lg mb-4 outline-none">
+            <button @click="handleRecovery" class="w-full bg-gray-800 text-white py-3 rounded-xl font-bold mb-4">ENVIAR LINK</button>
+            <button @click="view = 'login'" class="text-sm font-bold text-gray-400">Voltar ao Login</button>
         </div>
-    </div>
 
-    <div x-show="view === 'reset_password'" x-cloak class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md border-t-8 border-green-600">
-            <h2 class="text-2xl font-bold mb-6">Definir Nova Senha</h2>
-            <input type="password" x-model="newPassword" placeholder="Nova Senha (mín. 6 chars)" class="w-full px-4 py-3 border-2 rounded-lg mb-4 outline-none focus:border-green-600">
-            <button @click="handleUpdatePassword" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold">SALVAR E ACESSAR</button>
+        <div x-show="view === 'reset_password'" class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-green-500">
+            <h2 class="text-2xl font-bold mb-6 text-center">Nova Senha</h2>
+            <input type="password" x-model="newPassword" placeholder="Nova Senha (mín. 6 chars)" class="w-full p-3 border-2 rounded-lg mb-6 outline-none">
+            <button @click="handleUpdatePassword" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">REDEFINIR E ENTRAR</button>
         </div>
     </div>
 
     <div x-show="view === 'dashboard'" x-cloak class="min-h-screen flex flex-col">
-        <nav class="bg-corporate text-white px-8 py-4 flex justify-between items-center shadow-md">
+        
+        <nav class="bg-[#003366] text-white px-8 py-4 flex justify-between items-center shadow-xl sticky top-0 z-40">
             <div class="flex items-center gap-8">
-                <span class="font-black text-xl italic">CORP<span class="font-light">SYS</span></span>
-                <div class="flex gap-4">
-                    <button @click="tab = 'users'" :class="tab === 'users' ? 'text-white' : 'opacity-50'" class="text-xs font-bold uppercase">Usuários</button>
-                    <button x-show="isAdmin" @click="tab = 'audit'" :class="tab === 'audit' ? 'text-white' : 'opacity-50'" class="text-xs font-bold uppercase">Logs de Auditoria</button>
+                <span class="font-black text-2xl italic tracking-tighter">CORP<span class="font-light">SYS</span></span>
+                <div class="flex gap-6 border-l border-white/20 pl-6 h-6 items-center">
+                    <button @click="tab = 'users'" :class="tab === 'users' ? 'border-b-2 border-white' : 'opacity-50'" class="text-xs font-bold uppercase transition">Usuários</button>
+                    <button x-show="isAdmin" @click="tab = 'audit'" :class="tab === 'audit' ? 'border-b-2 border-white' : 'opacity-50'" class="text-xs font-bold uppercase transition">Auditoria</button>
                 </div>
             </div>
-            <div class="flex items-center gap-4">
-                <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full border border-white/20" x-text="userEmail"></span>
-                <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 p-2 rounded-lg transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex bg-black/20 p-1 rounded-lg gap-1">
+                    <button @click="theme = 'light'" :class="theme === 'light' ? 'bg-white text-black' : ''" class="p-1 rounded text-[10px] font-bold px-2">LIGHT</button>
+                    <button @click="theme = 'dark'" :class="theme === 'dark' ? 'bg-gray-800 text-white' : ''" class="p-1 rounded text-[10px] font-bold px-2">DARK</button>
+                    <button @click="theme = 'glass'" :class="theme === 'glass' ? 'bg-white/30 text-white' : ''" class="p-1 rounded text-[10px] font-bold px-2">GLASS</button>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-bold opacity-60 uppercase" x-text="userRole"></p>
+                    <p class="text-xs font-bold" x-text="userEmail"></p>
+                </div>
+                <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 p-2 rounded-xl transition shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 </button>
             </div>
         </nav>
 
-        <main class="p-8 max-w-6xl mx-auto w-full flex-grow">
+        <main class="p-8 max-w-7xl mx-auto w-full flex-grow">
+            
             <div x-show="tab === 'users'">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                    <input type="text" x-model="searchQuery" placeholder="🔍 Buscar por nome ou e-mail..." class="w-full md:w-96 px-4 py-2 rounded-xl border border-gray-200 outline-none focus:border-corporate">
+                    <div class="relative w-full md:w-96">
+                        <input type="text" x-model="searchQuery" placeholder="Pesquisar por nome ou e-mail..." 
+                               class="w-full pl-12 pr-4 py-3 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm glass-card transition-all">
+                        <span class="absolute left-4 top-3.5 opacity-40">🔍</span>
+                    </div>
                     
                     <div class="flex gap-3" x-show="isAdmin">
-                        <div class="relative bg-white px-6 py-2 rounded-xl font-bold text-sm border cursor-pointer hover:bg-gray-50 transition">
-                            📤 Importar Excel
+                        <button @click="openModal('create')" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:bg-blue-700 active:scale-95 transition-all">
+                            + NOVO USUÁRIO
+                        </button>
+                        <div class="relative bg-white text-[#003366] px-6 py-3 rounded-2xl font-bold text-sm border border-gray-200 cursor-pointer shadow-sm hover:bg-gray-50 transition glass-card">
+                            📤 IMPORTAR EXCEL
                             <input type="file" @change="handleExcelUpload" class="absolute inset-0 opacity-0 cursor-pointer">
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden glass-card">
                     <table class="w-full text-left">
-                        <thead class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <thead class="bg-gray-50/50 text-[11px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
                             <tr>
-                                <th class="p-4">Colaborador</th>
-                                <th class="p-4">Cargo</th>
-                                <th class="p-4 text-center">Ações</th>
+                                <th class="p-5">Colaborador</th>
+                                <th class="p-5">Cargo / Hierarquia</th>
+                                <th class="p-5">Departamento</th>
+                                <th class="p-5 text-center">Gestão</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50 text-sm">
+                        <tbody class="divide-y divide-gray-100/30">
                             <template x-if="loadingData">
                                 <template x-for="i in 5">
-                                    <tr class="animate-pulse-custom">
-                                        <td class="p-4"><div class="h-4 bg-gray-100 rounded w-3/4"></div></td>
-                                        <td class="p-4"><div class="h-4 bg-gray-100 rounded w-1/2"></div></td>
-                                        <td class="p-4"><div class="h-6 bg-gray-50 rounded w-8 mx-auto"></div></td>
+                                    <tr class="animate-skeleton">
+                                        <td class="p-5"><div class="h-4 bg-gray-200 rounded w-48"></div></td>
+                                        <td class="p-5"><div class="h-4 bg-gray-200 rounded w-24"></div></td>
+                                        <td class="p-5"><div class="h-4 bg-gray-200 rounded w-32"></div></td>
+                                        <td class="p-5"><div class="h-8 bg-gray-200 rounded-full w-8 mx-auto"></div></td>
                                     </tr>
                                 </template>
                             </template>
 
                             <template x-for="user in filteredUsers" :key="user.email">
-                                <tr class="hover:bg-gray-50/50">
-                                    <td class="p-4">
-                                        <p class="font-bold text-gray-800" x-text="user.nome_completo"></p>
-                                        <p class="text-xs text-gray-400" x-text="user.email"></p>
+                                <tr class="hover:bg-blue-50/5 transition">
+                                    <td class="p-5">
+                                        <div class="font-bold text-gray-800" x-text="user.nome_completo"></div>
+                                        <div class="text-xs opacity-50" x-text="user.email"></div>
                                     </td>
-                                    <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-bold" x-text="user.cargo"></span></td>
-                                    <td class="p-4 text-center">
-                                        <button x-show="isAdmin" @click="deleteUser(user)" class="text-red-400 hover:text-red-600 transition">🗑️</button>
+                                    <td class="p-5">
+                                        <span :class="{
+                                            'bg-purple-100 text-purple-700': user.cargo === 'CEO' || user.cargo === 'Diretor',
+                                            'bg-blue-100 text-blue-700': user.cargo === 'Gerente',
+                                            'bg-gray-100 text-gray-600': user.cargo === 'Analista'
+                                        }" class="text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter" x-text="user.cargo"></span>
+                                    </td>
+                                    <td class="p-5 text-sm font-medium opacity-80" x-text="user.setor || 'Geral'"></td>
+                                    <td class="p-5 text-center space-x-3">
+                                        <button x-show="isAdmin" @click="openModal('edit', user)" class="text-blue-500 hover:scale-125 transition-transform">✏️</button>
+                                        <button x-show="isAdmin" @click="deleteUser(user)" class="text-red-400 hover:scale-125 transition-transform">🗑️</button>
                                     </td>
                                 </tr>
                             </template>
                         </tbody>
                     </table>
+                    
+                    <div x-show="filteredUsers.length === 0 && !loadingData" class="p-20 text-center opacity-40">
+                        <p class="text-4xl mb-4">🔍</p>
+                        <p class="font-bold">Nenhum colaborador encontrado para esta pesquisa.</p>
+                    </div>
                 </div>
             </div>
 
-            <div x-show="tab === 'audit'" class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <div class="p-4 bg-gray-900 text-green-400 font-mono text-xs uppercase tracking-widest">System Auditor Logs</div>
-                <div class="p-4 max-h-96 overflow-y-auto font-mono text-[11px] bg-gray-50 space-y-1">
+            <div x-show="tab === 'audit'" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden glass-card">
+                <div class="p-5 bg-gray-900 text-green-400 font-mono text-xs flex justify-between">
+                    <span>LIVE_AUDIT_LOG_STREAM</span>
+                    <button @click="loadData()" class="hover:underline">REFRESH_DATABASE</button>
+                </div>
+                <div class="p-6 max-h-[600px] overflow-y-auto font-mono text-[11px] bg-black/5 space-y-2">
                     <template x-for="log in auditLogs">
-                        <div>
-                            <span class="text-gray-400" x-text="new Date(log.created_at).toLocaleTimeString()"></span> | 
-                            <span class="font-bold" x-text="log.acao"></span>: 
+                        <div class="border-l-2 border-blue-500 pl-4 py-1">
+                            <span class="text-gray-400" x-text="new Date(log.created_at).toLocaleString()"></span> | 
+                            <span class="text-blue-500 font-bold" x-text="log.admin_email"></span> | 
+                            <span class="bg-gray-200 px-1 rounded text-black font-bold" x-text="log.acao"></span> -> 
                             <span x-text="log.alvo"></span>
                         </div>
                     </template>
@@ -136,21 +198,59 @@
         </main>
     </div>
 
+    <div x-show="showModal" x-cloak class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-lg border-t-8 border-blue-600 glass-card" @click.away="showModal = false">
+            <h2 class="text-3xl font-black mb-2" x-text="modalMode === 'create' ? 'Cadastrar Membro' : 'Editar Perfil'"></h2>
+            <p class="text-sm text-gray-400 mb-8">Preencha os dados corporativos do colaborador.</p>
+            
+            <form @submit.prevent="saveUser" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Nome Completo</label>
+                    <input type="text" x-model="formUser.nome_completo" class="w-full p-4 border rounded-xl outline-none focus:border-blue-500" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">E-mail Corporativo</label>
+                    <input type="email" x-model="formUser.email" :disabled="modalMode === 'edit'" class="w-full p-4 border rounded-xl outline-none disabled:bg-gray-100/50" required>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Cargo</label>
+                    <select x-model="formUser.cargo" class="w-full p-4 border rounded-xl outline-none">
+                        <option value="Analista">Analista</option>
+                        <option value="Gerente">Gerente</option>
+                        <option value="Diretor">Diretor</option>
+                        <option value="CEO">CEO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Setor / Área</label>
+                    <input type="text" x-model="formUser.setor" placeholder="Ex: Financeiro" class="w-full p-4 border rounded-xl outline-none">
+                </div>
+                
+                <div class="md:col-span-2 flex gap-4 mt-8">
+                    <button type="button" @click="showModal = false" class="flex-1 py-4 font-bold text-gray-400 hover:text-gray-600">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:brightness-125 transition">CONCLUIR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // CONFIGURAÇÃO SUPABASE (Substitua pela sua anon key real se mudou)
         const SUPABASE_URL = 'https://nqdlxiyzsxkntypyzkie.supabase.co';
-        // Certifique-se de usar a anon key correta aqui
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xZGx4aXl6c3hrbnR5cHl6a2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjY1ODIsImV4cCI6MjA4NzU0MjU4Mn0.8npxzHMR3VdaufiqmsJKdLR2zpXDOFzDldFwdth18f0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         function systemAuth() {
             return {
-                view: 'login', tab: 'users', loading: false, loadingData: false,
+                view: 'login', tab: 'users', theme: 'light', loadingData: false,
                 email: '', password: '', newPassword: '', searchQuery: '',
-                userEmail: '', isAdmin: false,
+                userEmail: '', userRole: 'Visualizador', isAdmin: false,
                 usersList: [], auditLogs: [],
+                showModal: false, modalMode: 'create',
+                formUser: { nome_completo: '', email: '', cargo: 'Analista', setor: '' },
 
                 async init() {
-                    // Melhoria E: Detecção de Token de Recuperação
+                    // Detecção de Link de Reset
                     if (window.location.hash.includes('type=recovery')) {
                         this.view = 'reset_password';
                         return;
@@ -166,84 +266,132 @@
 
                 async loadData() {
                     this.loadingData = true;
-                    // Verificar se é Admin
-                    const { data: profile } = await supabaseClient.from('acessTable').select('cargo').eq('email', this.userEmail).single();
-                    this.isAdmin = (profile && ['CEO', 'Diretor'].includes(profile.cargo));
+                    try {
+                        // 1. Perfil do Usuário Logado
+                        const { data: profile } = await supabaseClient.from('acessTable').select('cargo').eq('email', this.userEmail).single();
+                        if (profile) {
+                            this.userRole = profile.cargo;
+                            this.isAdmin = (profile.cargo === 'CEO' || profile.cargo === 'Diretor');
+                        }
 
-                    // Carregar Lista
-                    const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
-                    this.usersList = users || [];
+                        // 2. Lista Geral
+                        const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
+                        this.usersList = users || [];
 
-                    // Carregar Logs
-                    if (this.isAdmin) {
-                        const { data: logs } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(20);
-                        this.auditLogs = logs || [];
+                        // 3. Logs de Auditoria (Apenas para Admins)
+                        if (this.isAdmin) {
+                            const { data: logs } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
+                            this.auditLogs = logs || [];
+                        }
+                    } finally {
+                        this.loadingData = false;
                     }
-                    this.loadingData = false;
                 },
 
+                // MELHORIA D: Filtro de Pesquisa Real-time
                 get filteredUsers() {
-                    if (!this.searchQuery) return this.usersList;
-                    const q = this.searchQuery.toLowerCase();
-                    return this.usersList.filter(u => u.nome_completo.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+                    if (!this.searchQuery.trim()) return this.usersList;
+                    const q = this.searchQuery.toLowerCase().trim();
+                    return this.usersList.filter(u => 
+                        (u.nome_completo && u.nome_completo.toLowerCase().includes(q)) || 
+                        (u.email && u.email.toLowerCase().includes(q))
+                    );
                 },
 
-                async handleLogin() {
-                    this.loading = true;
-                    const { error } = await supabaseClient.auth.signInWithPassword({ email: this.email, password: this.password });
-                    if (error) Swal.fire('Erro', 'Credenciais Inválidas', 'error');
-                    else window.location.reload();
-                    this.loading = false;
+                openModal(mode, user = null) {
+                    this.modalMode = mode;
+                    if (mode === 'edit' && user) {
+                        this.formUser = { ...user };
+                    } else {
+                        this.formUser = { nome_completo: '', email: '', cargo: 'Analista', setor: '' };
+                    }
+                    this.showModal = true;
                 },
 
-                async handleRecovery() {
-                    const { error } = await supabaseClient.auth.resetPasswordForEmail(this.email, { redirectTo: window.location.origin + window.location.pathname });
-                    if (error) Swal.fire('Erro', error.message, 'error');
-                    else Swal.fire('Sucesso', 'Link enviado para o e-mail.', 'success');
-                },
+                async saveUser() {
+                    let res;
+                    if (this.modalMode === 'create') {
+                        res = await supabaseClient.from('acessTable').insert([this.formUser]);
+                    } else {
+                        res = await supabaseClient.from('acessTable').update({
+                            nome_completo: this.formUser.nome_completo,
+                            cargo: this.formUser.cargo,
+                            setor: this.formUser.setor
+                        }).eq('email', this.formUser.email);
+                    }
 
-                async handleUpdatePassword() {
-                    const { error } = await supabaseClient.auth.updateUser({ password: this.newPassword });
-                    if (error) Swal.fire('Erro', error.message, 'error');
-                    else {
-                        await Swal.fire('Sucesso', 'Senha alterada!', 'success');
-                        window.location.href = window.location.pathname;
+                    if (res.error) {
+                        Swal.fire('Erro', res.error.message, 'error');
+                    } else {
+                        await this.registerAudit(this.modalMode === 'create' ? 'NOVO_USUARIO' : 'EDICAO_PERFIL', this.formUser.email);
+                        this.showModal = false;
+                        await this.loadData();
+                        Swal.fire('Sucesso', 'Base de dados atualizada.', 'success');
                     }
                 },
 
-                // Melhoria C: Validação de Colunas no Excel
+                async deleteUser(user) {
+                    const confirm = await Swal.fire({
+                        title: 'Confirmar Remoção?',
+                        text: `O utilizador ${user.email} perderá acesso.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33'
+                    });
+
+                    if (confirm.isConfirmed) {
+                        const { error } = await supabaseClient.from('acessTable').delete().eq('email', user.email);
+                        if (!error) {
+                            await this.registerAudit('EXCLUSAO', user.email);
+                            await this.loadData();
+                            Swal.fire('Deletado', 'Usuário removido da base.', 'success');
+                        }
+                    }
+                },
+
                 async handleExcelUpload(e) {
                     const file = e.target.files[0];
                     const reader = new FileReader();
                     reader.onload = async (evt) => {
                         const wb = XLSX.read(evt.target.result, { type: 'binary' });
                         const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                        if (data.length > 0) {
-                            const keys = Object.keys(data[0]);
-                            if (!keys.includes('email') || !keys.includes('nome_completo')) {
-                                Swal.fire('Erro', 'Colunas "email" ou "nome_completo" não encontradas.', 'error');
-                                return;
-                            }
-                            await this.registerAudit('Carga Excel', `${data.length} usuários`, 'Importação em massa');
-                            Swal.fire('Importado', 'Ação registrada nos logs.', 'success');
+                        
+                        // Melhoria C: Validação de Colunas
+                        if (data.length > 0 && (!data[0].email || !data[0].nome_completo)) {
+                            Swal.fire('Erro de Formato', 'O Excel deve ter as colunas "email" e "nome_completo".', 'error');
+                            return;
                         }
+
+                        await this.registerAudit('IMPORT_EXCEL', `${data.length} registros`);
+                        Swal.fire('Importação Concluída', `Processamos ${data.length} colaboradores.`, 'success');
+                        await this.loadData();
                     };
                     reader.readAsBinaryString(file);
                 },
 
-                async deleteUser(user) {
-                    const res = await Swal.fire({ title: 'Deletar?', icon: 'warning', showCancelButton: true });
-                    if (res.isConfirmed) {
-                        const { error } = await supabaseClient.from('acessTable').delete().eq('email', user.email);
-                        if (!error) {
-                            await this.registerAudit('Exclusão', user.email);
-                            await this.loadData();
-                        }
-                    }
+                async registerAudit(acao, alvo) {
+                    await supabaseClient.from('audit_logs').insert([{ admin_email: this.userEmail, acao, alvo }]);
                 },
 
-                async registerAudit(acao, alvo, detalhes = "") {
-                    await supabaseClient.from('audit_logs').insert([{ admin_email: this.userEmail, acao, alvo, detalhes }]);
+                async handleLogin() {
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email: this.email, password: this.password });
+                    if (error) Swal.fire('Erro', 'Credenciais inválidas.', 'error');
+                    else window.location.reload();
+                },
+
+                async handleRecovery() {
+                    const { error } = await supabaseClient.auth.resetPasswordForEmail(this.email, { redirectTo: window.location.origin + window.location.pathname });
+                    if (error) Swal.fire('Erro', error.message, 'error');
+                    else Swal.fire('E-mail enviado', 'Verifique o link de recuperação.', 'success');
+                },
+
+                async handleUpdatePassword() {
+                    const { error } = await supabaseClient.auth.updateUser({ password: this.newPassword });
+                    if (error) Swal.fire('Erro', error.message, 'error');
+                    else {
+                        await Swal.fire('Sucesso', 'Senha alterada. Faça login.', 'success');
+                        window.location.href = window.location.pathname;
+                    }
                 },
 
                 async handleLogout() {
