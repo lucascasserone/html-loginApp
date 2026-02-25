@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heuriskien | Enterprise v11.3</title>
+    <title>Heuriskien | Enterprise v11.7</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -13,62 +13,57 @@
     <style>
         [x-cloak] { display: none !important; }
         
-        /* Variáveis de Tema com Contraste Refinado */
         .theme-dark { --bg: #030712; --text: #f9fafb; --card: rgba(17, 24, 39, 0.7); --border: rgba(255,255,255,0.08); --primary: #3b82f6; }
         .theme-light { --bg: #f8fafc; --text: #0f172a; --card: #ffffff; --border: #cbd5e1; --primary: #2563eb; }
         .theme-glass { --bg: radial-gradient(at top right, #1e293b, #030712); --text: #f9fafb; --card: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.1); --primary: #60a5fa; }
 
-        body { background: var(--bg); color: var(--text); transition: all 0.5s ease; min-height: 100vh; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); transition: all 0.5s ease; min-height: 100vh; }
         .glass-container { background: var(--card); backdrop-filter: blur(25px); border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         
-        .text-theme { color: var(--text); }
-        .bg-theme { background: var(--bg); }
+        /* Corrigir visibilidade dos selects/dropdowns */
+        select option { background-color: #111827 !important; color: white !important; }
+        .theme-light select option { background-color: #ffffff !important; color: #0f172a !important; }
 
-        /* Correção de Centralização do Seletor de Temas */
         .theme-switch-btn { position: relative; display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); height: 40px; width: 104px; }
-        .theme-switch-btn button { position: relative; z-index: 2; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: 0.3s; font-size: 14px; }
         .theme-active-indicator { position: absolute; top: 4px; left: 4px; height: 32px; width: 32px; background: #3b82f6; border-radius: 10px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; }
+        .theme-switch-btn button { position: relative; z-index: 2; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
 
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .input-premium { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; color: var(--text); }
-        .input-premium:focus { border-color: #3b82f6; background: rgba(255,255,255,0.07); outline: none; }
+        .input-premium { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); color: inherit; }
+        .input-premium:focus { border-color: #3b82f6; outline: none; }
         
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.5); border-radius: 10px; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body :class="'theme-' + theme" x-data="systemCore()">
 
     <div x-show="!initialized" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center">
-        <div class="relative w-20 h-20 mb-6">
-            <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
-            <div class="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-        <h2 class="text-blue-500 font-black tracking-[0.3em] text-sm animate-pulse uppercase">Heuriskien Intelligence</h2>
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <h2 class="text-blue-500 font-black tracking-widest text-xs uppercase">Heuriskien Intelligence</h2>
     </div>
 
     <template x-if="view === 'login'">
-        <div class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-950">
-            <div class="w-full max-w-[420px] glass-container p-12 rounded-[40px] fade-in shadow-2xl">
+        <div class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
+            <div class="w-full max-w-[420px] glass-container p-12 rounded-[40px] fade-in">
                 <div class="text-center mb-10">
-                    <h1 class="text-4xl font-black italic tracking-tighter text-white mb-2">HEURISKIEN</h1>
+                    <h1 class="text-4xl font-black italic tracking-tighter text-white">HEURISKIEN</h1>
                     <p class="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em]">Enterprise Intelligence</p>
                 </div>
                 <form @submit.prevent="handleLogin" x-data="{ showPass: false }" class="space-y-5">
-                    <input type="email" x-model="email" placeholder="E-mail Corporativo" class="w-full px-6 py-5 rounded-2xl input-premium border-white/10" required>
+                    <input type="email" x-model="email" placeholder="E-mail Corporativo" class="w-full px-6 py-5 rounded-2xl input-premium border-white/10 text-white" required>
                     <div class="relative">
-                        <input :type="showPass ? 'text' : 'password'" x-model="password" placeholder="Senha" class="w-full px-6 py-5 rounded-2xl input-premium border-white/10 pr-14" required>
+                        <input :type="showPass ? 'text' : 'password'" x-model="password" placeholder="Senha" class="w-full px-6 py-5 rounded-2xl input-premium border-white/10 pr-14 text-white" required>
                         <button type="button" @click="showPass = !showPass" class="absolute right-5 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-100 transition text-white">
                             <span x-text="showPass ? '👁️' : '🙈'"></span>
                         </button>
                     </div>
                     <div class="flex justify-end">
-                        <button type="button" @click="recoverPassword" class="text-[10px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-400">Esqueceu a senha?</button>
+                        <button type="button" @click="recoverPassword" class="text-[10px] font-black uppercase tracking-widest text-blue-500">Esqueceu a senha?</button>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black shadow-lg shadow-blue-600/20 transition-all uppercase text-xs tracking-widest">Acessar Hub</button>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-600/20">Acessar Hub</button>
                 </form>
             </div>
         </div>
@@ -76,71 +71,54 @@
 
     <template x-if="view === 'dashboard'">
         <div x-cloak>
-            <nav class="bg-black/40 backdrop-blur-2xl px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-40 border-b border-white/5">
-                <div class="flex items-center gap-4 md:gap-8 flex-1">
-                    <h1 class="font-black text-xl md:text-2xl italic tracking-tighter shrink-0">HEURIS<span class="text-blue-500">KIEN</span></h1>
-                    <div class="flex gap-1 bg-white/5 p-1 rounded-2xl overflow-x-auto no-scrollbar max-w-[180px] sm:max-w-none">
+            <nav class="bg-black/40 backdrop-blur-2xl px-8 py-4 flex justify-between items-center sticky top-0 z-40 border-b border-white/5">
+                <div class="flex items-center gap-8">
+                    <h1 class="font-black text-2xl italic tracking-tighter">HEURIS<span class="text-blue-500">KIEN</span></h1>
+                    <div class="flex gap-1 bg-white/5 p-1 rounded-2xl">
                         <template x-for="t in ['news', 'reports', 'users', 'audit', 'profile']">
                             <button x-show="t !== 'audit' || isAdmin" @click="tab = t" 
-                                :class="tab === t ? 'bg-blue-600 text-white' : 'opacity-40 hover:bg-white/5'" 
-                                class="px-4 md:px-5 py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all whitespace-nowrap" 
+                                :class="tab === t ? 'bg-blue-600 text-white' : 'opacity-40'" 
+                                class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all" 
                                 x-text="t === 'users' ? 'Equipe' : (t === 'news' ? 'Notícias' : (t === 'reports' ? 'Reports' : t))"></button>
                         </template>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-4 md:gap-6">
-                    <div class="theme-switch-btn shrink-0">
+                <div class="flex items-center gap-6">
+                    <div class="theme-switch-btn">
                         <div class="theme-active-indicator" :style="theme === 'dark' ? 'transform: translateX(0px)' : (theme === 'light' ? 'transform: translateX(32px)' : 'transform: translateX(64px)')"></div>
                         <button @click="theme = 'dark'">🌙</button>
                         <button @click="theme = 'light'">☀️</button>
                         <button @click="theme = 'glass'">💎</button>
                     </div>
-                    <button @click="handleLogout" class="p-2.5 md:px-4 md:py-2.5 bg-red-500/10 hover:bg-red-500 rounded-xl transition text-red-500 hover:text-white border border-red-500/20">
-                        <span class="hidden md:inline text-[10px] font-black uppercase tracking-widest">Sair</span>
-                        <span class="md:hidden">🚪</span>
-                    </button>
+                    <button @click="handleLogout" class="bg-red-500/10 hover:bg-red-500 px-4 py-2.5 rounded-xl transition text-red-500 hover:text-white border border-red-500/20 text-[10px] font-black uppercase">Sair</button>
                 </div>
             </nav>
 
-            <main class="p-4 md:p-8 max-w-[1600px] mx-auto fade-in">
+            <main class="p-8 max-w-[1600px] mx-auto fade-in">
                 
-                <div x-show="tab === 'news'" class="max-w-3xl mx-auto space-y-6">
-                    <h2 class="text-3xl font-black italic mb-8 uppercase text-theme">Intelligence Unit</h2>
-                    <template x-for="news in newsList" :key="news.id">
-                        <div class="glass-container p-8 md:p-12 rounded-[40px] md:rounded-[50px] border-l-[12px] border-blue-600 mb-6">
-                            <div class="flex justify-between items-start mb-4">
-                                <h3 class="text-2xl md:text-3xl font-bold text-theme" x-text="news.titulo"></h3>
-                                <span class="text-[10px] font-black bg-blue-600 px-3 py-1 rounded-full text-white" x-text="news.versao"></span>
-                            </div>
-                            <p class="opacity-70 leading-relaxed text-base md:text-lg text-theme" x-text="news.conteudo"></p>
-                            <div class="mt-4 text-[10px] opacity-30 font-bold uppercase tracking-widest text-theme" x-text="new Date(news.created_at).toLocaleDateString()"></div>
-                        </div>
-                    </template>
-                </div>
-
                 <div x-show="tab === 'reports'">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-                        <h2 class="text-3xl font-black italic uppercase text-theme">Hub de Inteligência</h2>
-                        <div class="flex gap-4 w-full md:w-auto">
-                            <div class="relative flex-1 md:w-80">
-                                <input type="text" x-model.debounce.300ms="searchQueryReports" placeholder="Filtrar relatórios..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition text-theme">
+                    <div class="flex justify-between items-center mb-10">
+                        <h2 class="text-3xl font-black italic uppercase">Hub de Inteligência</h2>
+                        <div class="flex gap-4">
+                            <div class="relative w-80">
+                                <input type="text" x-model.debounce.300ms="searchQueryReports" placeholder="Filtrar relatórios..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500">
                                 <span class="absolute left-4 top-3.5 opacity-30">🔍</span>
                             </div>
-                            <button x-show="isAdmin" @click="openReportModal('create')" class="bg-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-lg shadow-blue-600/20 whitespace-nowrap text-white">+ Novo Report</button>
+                            <button x-show="isAdmin" @click="openReportModal('create')" class="bg-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase text-white shadow-lg">+ Novo Report</button>
                         </div>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <template x-for="report in filteredReports" :key="report.id">
                             <div class="glass-container p-8 rounded-[35px] hover:border-blue-500/50 transition-all group">
-                                <h4 class="font-black text-xl mb-1 truncate text-theme" x-text="report.nome"></h4>
+                                <h4 class="font-black text-xl mb-1 truncate" x-text="report.nome"></h4>
                                 <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4 block" x-text="report.area"></span>
-                                <p class="text-xs opacity-50 mb-8 line-clamp-2 h-10 text-theme" x-text="report.descricao || 'Sem descrição.'"></p>
+                                <p class="text-xs opacity-50 mb-8 line-clamp-2 h-10" x-text="report.descricao || 'Sem descrição.'"></p>
                                 <div class="flex gap-2">
-                                    <a :href="report.link" target="_blank" class="flex-1 bg-white/5 hover:bg-blue-600 text-center py-3 rounded-2xl text-[10px] font-black uppercase transition text-theme hover:text-white">Acessar</a>
-                                    <button x-show="isAdmin" @click="openReportModal('edit', report)" class="p-3 border border-white/10 rounded-2xl hover:bg-white/10 transition">✏️</button>
-                                    <button x-show="isAdmin" @click="deleteReport(report.id)" class="p-3 border border-red-500/20 rounded-2xl hover:bg-red-600 transition">🗑️</button>
+                                    <a :href="report.link" target="_blank" class="flex-1 bg-white/5 hover:bg-blue-600 text-center py-3 rounded-2xl text-[10px] font-black uppercase transition hover:text-white">Acessar</a>
+                                    <button x-show="isAdmin" @click="openReportModal('edit', report)" class="p-3 border border-white/10 rounded-2xl hover:bg-white/10">✏️</button>
+                                    <button x-show="isAdmin" @click="deleteReport(report.id)" class="p-3 border border-red-500/20 rounded-2xl hover:bg-red-600">🗑️</button>
                                 </div>
                             </div>
                         </template>
@@ -148,78 +126,95 @@
                 </div>
 
                 <div x-show="tab === 'users'">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                        <h2 class="text-3xl font-black italic uppercase text-theme">Gestão de Equipe</h2>
-                        <div class="flex gap-4 w-full md:w-auto">
-                            <div class="relative flex-1 md:w-80">
-                                <input type="text" x-model.debounce.300ms="searchQueryUsers" placeholder="Buscar colaborador..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition text-theme">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-3xl font-black italic uppercase">Gestão de Equipe</h2>
+                        <div class="flex gap-4">
+                            <div class="relative w-80">
+                                <input type="text" x-model.debounce.300ms="searchQueryUsers" placeholder="Buscar colaborador..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none">
                                 <span class="absolute left-4 top-3.5 opacity-30">🔍</span>
                             </div>
-                            <button x-show="isAdmin" @click="openUserModal('create')" class="bg-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-lg shadow-blue-600/20 whitespace-nowrap text-white">+ Novo Usuário</button>
+                            <button x-show="isAdmin" @click="openUserModal('create')" class="bg-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase text-white">+ Novo Usuário</button>
                         </div>
                     </div>
                     <div class="glass-container rounded-[40px] overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left min-w-[800px]">
-                                <thead class="bg-white/5 text-[10px] font-black uppercase border-b border-white/10">
-                                    <tr>
-                                        <th class="p-8">Colaborador</th>
-                                        <th class="p-8">Cargo / Setor</th>
-                                        <th x-show="isAdmin" class="p-8 text-right">Gerenciar</th>
+                        <table class="w-full text-left">
+                            <thead class="bg-white/5 text-[10px] font-black uppercase border-b border-white/10">
+                                <tr>
+                                    <th class="p-8">Colaborador</th>
+                                    <th class="p-8">Cargo / Setor</th>
+                                    <th x-show="isAdmin" class="p-8 text-right">Gerenciar</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5">
+                                <template x-for="user in filteredUsers" :key="user.email">
+                                    <tr class="hover:bg-white/[0.02]">
+                                        <td class="p-8">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black text-xs text-white" x-text="user.nome_completo?.charAt(0)"></div>
+                                                <div>
+                                                    <div class="font-bold text-sm" x-text="user.nome_completo"></div>
+                                                    <div class="text-[10px] opacity-40" x-text="user.email"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-8">
+                                            <span class="text-[10px] font-black text-blue-400 uppercase" x-text="user.cargo"></span>
+                                            <div class="text-[10px] opacity-40 font-bold uppercase" x-text="user.setor || 'GERAL'"></div>
+                                        </td>
+                                        <td x-show="isAdmin" class="p-8 text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button @click="openUserModal('edit', user)" class="p-2.5 bg-white/5 rounded-xl hover:bg-blue-600 transition">✏️</button>
+                                                <button @click="deleteUser(user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-red-600 transition">🗑️</button>
+                                            </div>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody class="divide-y divide-white/5">
-                                    <template x-for="user in filteredUsers" :key="user.email">
-                                        <tr class="hover:bg-white/[0.02]">
-                                            <td class="p-8">
-                                                <div class="flex items-center gap-4">
-                                                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black text-xs text-white" x-text="user.nome_completo?.charAt(0)"></div>
-                                                    <div>
-                                                        <div class="font-bold text-sm text-theme" x-text="user.nome_completo"></div>
-                                                        <div class="text-[10px] opacity-40 text-theme" x-text="user.email"></div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="p-8">
-                                                <span class="text-[10px] font-black text-blue-400 uppercase" x-text="user.cargo"></span>
-                                                <div class="text-[10px] opacity-40 uppercase font-bold text-theme" x-text="user.setor || 'GERAL'"></div>
-                                            </td>
-                                            <td x-show="isAdmin" class="p-8 text-right">
-                                                <div class="flex justify-end gap-2">
-                                                    <button @click="openUserModal('edit', user)" class="p-2.5 bg-white/5 rounded-xl hover:bg-blue-600 transition">✏️</button>
-                                                    <button @click="deleteUser(user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-red-600 transition">🗑️</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div x-show="tab === 'profile'">
+                    <div class="max-w-4xl mx-auto glass-container p-12 rounded-[60px] flex flex-row items-center gap-12">
+                        <div class="w-44 h-44 bg-gradient-to-tr from-blue-700 to-blue-400 rounded-full flex items-center justify-center text-6xl font-black shadow-2xl text-white" x-text="currentUserData.nome_completo?.charAt(0) || 'U'"></div>
+                        <div class="flex-1">
+                            <h2 class="text-4xl font-black mb-2" x-text="currentUserData.nome_completo"></h2>
+                            <p class="text-blue-500 font-black uppercase tracking-widest text-sm mb-6" x-text="currentUserData.cargo"></p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">E-mail Corporativo</p>
+                                    <p class="font-bold text-sm" x-text="currentUserData.email"></p>
+                                </div>
+                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">Setor Operacional</p>
+                                    <p class="font-bold text-sm" x-text="currentUserData.setor || 'Não informado'"></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div x-show="tab === 'audit'">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+                    <div class="flex justify-between items-end mb-8">
                         <div>
-                            <h2 class="text-3xl font-black italic uppercase text-theme">Trilha de Auditoria</h2>
+                            <h2 class="text-3xl font-black italic uppercase">Trilha de Auditoria</h2>
                             <p class="text-[10px] font-bold opacity-40 uppercase mt-1">Logs de atividades administrativas</p>
                         </div>
-                        <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                            <select x-model="filterAuditAction" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none focus:border-blue-500 text-theme">
+                        <div class="flex gap-2">
+                            <select x-model="filterAuditAction" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none focus:border-blue-500 cursor-pointer">
                                 <option value="">Todas Ações</option>
                                 <option value="CRIAR">Criar</option>
                                 <option value="EDITAR">Editar</option>
                                 <option value="DELETAR">Deletar</option>
-                                <option value="USUARIO">Usuários</option>
                             </select>
-                            <input type="text" x-model="searchQueryAudit" placeholder="Buscar no log..." class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-blue-500 text-theme flex-1 md:w-64">
-                            <button @click="loadAuditLogs" class="bg-white/5 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-blue-600 transition uppercase text-theme">Sincronizar</button>
+                            <input type="text" x-model="searchQueryAudit" placeholder="Buscar no log..." class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-blue-500 w-64">
+                            <button @click="loadAuditLogs" class="bg-white/5 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-blue-600 transition uppercase">Sincronizar</button>
                         </div>
                     </div>
                     <div class="glass-container rounded-[40px] overflow-hidden">
-                        <div class="max-h-[600px] overflow-y-auto p-4 space-y-2 custom-scroll text-theme">
+                        <div class="max-h-[600px] overflow-y-auto p-4 space-y-2 custom-scroll">
                             <template x-for="log in filteredAuditLogs" :key="log.id">
-                                <div class="p-5 bg-white/5 border border-white/5 rounded-2xl flex flex-wrap items-center gap-4">
+                                <div class="p-5 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-4">
                                     <div class="text-[10px] font-mono opacity-30 w-32" x-text="new Date(log.created_at).toLocaleString()"></div>
                                     <div class="px-3 py-1 bg-blue-500/10 text-blue-400 font-black text-[10px] rounded-lg uppercase" x-text="log.acao"></div>
                                     <div class="flex-1 text-xs font-bold opacity-80" x-text="log.alvo"></div>
@@ -230,24 +225,18 @@
                     </div>
                 </div>
 
-                <div x-show="tab === 'profile'">
-                    <div class="max-w-4xl mx-auto glass-container p-8 md:p-12 rounded-[40px] md:rounded-[60px] flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                        <div class="w-32 h-32 md:w-44 md:h-44 bg-gradient-to-tr from-blue-700 to-blue-400 rounded-full flex items-center justify-center text-5xl md:text-6xl font-black shadow-2xl text-white" x-text="currentUserData.nome_completo?.charAt(0) || 'U'"></div>
-                        <div class="flex-1 text-center md:text-left">
-                            <h2 class="text-3xl md:text-4xl font-black mb-2 text-theme" x-text="currentUserData.nome_completo"></h2>
-                            <p class="text-blue-500 font-black uppercase tracking-widest text-sm mb-6" x-text="currentUserData.cargo"></p>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
-                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">E-mail Corporativo</p>
-                                    <p class="font-bold text-sm text-theme" x-text="currentUserData.email"></p>
-                                </div>
-                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
-                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">Setor Operacional</p>
-                                    <p class="font-bold text-sm text-theme" x-text="currentUserData.setor || 'Não informado'"></p>
-                                </div>
+                <div x-show="tab === 'news'" class="max-w-3xl mx-auto space-y-6">
+                    <h2 class="text-3xl font-black italic mb-8 uppercase">Intelligence Unit</h2>
+                    <template x-for="news in newsList" :key="news.id">
+                        <div class="glass-container p-12 rounded-[50px] border-l-[12px] border-blue-600 mb-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-3xl font-bold" x-text="news.titulo"></h3>
+                                <span class="text-[10px] font-black bg-blue-600 px-3 py-1 rounded-full text-white" x-text="news.versao"></span>
                             </div>
+                            <p class="opacity-70 leading-relaxed text-lg" x-text="news.conteudo"></p>
+                            <div class="mt-4 text-[10px] opacity-30 font-bold uppercase tracking-widest" x-text="new Date(news.created_at).toLocaleDateString()"></div>
                         </div>
-                    </div>
+                    </template>
                 </div>
             </main>
 
@@ -261,7 +250,7 @@
                         <textarea x-model="formReport.descricao" placeholder="Descrição curta" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white h-24 focus:border-blue-500 outline-none"></textarea>
                         <div class="flex gap-4 pt-6">
                             <button type="button" @click="showReportModal = false" class="flex-1 font-bold opacity-40 text-white">Cancelar</button>
-                            <button type="submit" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl">Confirmar</button>
+                            <button type="submit" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl">Salvar</button>
                         </div>
                     </form>
                 </div>
@@ -325,7 +314,6 @@
                     this.usersList = users || [];
                     const { data: news } = await supabaseClient.from('newsTable').select('*').order('created_at', { ascending: false });
                     this.newsList = news || [];
-
                     if (this.isAdmin) await this.loadAuditLogs();
                 },
 
@@ -344,11 +332,9 @@
                     return q ? this.reportsList.filter(r => r.nome?.toLowerCase().includes(q) || r.area?.toLowerCase().includes(q)) : this.reportsList;
                 },
 
-                // Lógica de Filtro Duplo para Auditoria
                 get filteredAuditLogs() {
                     const q = this.searchQueryAudit.toLowerCase().trim();
                     const action = this.filterAuditAction;
-                    
                     return this.auditLogs.filter(l => {
                         const matchesText = !q || (l.acao.toLowerCase().includes(q) || l.alvo.toLowerCase().includes(q) || l.admin_email.toLowerCase().includes(q));
                         const matchesAction = !action || l.acao.includes(action);
@@ -362,10 +348,10 @@
                 },
 
                 async recoverPassword() {
-                    const { value: email } = await Swal.fire({ title: 'Recuperar Senha', input: 'email', inputPlaceholder: 'Seu e-mail corporativo', background: '#030712', color: '#fff', confirmButtonText: 'Enviar Link' });
+                    const { value: email } = await Swal.fire({ title: 'Recuperar Senha', input: 'email', background: '#030712', color: '#fff' });
                     if (email) {
                         await supabaseClient.auth.resetPasswordForEmail(email);
-                        Swal.fire('E-mail enviado!', 'Verifique sua caixa de entrada.', 'success');
+                        Swal.fire('Enviado!', 'Verifique seu e-mail.', 'success');
                     }
                 },
 
@@ -376,10 +362,11 @@
                 },
 
                 async saveReport() {
-                    let payload = { ...this.formReport };
+                    // CORREÇÃO: Força a limpeza do ID para evitar erro de inserção "non-DEFAULT value into column id"
+                    let payload = JSON.parse(JSON.stringify(this.formReport));
                     let res;
                     if (this.modalMode === 'create') {
-                        delete payload.id;
+                        delete payload.id; // Garante que o Supabase gere o ID automaticamente
                         res = await supabaseClient.from('reportsTable').insert([payload]);
                         await this.logAudit('CRIAR_REPORT', `Report: ${payload.nome}`);
                     } else {
@@ -387,20 +374,15 @@
                         res = await supabaseClient.from('reportsTable').update(updateData).eq('id', id);
                         await this.logAudit('EDITAR_REPORT', `Report: ${payload.nome}`);
                     }
-                    if (!res.error) { 
-                        this.showReportModal = false; 
-                        await this.loadInitialData(); 
-                        Swal.fire({ title: 'Sucesso!', text: 'Dados atualizados.', icon: 'success', background: '#030712', color: '#fff' }); 
-                    } else {
-                        Swal.fire('Erro', res.error.message, 'error');
-                    }
+                    if (!res.error) { this.showReportModal = false; await this.loadInitialData(); Swal.fire('Sucesso!', 'Dados salvos.', 'success'); }
+                    else { Swal.fire('Erro', res.error.message, 'error'); }
                 },
 
                 async deleteReport(id) {
-                    const confirm = await Swal.fire({ title: 'Excluir Relatório?', text: "Esta ação é irreversível!", icon: 'warning', showCancelButton: true, background: '#030712', color: '#fff' });
+                    const confirm = await Swal.fire({ title: 'Excluir?', icon: 'warning', showCancelButton: true, background: '#030712', color: '#fff' });
                     if (confirm.isConfirmed) {
                         const { error } = await supabaseClient.from('reportsTable').delete().eq('id', id);
-                        if (!error) { await this.logAudit('DELETAR_REPORT', `ID: ${id}`); await this.loadInitialData(); Swal.fire('Excluído!', '', 'success'); }
+                        if (!error) { await this.logAudit('DELETAR_REPORT', `ID: ${id}`); await this.loadInitialData(); }
                     }
                 },
 
@@ -411,22 +393,21 @@
                 },
 
                 async saveUser() {
-                    let payload = { ...this.formUser };
+                    let payload = JSON.parse(JSON.stringify(this.formUser));
                     let res = this.modalMode === 'create' ? 
                         await supabaseClient.from('acessTable').insert([payload]) : 
                         await supabaseClient.from('acessTable').update(payload).eq('email', payload.email);
-                    
                     if (!res.error) {
                         await this.logAudit(this.modalMode === 'create' ? 'NOVO_USUARIO' : 'EDITAR_USUARIO', payload.email);
-                        this.showUserModal = false; await this.loadInitialData(); Swal.fire('Sucesso!', 'Dados salvos.', 'success');
+                        this.showUserModal = false; await this.loadInitialData();
                     } else { Swal.fire('Erro', res.error.message, 'error'); }
                 },
 
                 async deleteUser(email) {
-                    const confirm = await Swal.fire({ title: 'Remover acesso?', text: "O usuário perderá a permissão imediatamente.", icon: 'warning', showCancelButton: true, background: '#030712', color: '#fff' });
+                    const confirm = await Swal.fire({ title: 'Remover?', icon: 'warning', showCancelButton: true, background: '#030712', color: '#fff' });
                     if (confirm.isConfirmed) {
                         const { error } = await supabaseClient.from('acessTable').delete().eq('email', email);
-                        if (!error) { await this.logAudit('DELETAR_USUARIO', email); await this.loadInitialData(); Swal.fire('Removido!', '', 'success'); }
+                        if (!error) { await this.logAudit('DELETAR_USUARIO', email); await this.loadInitialData(); }
                     }
                 },
 
