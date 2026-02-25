@@ -3,44 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heuriskien | Enterprise v9.0</title>
+    <title>Heuriskien | Enterprise v11.2</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         [x-cloak] { display: none !important; }
-        .theme-dark { background-color: #020617; color: #f1f5f9; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .netflix-row::-webkit-scrollbar { display: none; }
-        .report-item:hover { transform: scale(1.03); border-color: rgba(59, 130, 246, 0.5); z-index: 10; }
-        input, select, textarea { color: white !important; }
-        input::placeholder { color: rgba(255,255,255,0.3); }
+        
+        .theme-dark { --bg: #030712; --text: #f9fafb; --card: rgba(17, 24, 39, 0.7); --border: rgba(255,255,255,0.08); --primary: #3b82f6; }
+        .theme-light { --bg: #f3f4f6; --text: #111827; --card: #ffffff; --border: #e5e7eb; --primary: #1e3a8a; }
+        .theme-glass { --bg: radial-gradient(at top right, #1e293b, #030712); --text: #f9fafb; --card: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.1); --primary: #60a5fa; }
+
+        body { background: var(--bg); color: var(--text); transition: all 0.5s ease; min-height: 100vh; overflow-x: hidden; }
+        .glass-container { background: var(--card); backdrop-filter: blur(25px); border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        
+        .theme-switch-btn { position: relative; display: flex; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); }
+        .theme-switch-btn button { position: relative; z-index: 2; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: 0.3s; }
+        .theme-active-indicator { position: absolute; top: 4px; height: 32px; width: 32px; background: #3b82f6; border-radius: 10px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; }
+
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .input-premium { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; color: white; }
+        .input-premium:focus { border-color: #3b82f6; background: rgba(255,255,255,0.07); outline: none; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.5); border-radius: 10px; }
     </style>
 </head>
-<body class="theme-dark min-h-screen font-sans transition-all duration-500" x-data="systemAuth()">
+<body :class="'theme-' + theme" x-data="systemCore()">
 
-    <div x-show="!initialized" class="fixed inset-0 bg-slate-950 z-[100] flex items-center justify-center">
-        <div class="text-center">
-            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent mb-4"></div>
-            <p class="text-blue-400 font-black tracking-widest text-xs uppercase animate-pulse">Iniciando Heuriskien...</p>
+    <div x-show="!initialized" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center">
+        <div class="relative w-20 h-20 mb-6">
+            <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
+        <h2 class="text-blue-500 font-black tracking-[0.3em] text-sm animate-pulse uppercase">Sincronizando Heuriskien...</h2>
     </div>
 
     <template x-if="view === 'login'">
-        <div class="min-h-screen flex items-center justify-center p-6 bg-slate-950">
-            <div class="w-full max-w-sm bg-white p-10 rounded-[40px] shadow-2xl border-t-[10px] border-blue-900">
-                <form @submit.prevent="handleLogin" class="space-y-6">
-                    <div class="text-center mb-8">
-                        <h2 class="text-4xl font-black italic tracking-tighter text-blue-900">HEURIS<span class="font-light">KIEN</span></h2>
-                        <p class="text-[10px] font-bold opacity-40 mt-2 uppercase tracking-widest text-black">Acesso Estratégico Seguro</p>
+        <div class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-950">
+            <div class="w-full max-w-[420px] glass-container p-12 rounded-[40px] fade-in shadow-2xl">
+                <div class="text-center mb-10">
+                    <h1 class="text-4xl font-black italic tracking-tighter text-white mb-2">HEURISKIEN</h1>
+                    <p class="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em]">Enterprise Intelligence</p>
+                </div>
+                <form @submit.prevent="handleLogin" class="space-y-5">
+                    <input type="email" x-model="email" placeholder="E-mail Corporativo" class="w-full px-6 py-5 rounded-2xl input-premium" required>
+                    <div>
+                        <input type="password" x-model="password" placeholder="Senha" class="w-full px-6 py-5 rounded-2xl input-premium" required>
+                        <div class="flex justify-end mt-2">
+                            <button type="button" @click="recoverPassword" class="text-[10px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-400">Esqueceu a senha?</button>
+                        </div>
                     </div>
-                    <input type="email" x-model="email" placeholder="E-mail Corporativo" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-black border border-gray-100 focus:ring-2 focus:ring-blue-600 transition" required>
-                    <input type="password" x-model="password" placeholder="Senha" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-black border border-gray-100 focus:ring-2 focus:ring-blue-600 transition" required>
-                    <button type="submit" class="w-full bg-blue-900 text-white py-5 rounded-2xl font-black shadow-xl hover:brightness-110 active:scale-95 transition-all">ENTRAR</button>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black shadow-lg shadow-blue-600/20 transition-all uppercase text-xs tracking-widest">Acessar Hub</button>
                 </form>
             </div>
         </div>
@@ -48,99 +66,190 @@
 
     <template x-if="view === 'dashboard'">
         <div x-cloak>
-            <nav class="bg-[#001f3f]/90 backdrop-blur-xl text-white px-8 py-3 flex justify-between items-center shadow-2xl sticky top-0 z-40 border-b border-white/5">
-                <div class="flex items-center gap-10">
-                    <h1 class="font-black text-2xl italic tracking-tighter">HEURIS<span class="font-light text-blue-400">KIEN</span></h1>
-                    <div class="flex gap-1">
-                        <button @click="tab = 'reports'" :class="tab === 'reports' ? 'bg-white/10' : 'opacity-40 hover:opacity-100'" class="px-4 py-2 rounded-lg text-xs font-bold uppercase transition">Reports</button>
-                        <button @click="tab = 'users'" :class="tab === 'users' ? 'bg-white/10' : 'opacity-40 hover:opacity-100'" class="px-4 py-2 rounded-lg text-xs font-bold uppercase transition">Equipe</button>
-                        <button x-show="isAdmin" @click="tab = 'audit'" :class="tab === 'audit' ? 'bg-white/10' : 'opacity-40 hover:opacity-100'" class="px-4 py-2 rounded-lg text-xs font-bold uppercase transition">Auditoria</button>
+            <nav class="bg-black/40 backdrop-blur-2xl px-8 py-4 flex justify-between items-center sticky top-0 z-40 border-b border-white/5">
+                <div class="flex items-center gap-8">
+                    <h1 class="font-black text-2xl italic tracking-tighter">HEURIS<span class="text-blue-500">KIEN</span></h1>
+                    <div class="hidden md:flex gap-1 bg-white/5 p-1 rounded-2xl">
+                        <template x-for="t in ['news', 'reports', 'users', 'audit', 'profile']">
+                            <button x-show="t !== 'audit' || isAdmin" @click="tab = t" 
+                                :class="tab === t ? 'bg-blue-600 text-white' : 'opacity-40 hover:bg-white/5'" 
+                                class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all" 
+                                x-text="t === 'users' ? 'Equipe' : (t === 'news' ? 'Notícias' : (t === 'reports' ? 'Reports' : t))"></button>
+                        </template>
                     </div>
                 </div>
+                
                 <div class="flex items-center gap-6">
-                    <div class="text-right hidden sm:block border-r border-white/10 pr-6">
-                        <p class="text-[10px] font-black text-blue-400 uppercase leading-none" x-text="currentUserData.cargo"></p>
-                        <p class="text-sm font-bold" x-text="currentUserData.nome_completo"></p>
+                    <div class="theme-switch-btn">
+                        <div class="theme-active-indicator" :style="theme === 'dark' ? 'transform: translateX(0px)' : (theme === 'light' ? 'transform: translateX(36px)' : 'transform: translateX(72px)')"></div>
+                        <button @click="theme = 'dark'">🌙</button>
+                        <button @click="theme = 'light'">☀️</button>
+                        <button @click="theme = 'glass'">💎</button>
                     </div>
-                    <button @click="handleLogout" class="bg-red-500/20 hover:bg-red-600 p-2.5 rounded-xl transition border border-red-500/20">🚪</button>
+                    <button @click="handleLogout" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500 px-4 py-2.5 rounded-xl transition text-red-500 hover:text-white border border-red-500/20 group">
+                        <span class="text-[10px] font-black uppercase tracking-widest">Sair</span>
+                    </button>
                 </div>
             </nav>
 
-            <main class="p-8 max-w-[1600px] mx-auto w-full">
-                <div x-show="tab === 'reports'" x-transition>
-                    <div class="flex justify-between items-end mb-10">
-                        <h2 class="text-3xl font-black uppercase italic tracking-tighter">Intelligence Hub</h2>
-                        <button x-show="isAdmin" @click="openReportModal('create')" class="bg-blue-600 px-6 py-3 rounded-xl font-black text-xs text-white uppercase shadow-lg shadow-blue-600/20">+ Novo Report</button>
+            <main class="p-8 max-w-[1600px] mx-auto fade-in">
+                
+                <div x-show="tab === 'news'" class="max-w-3xl mx-auto space-y-6">
+                    <h2 class="text-3xl font-black italic mb-8 uppercase">Intelligence Unit</h2>
+                    <div class="glass-container p-12 rounded-[50px] border-l-[12px] border-blue-600">
+                        <h3 class="text-3xl font-bold mb-4">Sistema Operacional v11.2</h3>
+                        <p class="opacity-70 leading-relaxed text-lg">Busca avançada, gestão de usuários e auditoria de logs integradas em tempo real.</p>
                     </div>
-                    
-                    <template x-for="area in [...new Set(reportsList.map(r => r.area))]" :key="area">
-                        <div class="mb-12">
-                            <h3 class="text-lg font-black mb-4 flex items-center gap-3">
-                                <span class="w-2 h-6 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></span>
-                                <span x-text="area" class="uppercase tracking-widest text-sm opacity-80"></span>
-                            </h3>
-                            <div class="flex gap-6 overflow-x-auto pb-6 netflix-row snap-x">
-                                <template x-for="report in reportsList.filter(r => r.area === area)" :key="report.id">
-                                    <div class="min-w-[320px] max-w-[320px] snap-start group">
-                                        <div class="glass-card p-6 rounded-[32px] report-item transition-all duration-300 flex flex-col h-[220px] justify-between relative overflow-hidden">
-                                            <div class="flex justify-between items-start z-10">
-                                                <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">📊</div>
-                                                <div x-show="isAdmin" class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button @click="openReportModal('edit', report)" class="p-2 hover:bg-white/10 rounded-lg transition">✏️</button>
-                                                    <button @click="deleteReport(report.id)" class="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition">🗑️</button>
-                                                </div>
-                                            </div>
-                                            <div class="z-10">
-                                                <h4 class="font-black text-lg mb-1 truncate" x-text="report.nome"></h4>
-                                                <p class="text-xs opacity-50 line-clamp-2" x-text="report.descricao"></p>
-                                            </div>
-                                            <a :href="report.link" target="_blank" class="z-10 block text-center bg-white/5 hover:bg-blue-600 py-3 rounded-xl font-black text-[10px] uppercase transition-all">Acessar</a>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
                 </div>
 
-                <div x-show="tab === 'users'" x-transition>
-                    <div class="flex justify-between items-center mb-10">
-                         <input type="text" x-model.debounce.300ms="searchQuery" placeholder="Pesquisar equipe..." class="w-1/2 p-4 rounded-2xl glass-card outline-none">
-                         <button x-show="isAdmin" @click="openModal('create')" class="bg-blue-600 px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-blue-500/20">+ Cadastrar Colaborador</button>
+                <div x-show="tab === 'reports'">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+                        <h2 class="text-3xl font-black italic uppercase text-white">Hub de Inteligência</h2>
+                        <div class="flex gap-4 w-full md:w-auto">
+                            <div class="relative flex-1 md:w-80">
+                                <input type="text" x-model.debounce.300ms="searchQueryReports" placeholder="Filtrar por nome ou área..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition text-white">
+                                <span class="absolute left-4 top-3.5 opacity-30">🔍</span>
+                            </div>
+                            <button x-show="isAdmin" @click="openReportModal('create')" class="bg-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-lg shadow-blue-600/20 whitespace-nowrap">+ Novo Relatório</button>
+                        </div>
                     </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <template x-for="report in filteredReports" :key="report.id">
+                            <div class="glass-container p-8 rounded-[35px] hover:border-blue-500/50 transition-all group">
+                                <h4 class="font-black text-xl mb-1 truncate text-white" x-text="report.nome"></h4>
+                                <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4 block" x-text="report.area"></span>
+                                <p class="text-xs opacity-50 mb-8 line-clamp-2 h-10" x-text="report.descricao || 'Nenhuma descrição fornecida.'"></p>
+                                <div class="flex gap-3">
+                                    <a :href="report.link" target="_blank" class="flex-1 bg-white/5 hover:bg-blue-600 text-center py-3 rounded-2xl text-[10px] font-black uppercase transition text-white">Acessar</a>
+                                    <button x-show="isAdmin" @click="openReportModal('edit', report)" class="p-3 border border-white/10 rounded-2xl hover:bg-white/10 transition">✏️</button>
+                                </div>
+                            </div>
+                        </template>
                     </div>
+                </div>
+
+                <div x-show="tab === 'users'">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                        <h2 class="text-3xl font-black italic uppercase text-white">Gestão de Equipe</h2>
+                        <div class="flex gap-4 w-full md:w-auto">
+                            <div class="relative flex-1 md:w-80">
+                                <input type="text" x-model.debounce.300ms="searchQueryUsers" placeholder="Buscar colaborador..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition text-white">
+                                <span class="absolute left-4 top-3.5 opacity-30">🔍</span>
+                            </div>
+                            <button x-show="isAdmin" @click="openUserModal('create')" class="bg-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-lg shadow-blue-600/20 whitespace-nowrap">+ Novo Usuário</button>
+                        </div>
+                    </div>
+                    <div class="glass-container rounded-[40px] overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-white/5 text-[10px] font-black uppercase opacity-40">
+                                    <tr>
+                                        <th class="p-8">Colaborador</th>
+                                        <th class="p-8">Cargo / Setor</th>
+                                        <th x-show="isAdmin" class="p-8 text-right">Gerenciar</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    <template x-for="user in filteredUsers" :key="user.email">
+                                        <tr class="hover:bg-white/[0.02]">
+                                            <td class="p-8">
+                                                <div class="flex items-center gap-4">
+                                                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black text-xs text-white" x-text="user.nome_completo?.charAt(0)"></div>
+                                                    <div>
+                                                        <div class="font-bold text-sm text-white" x-text="user.nome_completo"></div>
+                                                        <div class="text-[10px] opacity-40" x-text="user.email"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="p-8">
+                                                <span class="text-[10px] font-black text-blue-400 uppercase" x-text="user.cargo"></span>
+                                                <div class="text-[10px] opacity-40 uppercase font-bold" x-text="user.setor || 'NÃO DEFINIDO'"></div>
+                                            </td>
+                                            <td x-show="isAdmin" class="p-8 text-right">
+                                                <div class="flex justify-end gap-2">
+                                                    <button @click="openUserModal('edit', user)" class="p-2.5 bg-white/5 rounded-xl hover:bg-blue-600 transition">✏️</button>
+                                                    <button @click="deleteUser(user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-red-600 transition">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="tab === 'audit'">
+                    <div class="flex justify-between items-end mb-8">
+                        <div>
+                            <h2 class="text-3xl font-black italic uppercase text-white">Trilha de Auditoria</h2>
+                            <p class="text-[10px] font-bold opacity-40 uppercase mt-1">Logs de atividades administrativas</p>
+                        </div>
+                        <button @click="loadAuditLogs" class="bg-white/5 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-blue-600 transition uppercase">Atualizar Logs</button>
+                    </div>
+                    <div class="glass-container rounded-[40px] overflow-hidden">
+                        <div class="max-h-[600px] overflow-y-auto p-4 space-y-2 custom-scroll">
+                            <template x-for="log in auditLogs" :key="log.id">
+                                <div class="p-5 bg-white/5 border border-white/5 rounded-2xl flex flex-wrap items-center gap-4">
+                                    <div class="text-[10px] font-mono opacity-30 w-32" x-text="new Date(log.created_at).toLocaleString()"></div>
+                                    <div class="px-3 py-1 bg-blue-500/10 text-blue-400 font-black text-[10px] rounded-lg uppercase" x-text="log.acao"></div>
+                                    <div class="flex-1 text-xs font-bold opacity-80" x-text="log.alvo"></div>
+                                    <div class="text-[10px] font-bold opacity-40 italic" x-text="log.admin_email"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="tab === 'profile'">
+                    <div class="max-w-4xl mx-auto glass-container p-12 rounded-[60px] flex flex-col md:flex-row items-center gap-12">
+                        <div class="w-44 h-44 bg-gradient-to-tr from-blue-700 to-blue-400 rounded-full flex items-center justify-center text-6xl font-black shadow-2xl text-white" x-text="currentUserData.nome_completo?.charAt(0) || 'U'"></div>
+                        <div class="flex-1">
+                            <h2 class="text-4xl font-black mb-2 text-white" x-text="currentUserData.nome_completo"></h2>
+                            <p class="text-blue-500 font-black uppercase tracking-widest text-sm mb-6" x-text="currentUserData.cargo"></p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">E-mail Corporativo</p>
+                                    <p class="font-bold text-sm text-white" x-text="currentUserData.email"></p>
+                                </div>
+                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">Unidade / Setor</p>
+                                    <p class="font-bold text-sm text-white" x-text="currentUserData.setor || 'Não informado'"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
 
-            <div x-show="showModal" x-cloak class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4">
-                <div class="bg-slate-900 p-10 rounded-[40px] w-full max-w-lg border border-white/10 shadow-2xl">
-                    <h2 class="text-3xl font-black mb-8" x-text="modalMode === 'create' ? 'Novo Cadastro' : 'Editar Dados'"></h2>
-                    <form @submit.prevent="saveUser" class="space-y-4">
-                        <input type="text" x-model="formUser.nome_completo" placeholder="Nome Completo" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition" required>
-                        <input type="email" x-model="formUser.email" :disabled="modalMode === 'edit'" placeholder="E-mail" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 disabled:opacity-30 outline-none">
-                        <select x-model="formUser.cargo" class="w-full p-4 rounded-2xl bg-[#0f172a] border border-white/10 outline-none">
-                            <option value="Analista">Analista</option>
-                            <option value="Gerente">Gerente</option>
-                            <option value="Diretor">Diretor</option>
-                            <option value="CEO">CEO</option>
-                        </select>
-                        <div class="flex gap-4 pt-4">
-                            <button type="button" @click="showModal = false" class="flex-1 py-4 font-bold opacity-40">Cancelar</button>
-                            <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black">SALVAR</button>
+            <div x-show="showReportModal" x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg">
+                    <h2 class="text-2xl font-black mb-8 uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Relatório' : 'Editar Relatório'"></h2>
+                    <form @submit.prevent="saveReport" class="space-y-4">
+                        <input type="text" x-model="formReport.nome" placeholder="Título do Relatório" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none" required>
+                        <input type="text" x-model="formReport.area" placeholder="Departamento" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none" required>
+                        <input type="url" x-model="formReport.link" placeholder="URL do Dashboard (BI)" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none" required>
+                        <textarea x-model="formReport.descricao" placeholder="Breve resumo informativo" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white h-24 focus:border-blue-500 outline-none"></textarea>
+                        <div class="flex gap-4 pt-6">
+                            <button type="button" @click="showReportModal = false" class="flex-1 font-bold opacity-40 text-white">Cancelar</button>
+                            <button type="submit" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl">Confirmar</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div x-show="showReportModal" x-cloak class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4">
-                <div class="bg-slate-900 p-10 rounded-[40px] w-full max-w-lg border border-white/10 shadow-2xl">
-                    <h2 class="text-3xl font-black mb-8">Gerenciar Report</h2>
-                    <form @submit.prevent="saveReport" class="space-y-4">
-                        <input type="text" x-model="formReport.nome" placeholder="Título" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition" required>
-                        <input type="text" x-model="formReport.area" placeholder="Área (Ex: Vendas)" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none" required>
-                        <input type="url" x-model="formReport.link" placeholder="Link do Power BI" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none" required>
-                        <div class="flex gap-4 pt-4">
-                            <button type="button" @click="showReportModal = false" class="flex-1 py-4 font-bold opacity-40">Cancelar</button>
-                            <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black">PUBLICAR</button>
+            <div x-show="showUserModal" x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg">
+                    <h2 class="text-2xl font-black mb-8 uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Acesso' : 'Modificar Acesso'"></h2>
+                    <form @submit.prevent="saveUser" class="space-y-4">
+                        <input type="text" x-model="formUser.nome_completo" placeholder="Nome do Colaborador" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none" required>
+                        <input type="email" x-model="formUser.email" placeholder="E-mail" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none disabled:opacity-20" :disabled="modalMode === 'edit'" required>
+                        <input type="text" x-model="formUser.cargo" placeholder="Cargo Principal" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none" required>
+                        <input type="text" x-model="formUser.setor" placeholder="Setor Operacional" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none">
+                        <div class="flex gap-4 pt-6">
+                            <button type="button" @click="showUserModal = false" class="flex-1 font-bold opacity-40 text-white">Cancelar</button>
+                            <button type="submit" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl">Efetivar</button>
                         </div>
                     </form>
                 </div>
@@ -154,93 +263,127 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xZGx4aXl6c3hrbnR5cHl6a2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjY1ODIsImV4cCI6MjA4NzU0MjU4Mn0.8npxzHMR3VdaufiqmsJKdLR2zpXDOFzDldFwdth18f0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function systemAuth() {
+        function systemCore() {
             return {
-                initialized: false, view: 'login', tab: 'reports', theme: 'dark',
-                email: '', password: '', searchQuery: '', userEmail: '', isAdmin: false,
-                usersList: [], reportsList: [], auditLogs: [],
-                showModal: false, showReportModal: false, modalMode: 'create',
-                currentUserData: {},
-                formUser: { nome_completo: '', email: '', cargo: 'Analista', setor: '' },
-                formReport: { nome: '', descricao: '', area: '', link: '', permissao: 'todos' },
+                initialized: false, view: 'login', tab: 'news', theme: 'dark',
+                email: '', password: '', userEmail: '', isAdmin: false,
+                searchQueryUsers: '', searchQueryReports: '',
+                reportsList: [], usersList: [], auditLogs: [],
+                showReportModal: false, showUserModal: false, modalMode: 'create',
+                currentUserData: {}, 
+                formReport: { nome: '', area: '', link: '', descricao: '' },
+                formUser: { nome_completo: '', email: '', cargo: '', setor: '' },
 
                 async init() {
-                    const { data: { session } } = await supabaseClient.auth.getSession();
-                    if (session) {
-                        this.userEmail = session.user.email;
-                        await this.loadInitialData();
-                        this.view = 'dashboard';
-                    }
-                    this.initialized = true;
+                    try {
+                        const { data: { session } } = await supabaseClient.auth.getSession();
+                        if (session) {
+                            this.userEmail = session.user.email;
+                            await this.loadInitialData();
+                            this.view = 'dashboard';
+                        } else { this.view = 'login'; }
+                    } finally { this.initialized = true; }
                 },
 
                 async loadInitialData() {
-                    const { data: profile } = await supabaseClient.from('acessTable').select('*').eq('email', this.userEmail).maybeSingle();
+                    const { data: profile } = await supabaseClient.from('acessTable').select('*').ilike('email', this.userEmail).maybeSingle();
                     if (profile) {
                         this.currentUserData = profile;
                         this.isAdmin = ['CEO', 'Diretor'].includes(profile.cargo);
                     }
                     const { data: reports } = await supabaseClient.from('reportsTable').select('*').order('nome');
                     this.reportsList = reports || [];
+                    const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
+                    this.usersList = users || [];
+                    if (this.isAdmin) await this.loadAuditLogs();
                 },
 
+                async loadAuditLogs() {
+                    const { data } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
+                    this.auditLogs = data || [];
+                },
+
+                // FILTROS
+                get filteredUsers() {
+                    const q = this.searchQueryUsers.toLowerCase().trim();
+                    return q ? this.usersList.filter(u => u.nome_completo?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)) : this.usersList;
+                },
+
+                get filteredReports() {
+                    const q = this.searchQueryReports.toLowerCase().trim();
+                    return q ? this.reportsList.filter(r => r.nome?.toLowerCase().includes(q) || r.area?.toLowerCase().includes(q)) : this.reportsList;
+                },
+
+                // LOGIN E RECUPERAÇÃO (RESTAURADOS)
                 async handleLogin() {
-                    const { error } = await supabaseClient.auth.signInWithPassword({ email: this.email, password: this.password });
-                    if (error) Swal.fire('Erro', 'Credenciais inválidas', 'error');
-                    else window.location.reload();
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email: this.email.trim().toLowerCase(), password: this.password });
+                    if (error) Swal.fire('Erro', 'Dados incorretos.', 'error'); else window.location.reload();
                 },
 
-                async saveUser() {
-                    const payload = { ...this.formUser };
-                    let res;
-                    if (this.modalMode === 'create') {
-                        res = await supabaseClient.from('acessTable').insert([payload]);
-                    } else {
-                        res = await supabaseClient.from('acessTable').update(payload).eq('email', payload.email);
-                    }
-                    if (!res.error) {
-                        Swal.fire('Sucesso', 'Usuário atualizado', 'success');
-                        this.showModal = false;
-                        this.loadInitialData();
+                async recoverPassword() {
+                    const { value: email } = await Swal.fire({ title: 'Recuperar Senha', input: 'email', inputPlaceholder: 'Seu e-mail corporativo', background: '#030712', color: '#fff', confirmButtonText: 'Enviar Link' });
+                    if (email) {
+                        await supabaseClient.auth.resetPasswordForEmail(email);
+                        Swal.fire('E-mail enviado!', 'Siga as instruções na sua caixa de entrada.', 'success');
                     }
                 },
 
-                async saveReport() {
-                    const payload = { ...this.formReport };
-                    let res;
-                    if (this.modalMode === 'create') {
-                        res = await supabaseClient.from('reportsTable').insert([payload]);
-                    } else {
-                        res = await supabaseClient.from('reportsTable').update(payload).eq('id', payload.id);
-                    }
-                    if (!res.error) {
-                        Swal.fire('Sucesso', 'Report publicado', 'success');
-                        this.showReportModal = false;
-                        this.loadInitialData();
-                    }
-                },
-
-                async deleteReport(id) {
-                    const { isConfirmed } = await Swal.fire({ title: 'Excluir?', text: "Esta ação é irreversível!", icon: 'warning', showCancelButton: true });
-                    if (isConfirmed) {
-                        await supabaseClient.from('reportsTable').delete().eq('id', id);
-                        this.loadInitialData();
-                    }
-                },
-
-                openModal(mode, user = null) {
-                    this.modalMode = mode;
-                    this.formUser = user ? { ...user } : { nome_completo: '', email: '', cargo: 'Analista', setor: '' };
-                    this.showModal = true;
-                },
-
+                // CRUD REPORTS
                 openReportModal(mode, report = null) {
                     this.modalMode = mode;
-                    this.formReport = report ? { ...report } : { nome: '', descricao: '', area: '', link: '', permissao: 'todos' };
+                    this.formReport = report ? { ...report } : { nome: '', area: '', link: '', descricao: '' };
                     this.showReportModal = true;
                 },
 
-                handleLogout() { supabaseClient.auth.signOut(); window.location.reload(); }
+                async saveReport() {
+                    let payload = JSON.parse(JSON.stringify(this.formReport));
+                    let res;
+                    if (this.modalMode === 'create') {
+                        delete payload.id;
+                        res = await supabaseClient.from('reportsTable').insert([payload]);
+                        await this.logAudit('CRIAR_REPORT', `Report: ${payload.nome}`);
+                    } else {
+                        res = await supabaseClient.from('reportsTable').update(payload).eq('id', payload.id);
+                        await this.logAudit('EDITAR_REPORT', `Report: ${payload.nome}`);
+                    }
+                    if (!res.error) { this.showReportModal = false; await this.loadInitialData(); Swal.fire('Sucesso!', 'Dados atualizados.', 'success'); }
+                },
+
+                // CRUD USUÁRIOS
+                openUserModal(mode, user = null) {
+                    this.modalMode = mode;
+                    this.formUser = user ? { ...user } : { nome_completo: '', email: '', cargo: '', setor: '' };
+                    this.showUserModal = true;
+                },
+
+                async saveUser() {
+                    let payload = JSON.parse(JSON.stringify(this.formUser));
+                    let res = this.modalMode === 'create' ? 
+                        await supabaseClient.from('acessTable').insert([payload]) : 
+                        await supabaseClient.from('acessTable').update(payload).eq('email', payload.email);
+                    
+                    if (!res.error) {
+                        await this.logAudit(this.modalMode === 'create' ? 'NOVO_USUARIO' : 'EDITAR_USUARIO', payload.email);
+                        this.showUserModal = false; await this.loadInitialData(); Swal.fire('Sucesso!', 'Dados salvos.', 'success');
+                    } else { Swal.fire('Erro', res.error.message, 'error'); }
+                },
+
+                async deleteUser(email) {
+                    const confirm = await Swal.fire({ title: 'Remover acesso?', text: "O usuário perderá a permissão imediatamente.", icon: 'warning', showCancelButton: true, background: '#030712', color: '#fff' });
+                    if (confirm.isConfirmed) {
+                        const { error } = await supabaseClient.from('acessTable').delete().eq('email', email);
+                        if (!error) { await this.logAudit('DELETAR_USUARIO', email); await this.loadInitialData(); Swal.fire('Removido!', '', 'success'); }
+                    }
+                },
+
+                async logAudit(acao, alvo) {
+                    await supabaseClient.from('audit_logs').insert([{ admin_email: this.userEmail, acao: acao, alvo: alvo }]);
+                },
+
+                async handleLogout() {
+                    await supabaseClient.auth.signOut();
+                    window.location.reload();
+                }
             }
         }
     </script>
