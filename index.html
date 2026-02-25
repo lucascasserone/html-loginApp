@@ -13,15 +13,15 @@
     
     <style>
         [x-cloak] { display: none !important; }
-        .theme-glass { background: radial-gradient(circle at top right, #1e293b, #0f172a); background-attachment: fixed; color: #f8fafc; }
         .theme-dark { background-color: #020617; color: #f1f5f9; }
-        .theme-light { background-color: #f8fafc; color: #1e293b; }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .netflix-row::-webkit-scrollbar { display: none; }
         .report-item:hover { transform: scale(1.03); border-color: rgba(59, 130, 246, 0.5); z-index: 10; }
+        input, select, textarea { color: white !important; }
+        input::placeholder { color: rgba(255,255,255,0.3); }
     </style>
 </head>
-<body :class="'theme-' + theme" class="min-h-screen font-sans transition-all duration-500" x-data="systemAuth()" @keydown.escape.window="closeAllModals()">
+<body class="theme-dark min-h-screen font-sans transition-all duration-500" x-data="systemAuth()">
 
     <div x-show="!initialized" class="fixed inset-0 bg-slate-950 z-[100] flex items-center justify-center">
         <div class="text-center">
@@ -87,7 +87,7 @@
                                                 <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">📊</div>
                                                 <div x-show="isAdmin" class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <button @click="openReportModal('edit', report)" class="p-2 hover:bg-white/10 rounded-lg transition">✏️</button>
-                                                    <button @click="deleteReport(report)" class="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition">🗑️</button>
+                                                    <button @click="deleteReport(report.id)" class="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition">🗑️</button>
                                                 </div>
                                             </div>
                                             <div class="z-10">
@@ -95,7 +95,6 @@
                                                 <p class="text-xs opacity-50 line-clamp-2" x-text="report.descricao"></p>
                                             </div>
                                             <a :href="report.link" target="_blank" class="z-10 block text-center bg-white/5 hover:bg-blue-600 py-3 rounded-xl font-black text-[10px] uppercase transition-all">Acessar</a>
-                                            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-600/5 rounded-full blur-3xl group-hover:bg-blue-600/10 transition-all"></div>
                                         </div>
                                     </div>
                                 </template>
@@ -105,60 +104,48 @@
                 </div>
 
                 <div x-show="tab === 'users'" x-transition>
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
-                        <div class="relative w-full md:w-1/2">
-                            <input type="text" x-model.debounce.300ms="searchQuery" placeholder="Pesquisar equipe..." class="w-full pl-12 pr-4 py-4 rounded-2xl outline-none glass-card text-sm focus:border-blue-500/50 transition">
-                            <span class="absolute left-5 top-4 opacity-40">🔍</span>
-                        </div>
-                        <button x-show="isAdmin" @click="openModal('create')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase transition-all w-full md:w-auto shadow-lg shadow-blue-500/20">+ Cadastrar Colaborador</button>
+                    <div class="flex justify-between items-center mb-10">
+                         <input type="text" x-model.debounce.300ms="searchQuery" placeholder="Pesquisar equipe..." class="w-1/2 p-4 rounded-2xl glass-card outline-none">
+                         <button x-show="isAdmin" @click="openModal('create')" class="bg-blue-600 px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-blue-500/20">+ Cadastrar Colaborador</button>
                     </div>
-
-                    <div class="glass-card rounded-3xl overflow-hidden shadow-2xl">
-                        <table class="w-full text-left">
-                            <thead class="bg-black/20 text-[10px] font-black uppercase tracking-widest opacity-50">
-                                <tr><th class="p-6">Colaborador</th><th class="p-6">Hierarquia</th><th class="p-6">Departamento</th><th class="p-6 text-center">Gestão</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/5">
-                                <template x-for="user in filteredUsers" :key="user.email">
-                                    <tr class="hover:bg-white/5 transition-colors group">
-                                        <td class="p-6">
-                                            <div class="font-bold text-sm" x-text="user.nome_completo"></div>
-                                            <div class="text-[11px] opacity-40" x-text="user.email"></div>
-                                        </td>
-                                        <td class="p-6">
-                                            <span :class="['CEO', 'Diretor'].includes(user.cargo) ? 'text-purple-400 border-purple-500/30' : 'text-blue-400 border-blue-500/30'" class="text-[9px] font-black px-3 py-1.5 rounded-full border" x-text="user.cargo"></span>
-                                        </td>
-                                        <td class="p-6 text-xs font-medium opacity-60" x-text="user.setor || 'Geral'"></td>
-                                        <td class="p-6 text-center space-x-4">
-                                            <button x-show="isAdmin" @click="openModal('edit', user)" class="opacity-30 group-hover:opacity-100 hover:text-blue-500 transition">✏️</button>
-                                            <button x-show="isAdmin" @click="deleteUser(user)" class="opacity-30 group-hover:opacity-100 hover:text-red-500 transition">🗑️</button>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
                     </div>
-                </div>
-
-                <div x-show="tab === 'audit'" x-transition>
-                    <div class="bg-slate-950 rounded-3xl p-8 font-mono text-[11px] shadow-2xl border border-white/5">
-                        <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
-                            <span class="text-blue-400 font-bold uppercase tracking-widest">Logs de Segurança</span>
-                            <span class="text-green-500 flex items-center gap-2 animate-pulse">● Live Audit</span>
-                        </div>
-                        <div class="space-y-2 max-h-[600px] overflow-y-auto pr-4 netflix-row">
-                            <template x-for="log in auditLogs" :key="log.id">
-                                <div class="flex gap-4 p-2 border-b border-white/5 opacity-80 hover:opacity-100 hover:bg-white/5 transition rounded">
-                                    <span class="text-slate-500" x-text="formatDate(log.created_at)"></span>
-                                    <span class="text-blue-400 font-bold w-40 truncate" x-text="log.admin_email"></span>
-                                    <span class="text-white bg-white/10 px-2 rounded uppercase text-[9px] flex items-center" x-text="log.acao"></span>
-                                    <span class="text-green-400" x-text="log.alvo"></span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
             </main>
+
+            <div x-show="showModal" x-cloak class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+                <div class="bg-slate-900 p-10 rounded-[40px] w-full max-w-lg border border-white/10 shadow-2xl">
+                    <h2 class="text-3xl font-black mb-8" x-text="modalMode === 'create' ? 'Novo Cadastro' : 'Editar Dados'"></h2>
+                    <form @submit.prevent="saveUser" class="space-y-4">
+                        <input type="text" x-model="formUser.nome_completo" placeholder="Nome Completo" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition" required>
+                        <input type="email" x-model="formUser.email" :disabled="modalMode === 'edit'" placeholder="E-mail" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 disabled:opacity-30 outline-none">
+                        <select x-model="formUser.cargo" class="w-full p-4 rounded-2xl bg-[#0f172a] border border-white/10 outline-none">
+                            <option value="Analista">Analista</option>
+                            <option value="Gerente">Gerente</option>
+                            <option value="Diretor">Diretor</option>
+                            <option value="CEO">CEO</option>
+                        </select>
+                        <div class="flex gap-4 pt-4">
+                            <button type="button" @click="showModal = false" class="flex-1 py-4 font-bold opacity-40">Cancelar</button>
+                            <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black">SALVAR</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div x-show="showReportModal" x-cloak class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+                <div class="bg-slate-900 p-10 rounded-[40px] w-full max-w-lg border border-white/10 shadow-2xl">
+                    <h2 class="text-3xl font-black mb-8">Gerenciar Report</h2>
+                    <form @submit.prevent="saveReport" class="space-y-4">
+                        <input type="text" x-model="formReport.nome" placeholder="Título" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition" required>
+                        <input type="text" x-model="formReport.area" placeholder="Área (Ex: Vendas)" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none" required>
+                        <input type="url" x-model="formReport.link" placeholder="Link do Power BI" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none" required>
+                        <div class="flex gap-4 pt-4">
+                            <button type="button" @click="showReportModal = false" class="flex-1 py-4 font-bold opacity-40">Cancelar</button>
+                            <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black">PUBLICAR</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </template>
 
@@ -171,35 +158,19 @@
             return {
                 initialized: false, view: 'login', tab: 'reports', theme: 'dark',
                 email: '', password: '', searchQuery: '', userEmail: '', isAdmin: false,
-                usersList: [], auditLogs: [], reportsList: [],
+                usersList: [], reportsList: [], auditLogs: [],
                 showModal: false, showReportModal: false, modalMode: 'create',
                 currentUserData: {},
                 formUser: { nome_completo: '', email: '', cargo: 'Analista', setor: '' },
                 formReport: { nome: '', descricao: '', area: '', link: '', permissao: 'todos' },
 
                 async init() {
-                    // Verificação imediata de sessão para não quebrar o login
                     const { data: { session } } = await supabaseClient.auth.getSession();
-                    
                     if (session) {
                         this.userEmail = session.user.email;
                         await this.loadInitialData();
                         this.view = 'dashboard';
-                    } else {
-                        this.view = 'login';
                     }
-
-                    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                        if (session) {
-                            this.userEmail = session.user.email;
-                            if (this.view !== 'dashboard') {
-                                await this.loadInitialData();
-                                this.view = 'dashboard';
-                            }
-                        } else {
-                            this.view = 'login';
-                        }
-                    });
                     this.initialized = true;
                 },
 
@@ -209,36 +180,67 @@
                         this.currentUserData = profile;
                         this.isAdmin = ['CEO', 'Diretor'].includes(profile.cargo);
                     }
-
-                    const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
-                    this.usersList = users || [];
-
                     const { data: reports } = await supabaseClient.from('reportsTable').select('*').order('nome');
-                    this.reportsList = this.isAdmin ? (reports || []) : (reports?.filter(r => r.permissao === 'todos') || []);
-
-                    if (this.isAdmin) {
-                        const { data: logs } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
-                        this.auditLogs = logs || [];
-                    }
+                    this.reportsList = reports || [];
                 },
 
                 async handleLogin() {
                     const { error } = await supabaseClient.auth.signInWithPassword({ email: this.email, password: this.password });
-                    if (error) {
-                        Swal.fire('Falha na Autenticação', 'Credenciais inválidas para o sistema Heuriskien.', 'error');
+                    if (error) Swal.fire('Erro', 'Credenciais inválidas', 'error');
+                    else window.location.reload();
+                },
+
+                async saveUser() {
+                    const payload = { ...this.formUser };
+                    let res;
+                    if (this.modalMode === 'create') {
+                        res = await supabaseClient.from('acessTable').insert([payload]);
+                    } else {
+                        res = await supabaseClient.from('acessTable').update(payload).eq('email', payload.email);
+                    }
+                    if (!res.error) {
+                        Swal.fire('Sucesso', 'Usuário atualizado', 'success');
+                        this.showModal = false;
+                        this.loadInitialData();
                     }
                 },
 
-                // Funções de CRUD e Helpers (Log Audit, Delete, Save) seguem a mesma lógica segura da v8.5...
-                async handleLogout() { 
-                    await supabaseClient.auth.signOut(); 
-                    window.location.reload(); 
+                async saveReport() {
+                    const payload = { ...this.formReport };
+                    let res;
+                    if (this.modalMode === 'create') {
+                        res = await supabaseClient.from('reportsTable').insert([payload]);
+                    } else {
+                        res = await supabaseClient.from('reportsTable').update(payload).eq('id', payload.id);
+                    }
+                    if (!res.error) {
+                        Swal.fire('Sucesso', 'Report publicado', 'success');
+                        this.showReportModal = false;
+                        this.loadInitialData();
+                    }
                 },
-                formatDate(date) { return new Date(date).toLocaleString('pt-BR'); },
-                get filteredUsers() {
-                    const q = this.searchQuery.toLowerCase();
-                    return this.usersList.filter(u => u.nome_completo?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
-                }
+
+                async deleteReport(id) {
+                    const { isConfirmed } = await Swal.fire({ title: 'Excluir?', text: "Esta ação é irreversível!", icon: 'warning', showCancelButton: true });
+                    if (isConfirmed) {
+                        await supabaseClient.from('reportsTable').delete().eq('id', id);
+                        this.loadInitialData();
+                    }
+                },
+
+                openModal(mode, user = null) {
+                    this.modalMode = mode;
+                    this.formUser = user ? { ...user } : { nome_completo: '', email: '', cargo: 'Analista', setor: '' };
+                    this.showModal = true;
+                },
+
+                openReportModal(mode, report = null) {
+                    this.modalMode = mode;
+                    this.formReport = report ? { ...report } : { nome: '', descricao: '', area: '', link: '', permissao: 'todos' };
+                    this.showReportModal = true;
+                },
+
+                handleLogout() { supabaseClient.auth.signOut(); window.location.reload(); }
             }
         }
     </script>
