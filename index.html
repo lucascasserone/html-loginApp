@@ -1,312 +1,420 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CorpSystem | Ultimate Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <style>
-        [x-cloak] { display: none !important; }
-
-        /* MELHORIA GLASS MODE (Leitura Aprimorada) */
-        .theme-glass { 
-            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1600&q=80');
-            background-size: cover;
-            background-attachment: fixed;
-        }
-        .theme-glass .glass-card { 
-            background: rgba(15, 23, 42, 0.6); /* Fundo mais escuro para contraste */
-            backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            color: #f8fafc;
-        }
-        .theme-glass .text-gray-800, .theme-glass .text-gray-400 { color: #f1f5f9; }
-
-        /* DARK MODE */
-        .theme-dark { background-color: #020617; color: #e2e8f0; }
-        .theme-dark .bg-white { background-color: #0f172a !important; color: #f1f5f9; border-color: #1e293b; }
-        .theme-dark .glass-card { background-color: #0f172a; border: 1px solid #1e293b; }
-
-        /* NOVAS ANIMAÇÕES */
-        .hover-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .hover-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        .animate-slide { animation: slideIn 0.4s ease-out; }
-
-        .animate-skeleton { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CorpSystem | Ultimate Edition</title>
+  <meta name="description" content="Painel administrativo corporativo com autenticação Supabase, auditoria e gestão de usuários." />
+  <!-- Tailwind / Alpine / SweetAlert / Supabase -->
+  https://cdn.tailwindcss.com</script>
+  https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js</script>
+  https://cdn.jsdelivr.net/npm/sweetalert2@11</script>
+  https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2</script>
+  <style>
+    [x-cloak]{display:none!important}
+    /* Temas */
+    .theme-glass{background:linear-gradient(rgba(0,0,0,.25),rgba(0,0,0,.25)),url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1600&q=80');background-size:cover;background-attachment:fixed}
+    .theme-glass .glass-card{background:rgba(15,23,42,.62);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);color:#f8fafc}
+    .theme-glass .muted{color:#f1f5f9}
+    .theme-dark{background:#020617;color:#e2e8f0}
+    .theme-dark .bg-white{background:#0f172a!important;color:#f1f5f9;border-color:#1e293b}
+    .theme-dark .glass-card{background:#0f172a;border:1px solid #1e293b}
+    /* Cartões / animações */
+    .hover-card{transition:all .25s cubic-bezier(.4,0,.2,1)}
+    .hover-card:hover{transform:translateY(-4px);box-shadow:0 18px 25px -12px rgb(0 0 0 / .2)}
+    @keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .animate-slide{animation:slideIn .35s ease-out}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+    .animate-skeleton{animation:pulse 2s infinite}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  </style>
 </head>
-<body :class="'theme-' + theme" class="min-h-screen transition-colors duration-500 font-sans" x-data="systemAuth()">
+<body x-data="systemAuth()" x-init="init()" :class="'min-h-screen font-sans theme-'+theme" class="transition-colors duration-500">
+  
+  <!-- AUTH SCREENS -->
+  <div x-show="view!=='dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md border-t-8 border-[#003366] glass-card">
+      <!-- LOGIN -->
+      <template x-if="view==='login'">
+        <form @submit.prevent="handleLogin" class="animate-slide" aria-label="Formulário de Login">
+          <h1 class="text-3xl font-black text-center mb-8 italic">CORP<span class="font-light">SYS</span></h1>
+          <label class="sr-only" for="email">E-mail</label>
+          <input id="email" type="email" x-model.trim="email" required placeholder="E-mail Corporativo" class="w-full p-4 border rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"/>
+          <label class="sr-only" for="password">Senha</label>
+          <input id="password" type="password" x-model="password" required placeholder="Senha" class="w-full p-4 border rounded-xl mb-6 outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"/>
+          <button :disabled="loading" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span x-show="!loading">ENTRAR</span>
+            <span x-show="loading" class="inline-flex items-center gap-2"><svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg> Entrando...</span>
+          </button>
+          <p @click="view='recover'" class="text-center text-xs mt-6 cursor-pointer hover:underline opacity-70">Esqueci minha senha</p>
+        </form>
+      </template>
 
-    <div x-show="view !== 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" class="min-h-screen flex items-center justify-center p-4">
-        
-        <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md border-t-8 border-[#003366] glass-card">
-            <template x-if="view === 'login'">
-                <form @submit.prevent="handleLogin" class="animate-slide">
-                    <h2 class="text-3xl font-black text-center mb-8 italic">CORP<span class="font-light">SYS</span></h2>
-                    <input type="email" x-model="email" placeholder="E-mail Corporativo" class="w-full p-4 border rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500 bg-transparent">
-                    <input type="password" x-model="password" placeholder="Senha" class="w-full p-4 border rounded-xl mb-6 outline-none focus:ring-2 focus:ring-blue-500 bg-transparent">
-                    <button class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:brightness-110">ENTRAR</button>
-                    <p @click="view = 'recover'" class="text-center text-xs mt-6 cursor-pointer hover:underline opacity-60">Esqueci minha senha</p>
-                </form>
-            </template>
-
-            <template x-if="view === 'recover'">
-                <div class="animate-slide">
-                    <h2 class="text-2xl font-bold mb-4">Recuperar Acesso</h2>
-                    <p class="text-sm opacity-60 mb-6">Enviaremos um link de redefinição para o seu e-mail.</p>
-                    <input type="email" x-model="email" class="w-full p-4 border rounded-xl mb-4 bg-transparent outline-none">
-                    <button @click="handleRecovery" class="w-full bg-gray-800 text-white py-4 rounded-xl font-bold">ENVIAR LINK</button>
-                    <button @click="view = 'login'" class="w-full text-sm mt-4 opacity-50">Voltar</button>
-                </div>
-            </template>
-
-            <template x-if="view === 'reset_password'">
-                <div class="animate-slide">
-                    <h2 class="text-2xl font-bold mb-6">Nova Senha</h2>
-                    <input type="password" x-model="newPassword" placeholder="Mínimo 6 caracteres" class="w-full p-4 border rounded-xl mb-6 bg-transparent outline-none">
-                    <button @click="handleUpdatePassword" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold">SALVAR E ENTRAR</button>
-                </div>
-            </template>
+      <!-- RECOVERY -->
+      <template x-if="view==='recover'">
+        <div class="animate-slide" aria-live="polite">
+          <h2 class="text-2xl font-bold mb-4">Recuperar Acesso</h2>
+          <p class="text-sm opacity-70 mb-6">Se o e-mail existir, enviaremos um link de redefinição.</p>
+          <label class="sr-only" for="rec-email">E-mail</label>
+          <input id="rec-email" type="email" x-model.trim="email" placeholder="e-mail@empresa.com" class="w-full p-4 border rounded-xl mb-4 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"/>
+          <button @click="handleRecovery" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold">ENVIAR LINK</button>
+          <button @click="view='login'" class="w-full text-sm mt-4 opacity-70">Voltar</button>
         </div>
-    </div>
+      </template>
 
-    <div x-show="view === 'dashboard'" x-cloak class="min-h-screen flex flex-col">
-        
-        <nav class="bg-[#003366] text-white px-8 py-4 flex justify-between items-center shadow-xl sticky top-0 z-40">
-            <div class="flex items-center gap-8">
-                <span class="font-black text-2xl italic">CORP<span class="font-light">SYS</span></span>
-                <div class="flex gap-6 h-6 items-center">
-                    <button @click="tab = 'users'" :class="tab === 'users' ? 'text-blue-400' : 'opacity-50'" class="text-xs font-black uppercase transition-all">Usuários</button>
-                    <button x-show="isAdmin" @click="tab = 'audit'" :class="tab === 'audit' ? 'text-blue-400' : 'opacity-50'" class="text-xs font-black uppercase transition-all">Auditoria</button>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-4">
-                <div class="flex bg-black/20 p-1 rounded-lg">
-                    <button @click="theme = 'light'" :class="theme === 'light' ? 'bg-white text-black' : ''" class="p-1.5 rounded text-[9px] font-bold px-3">L</button>
-                    <button @click="theme = 'dark'" :class="theme === 'dark' ? 'bg-gray-800 text-white' : ''" class="p-1.5 rounded text-[9px] font-bold px-3">D</button>
-                    <button @click="theme = 'glass'" :class="theme === 'glass' ? 'bg-white/30 text-white' : ''" class="p-1.5 rounded text-[9px] font-bold px-3">G</button>
-                </div>
-                <button @click="handleLogout" class="bg-red-500/20 hover:bg-red-500 p-2 rounded-xl border border-red-500/50 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                </button>
-            </div>
-        </nav>
-
-        <main class="p-8 max-w-7xl mx-auto w-full flex-grow">
-            
-            <div x-show="tab === 'users'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                    <div class="relative w-full md:w-96">
-                        <input type="text" x-model="searchQuery" placeholder="Buscar colaborador..." 
-                               class="w-full pl-12 pr-4 py-3 rounded-2xl outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 glass-card">
-                        <span class="absolute left-4 top-3.5 opacity-40">🔍</span>
-                    </div>
-                    
-                    <div class="flex gap-3" x-show="isAdmin">
-                        <button @click="openModal('create')" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:scale-105 active:scale-95 transition-all">
-                            + NOVO CADASTRO
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden glass-card">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50/50 text-[11px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100/10">
-                            <tr>
-                                <th class="p-5">Colaborador</th>
-                                <th class="p-5">Status / Role</th>
-                                <th class="p-5 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="user in filteredUsers" :key="user.email">
-                                <tr class="hover:bg-blue-50/5 transition-colors border-b border-gray-100/5 hover-card">
-                                    <td class="p-5">
-                                        <div class="font-bold" x-text="user.nome_completo"></div>
-                                        <div class="text-xs opacity-50" x-text="user.email"></div>
-                                    </td>
-                                    <td class="p-5">
-                                        <span :class="user.cargo === 'CEO' || user.cargo === 'Diretor' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'" 
-                                              class="text-[10px] font-black px-3 py-1 rounded-full uppercase" x-text="user.cargo"></span>
-                                    </td>
-                                    <td class="p-5 text-center space-x-4">
-                                        <button x-show="isAdmin" @click="openModal('edit', user)" class="hover:scale-125 transition-transform">✏️</button>
-                                        <button x-show="isAdmin" @click="deleteUser(user)" class="text-red-400 hover:scale-125 transition-transform">🗑️</button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div x-show="tab === 'audit'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4">
-                <div class="bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 overflow-hidden">
-                    <div class="p-5 border-b border-slate-800 flex justify-between items-center">
-                        <span class="text-green-400 font-mono text-xs">LOG_SYSTEM_MONITOR :: v6.0</span>
-                        <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-                    </div>
-                    <div class="p-6 max-h-[600px] overflow-y-auto font-mono text-[11px] space-y-3 bg-slate-950">
-                        <template x-for="log in auditLogs">
-                            <div class="flex gap-4 opacity-80 border-l border-slate-800 pl-4 hover:opacity-100 transition-opacity">
-                                <span class="text-slate-500" x-text="new Date(log.created_at).toLocaleTimeString()"></span>
-                                <span class="text-blue-400 font-bold" x-text="log.admin_email"></span>
-                                <span class="text-white" x-text="log.acao"></span>
-                                <span class="text-slate-500">>></span>
-                                <span class="text-green-500" x-text="log.alvo"></span>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div x-show="showModal" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-lg glass-card" @click.away="showModal = false">
-            <h2 class="text-2xl font-black mb-6" x-text="modalMode === 'create' ? 'Novo Colaborador' : 'Editar Registro'"></h2>
-            
-            <form @submit.prevent="saveUser" class="space-y-4">
-                <input type="text" x-model="formUser.nome_completo" placeholder="Nome Completo" class="w-full p-4 border rounded-xl bg-transparent outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="email" x-model="formUser.email" :disabled="modalMode === 'edit'" placeholder="E-mail" class="w-full p-4 border rounded-xl bg-transparent outline-none disabled:opacity-30">
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <select x-model="formUser.cargo" class="w-full p-4 border rounded-xl bg-transparent outline-none">
-                        <option value="Analista">Analista</option>
-                        <option value="Gerente">Gerente</option>
-                        <option value="Diretor">Diretor</option>
-                        <option value="CEO">CEO</option>
-                    </select>
-                    <input type="text" x-model="formUser.setor" placeholder="Setor" class="w-full p-4 border rounded-xl bg-transparent outline-none">
-                </div>
-
-                <div class="bg-blue-500/10 p-4 rounded-xl text-[10px] text-blue-400 font-bold leading-relaxed border border-blue-500/20">
-                    ⚠️ INFORMAÇÃO: Após salvar, o novo colaborador deve clicar em "Esqueci minha senha" na tela inicial para definir sua senha de acesso.
-                </div>
-
-                <div class="flex gap-4 pt-4">
-                    <button type="button" @click="showModal = false" class="flex-1 font-bold opacity-50">Cancelar</button>
-                    <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg">SALVAR</button>
-                </div>
-            </form>
+      <!-- RESET PASSWORD -->
+      <template x-if="view==='reset_password'">
+        <div class="animate-slide">
+          <h2 class="text-2xl font-bold mb-6">Definir nova senha</h2>
+          <label class="sr-only" for="new-pass">Nova senha</label>
+          <input id="new-pass" type="password" x-model="newPassword" placeholder="Mínimo 8 caracteres" class="w-full p-4 border rounded-xl mb-3 bg-transparent outline-none"/>
+          <label class="sr-only" for="new-pass2">Confirmar senha</label>
+          <input id="new-pass2" type="password" x-model="confirmPassword" placeholder="Confirmar senha" class="w-full p-4 border rounded-xl mb-4 bg-transparent outline-none"/>
+          <!-- Barra simples de força -->
+          <div class="h-2 rounded bg-gray-100 mb-6">
+            <div class="h-2 rounded" :class="{
+              'bg-red-500 w-1/3': (newPassword||'').length<8,
+              'bg-yellow-500 w-2/3': (newPassword||'').length>=8 && !(/[A-Z]/.test(newPassword)&&/\d/.test(newPassword)),
+              'bg-green-600 w-full': (newPassword||'').length>=8 && /[A-Z]/.test(newPassword) && /\d/.test(newPassword)
+            }"></div>
+          </div>
+          <button @click="handleUpdatePassword" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold">SALVAR E ENTRAR</button>
         </div>
+      </template>
     </div>
+  </div>
 
-    <script>
-        const SUPABASE_URL = 'https://nqdlxiyzsxkntypyzkie.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xZGx4aXl6c3hrbnR5cHl6a2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjY1ODIsImV4cCI6MjA4NzU0MjU4Mn0.8npxzHMR3VdaufiqmsJKdLR2zpXDOFzDldFwdth18f0';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <!-- DASHBOARD -->
+  <div x-show="view==='dashboard'" x-cloak class="min-h-screen flex flex-col">
+    <nav class="bg-[#003366] text-white px-8 py-4 flex justify-between items-center shadow-xl sticky top-0 z-40">
+      <div class="flex items-center gap-8">
+        <span class="font-black text-2xl italic">CORP<span class="font-light">SYS</span></span>
+        <div class="flex gap-6 h-6 items-center">
+          <button @click="tab='users'" :class="tab==='users'?'text-blue-300':'opacity-70'" class="text-xs font-black uppercase transition-all">Usuários</button>
+          <button x-show="isAdmin" @click="tab='audit'" :class="tab==='audit'?'text-blue-300':'opacity-70'" class="text-xs font-black uppercase transition-all">Auditoria</button>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex bg-black/20 p-1 rounded-lg" role="group" aria-label="Alternar tema">
+          <button @click="setTheme('light')" :class="theme==='light'?'bg-white text-black':''" class="p-1.5 rounded text-[9px] font-bold px-3">L</button>
+          <button @click="setTheme('dark')" :class="theme==='dark'?'bg-gray-800 text-white':''" class="p-1.5 rounded text-[9px] font-bold px-3">D</button>
+          <button @click="setTheme('glass')" :class="theme==='glass'?'bg-white/30 text-white':''" class="p-1.5 rounded text-[9px] font-bold px-3">G</button>
+        </div>
+        <span class="hidden md:inline-block text-[11px] bg-white/10 px-3 py-1 rounded-full border border-white/20" x-text="userEmail"></span>
+        <button @click="handleLogout" class="bg-red-500/20 hover:bg-red-500 p-2 rounded-xl border border-red-500/50 transition-all" aria-label="Sair">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </button>
+      </div>
+    </nav>
 
-        function systemAuth() {
-            return {
-                view: 'login', tab: 'users', theme: 'light', loadingData: false,
-                email: '', password: '', newPassword: '', searchQuery: '',
-                userEmail: '', isAdmin: false,
-                usersList: [], auditLogs: [],
-                showModal: false, modalMode: 'create',
-                formUser: { nome_completo: '', email: '', cargo: 'Analista', setor: '' },
+    <main class="p-8 max-w-7xl mx-auto w-full flex-grow">
+      <!-- USERS TAB -->
+      <section x-show="tab==='users'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+          <div class="relative w-full md:w-96">
+            <input type="text" x-model.debounce.300ms="searchQuery" placeholder="Buscar colaborador..."
+                   class="w-full pl-12 pr-4 py-3 rounded-2xl outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 glass-card"/>
+            <span class="absolute left-4 top-3.5 opacity-40">🔍</span>
+          </div>
+          <div class="flex gap-3" x-show="isAdmin">
+            <button @click="openModal('create')" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:scale-105 active:scale-95 transition-all">+ NOVO CADASTRO</button>
+          </div>
+        </div>
 
-                async init() {
-                    if (window.location.hash.includes('type=recovery')) { this.view = 'reset_password'; return; }
-                    const { data: { session } } = await supabaseClient.auth.getSession();
-                    if (session) {
-                        this.userEmail = session.user.email;
-                        this.view = 'dashboard';
-                        await this.loadData();
-                    }
-                },
+        <!-- Skeleton quando carregando -->
+        <template x-if="loadingData">
+          <div class="grid gap-2">
+            <div class="h-14 rounded-2xl bg-gray-100 animate-skeleton"></div>
+            <div class="h-14 rounded-2xl bg-gray-100 animate-skeleton"></div>
+            <div class="h-14 rounded-2xl bg-gray-100 animate-skeleton"></div>
+          </div>
+        </template>
 
-                async loadData() {
-                    this.loadingData = true;
-                    // Pegar Role
-                    const { data: profile } = await supabaseClient.from('acessTable').select('cargo').eq('email', this.userEmail).single();
-                    this.isAdmin = (profile && ['CEO', 'Diretor'].includes(profile.cargo));
-                    
-                    // Pegar Usuários
-                    const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
-                    this.usersList = users || [];
+        <div x-show="!loadingData" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden glass-card">
+          <table class="w-full text-left">
+            <thead class="bg-gray-50/50 text-[11px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100/10">
+              <tr>
+                <th class="p-5" scope="col">Colaborador</th>
+                <th class="p-5" scope="col">Status / Role</th>
+                <th class="p-5 text-center" scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="user in filteredUsers" :key="user.email">
+                <tr class="hover:bg-blue-50/5 transition-colors border-b border-gray-100/5 hover-card">
+                  <td class="p-5">
+                    <div class="font-bold" x-text="user.nome_completo"></div>
+                    <div class="text-xs opacity-60" x-text="user.email"></div>
+                  </td>
+                  <td class="p-5">
+                    <span :class="(user.cargo==='CEO'||user.cargo==='Diretor') ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'" class="text-[10px] font-black px-3 py-1 rounded-full uppercase" x-text="user.cargo"></span>
+                  </td>
+                  <td class="p-5 text-center space-x-4">
+                    <button x-show="isAdmin" @click="openModal('edit', user)" class="hover:scale-125 transition-transform" aria-label="Editar usuário">✏️</button>
+                    <button x-show="isAdmin" @click="deleteUser(user)" class="text-red-400 hover:scale-125 transition-transform" aria-label="Excluir usuário">🗑️</button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-                    // Pegar Logs
-                    if (this.isAdmin) {
-                        const { data: logs } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(30);
-                        this.auditLogs = logs || [];
-                    }
-                    this.loadingData = false;
-                },
+      <!-- AUDIT TAB -->
+      <section x-show="tab==='audit'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2">
+        <div class="bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 overflow-hidden">
+          <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+            <span class="text-green-400 font-mono text-xs">LOG_SYSTEM_MONITOR :: v6.0</span>
+            <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+          </div>
+          <div class="p-6 max-h-[600px] overflow-y-auto font-mono text-[11px] space-y-3 bg-slate-950">
+            <template x-for="log in auditLogs" :key="log.id">
+              <div class="flex gap-4 opacity-80 border-l border-slate-800 pl-4 hover:opacity-100 transition-opacity">
+                <span class="text-slate-500" x-text="new Date(log.created_at).toLocaleTimeString()"></span>
+                <span class="text-blue-400 font-bold" x-text="log.admin_email"></span>
+                <span class="text-white" x-text="log.acao"></span>
+                <span class="text-slate-500">&gt;&gt;</span>
+                <span class="text-green-500" x-text="log.alvo"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-                get filteredUsers() {
-                    if (!this.searchQuery.trim()) return this.usersList;
-                    const q = this.searchQuery.toLowerCase();
-                    return this.usersList.filter(u => u.nome_completo.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-                },
+  <!-- MODAL A11Y -->
+  <div x-show="showModal" x-cloak x-trap.noscroll="showModal" @keydown.escape.window="showModal=false"
+       class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-lg glass-card" @click.outside="showModal=false">
+      <h2 id="modalTitle" class="text-2xl font-black mb-6" x-text="modalMode==='create'?'Novo Colaborador':'Editar Registro'"></h2>
+      <form @submit.prevent="saveUser" class="space-y-4">
+        <label class="block text-sm font-semibold" for="u-name">Nome Completo</label>
+        <input id="u-name" type="text" x-model="formUser.nome_completo" required placeholder="Nome Completo" class="w-full p-4 border rounded-xl bg-transparent outline-none focus:ring-2 focus:ring-blue-500"/>
+        <label class="block text-sm font-semibold" for="u-mail">E-mail</label>
+        <input id="u-mail" type="email" x-model="formUser.email" :disabled="modalMode==='edit'" required placeholder="E-mail" class="w-full p-4 border rounded-xl bg-transparent outline-none disabled:opacity-40"/>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold" for="u-role">Cargo</label>
+            <select id="u-role" x-model="formUser.cargo" class="w-full p-4 border rounded-xl bg-transparent outline-none">
+              <option value="Analista">Analista</option>
+              <option value="Gerente">Gerente</option>
+              <option value="Diretor">Diretor</option>
+              <option value="CEO">CEO</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold" for="u-area">Setor</label>
+            <input id="u-area" type="text" x-model="formUser.setor" placeholder="Setor" class="w-full p-4 border rounded-xl bg-transparent outline-none"/>
+          </div>
+        </div>
+        <div class="bg-blue-500/10 p-4 rounded-xl text-[11px] text-blue-400 font-bold leading-relaxed border border-blue-500/20">
+          ⚠️ Após salvar, o novo colaborador deve clicar em "Esqueci minha senha" na tela inicial para definir sua senha de acesso.
+        </div>
+        <div class="flex gap-4 pt-4">
+          <button type="button" @click="showModal=false" class="flex-1 font-bold opacity-70">Cancelar</button>
+          <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">SALVAR</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-                async saveUser() {
-                    let res;
-                    if (this.modalMode === 'create') {
-                        res = await supabaseClient.from('acessTable').insert([this.formUser]);
-                    } else {
-                        res = await supabaseClient.from('acessTable').update(this.formUser).eq('email', this.formUser.email);
-                    }
+  <script>
+    // ==== Supabase Config ====
+    const SUPABASE_URL = 'https://nqdlxiyzsxkntypyzkie.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xZGx4aXl6c3hrbnR5cHl6a2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjY1ODIsImV4cCI6MjA4NzU0MjU4Mn0.8npxzHMR3VdaufiqmsJKdLR2zpXDOFzDldFwdth18f0';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-                    if (res.error) {
-                        Swal.fire('Erro', res.error.message, 'error');
-                    } else {
-                        await this.registerAudit(this.modalMode === 'create' ? 'NOVO_USUARIO' : 'EDICAO', this.formUser.email);
-                        this.showModal = false;
-                        await this.loadData(); // Isso atualiza os usuários e os logs instantaneamente
-                        Swal.fire('Sucesso', 'Base de dados atualizada.', 'success');
-                    }
-                },
+    // ==== App State ====
+    function systemAuth(){
+      return {
+        // UI state
+        view:'login', tab:'users', theme:'light', loading:false, loadingData:false,
+        // auth & forms
+        email:'', password:'', newPassword:'', confirmPassword:'', searchQuery:'',
+        userEmail:'', isAdmin:false,
+        // data
+        usersList:[], auditLogs:[],
+        // modal
+        showModal:false, modalMode:'create',
+        formUser:{ nome_completo:'', email:'', cargo:'Analista', setor:'' },
+        // realtime channels
+        _chanUsers:null, _chanLogs:null,
 
-                async deleteUser(user) {
-                    const confirm = await Swal.fire({ title: 'Deletar?', icon: 'warning', showCancelButton: true });
-                    if (confirm.isConfirmed) {
-                        const { error } = await supabaseClient.from('acessTable').delete().eq('email', user.email);
-                        if (!error) {
-                            await this.registerAudit('EXCLUSAO', user.email);
-                            await this.loadData();
-                        }
-                    }
-                },
+        // ===== INIT =====
+        async init(){
+          // Tema persistente
+          try {
+            const saved = localStorage.getItem('theme');
+            this.theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
+          } catch(_){}
 
-                async registerAudit(acao, alvo) {
-                    await supabaseClient.from('audit_logs').insert([{ admin_email: this.userEmail, acao, alvo }]);
-                },
+          // Reset via hash
+          if (location.hash.includes('type=recovery')) { this.view='reset_password'; return; }
 
-                async handleLogin() {
-                    const { error } = await supabaseClient.auth.signInWithPassword({ email: this.email, password: this.password });
-                    if (error) Swal.fire('Erro', 'Acesso Negado.', 'error'); else window.location.reload();
-                },
-
-                async handleRecovery() {
-                    const { error } = await supabaseClient.auth.resetPasswordForEmail(this.email, { redirectTo: window.location.origin + window.location.pathname });
-                    if (error) Swal.fire('Erro', error.message, 'error'); else Swal.fire('Sucesso', 'Confira seu e-mail.', 'success');
-                },
-
-                async handleUpdatePassword() {
-                    const { error } = await supabaseClient.auth.updateUser({ password: this.newPassword });
-                    if (error) Swal.fire('Erro', error.message, 'error');
-                    else { await Swal.fire('Sucesso', 'Senha definida!', 'success'); window.location.href = window.location.pathname; }
-                },
-
-                openModal(mode, user = null) {
-                    this.modalMode = mode;
-                    this.formUser = user ? { ...user } : { nome_completo: '', email: '', cargo: 'Analista', setor: '' };
-                    this.showModal = true;
-                },
-
-                async handleLogout() { await supabaseClient.auth.signOut(); window.location.reload(); }
+          // Atualizações de sessão sem reload
+          supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (session){
+              this.userEmail = session.user.email;
+              this.view = 'dashboard';
+              await this.loadData();
+              this.bindRealtime();
+            } else {
+              this.userEmail=''; this.view='login';
+              this.unbindRealtime();
             }
-        }
-    </script>
+          });
+
+          // Sessão atual
+          const { data:{ session } } = await supabaseClient.auth.getSession();
+          if (session){
+            this.userEmail = session.user.email; this.view='dashboard';
+            await this.loadData(); this.bindRealtime();
+          }
+        },
+
+        setTheme(t){ this.theme=t; try{localStorage.setItem('theme',t)}catch(_){} },
+
+        // ===== DATA =====
+        async loadData(){
+          this.loadingData = true;
+          // Papel do usuário
+          let { data: profile } = await supabaseClient
+            .from('acessTable')
+            .select('cargo')
+            .eq('email', this.userEmail)
+            .single();
+          this.isAdmin = !!profile && ['CEO','Diretor'].includes(profile.cargo);
+
+          // Usuários: selecionar somente colunas necessárias
+          let { data: users } = await supabaseClient
+            .from('acessTable')
+            .select('nome_completo,email,cargo,setor')
+            .order('nome_completo');
+          this.usersList = users || [];
+
+          // Logs (somente admin)
+          if (this.isAdmin){
+            let { data: logs } = await supabaseClient
+              .from('audit_logs')
+              .select('id,created_at,admin_email,acao,alvo')
+              .order('created_at', { ascending:false })
+              .limit(200);
+            this.auditLogs = logs || [];
+          } else {
+            this.auditLogs = [];
+          }
+          this.loadingData = false;
+        },
+
+        get filteredUsers(){
+          const q = (this.searchQuery||'').trim().toLowerCase();
+          if (!q) return this.usersList;
+          return this.usersList.filter(u => (u.nome_completo||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q));
+        },
+
+        // ===== REALTIME =====
+        bindRealtime(){
+          this.unbindRealtime();
+          this._chanUsers = supabaseClient.channel('rt-users')
+            .on('postgres_changes',{event:'*',schema:'public',table:'acessTable'}, (payload)=>{
+              const rec = payload.new || payload.old;
+              if (payload.eventType==='INSERT') this.usersList = [payload.new, ...this.usersList];
+              if (payload.eventType==='UPDATE') this.usersList = this.usersList.map(x => x.email===rec.email ? payload.new : x);
+              if (payload.eventType==='DELETE') this.usersList = this.usersList.filter(x => x.email!==rec.email);
+            }).subscribe();
+          if (this.isAdmin){
+            this._chanLogs = supabaseClient.channel('rt-logs')
+              .on('postgres_changes',{event:'INSERT',schema:'public',table:'audit_logs'}, (payload)=>{
+                this.auditLogs = [payload.new, ...this.auditLogs].slice(0, 200);
+              }).subscribe();
+          }
+        },
+        unbindRealtime(){
+          try { if (this._chanUsers) supabaseClient.removeChannel(this._chanUsers); } catch(_){}
+          try { if (this._chanLogs) supabaseClient.removeChannel(this._chanLogs); } catch(_){}
+          this._chanUsers=null; this._chanLogs=null;
+        },
+
+        // ===== CRUD =====
+        openModal(mode, user=null){
+          this.modalMode = mode;
+          this.formUser = user ? { ...user } : { nome_completo:'', email:'', cargo:'Analista', setor:'' };
+          this.showModal = true;
+        },
+
+        async saveUser(){
+          const u = {
+            nome_completo: String(this.formUser.nome_completo||'').trim(),
+            email: String(this.formUser.email||'').trim().toLowerCase(),
+            cargo: String(this.formUser.cargo||'').trim(),
+            setor: String(this.formUser.setor||'').trim()
+          };
+          if (!u.nome_completo || !/^\S+@\S+\.\S+$/.test(u.email)){
+            return Swal.fire('Atenção','Preencha nome e e‑mail válidos.','warning');
+          }
+          if (!this.isAdmin && ['Diretor','CEO'].includes(u.cargo)){
+            return Swal.fire('Acesso negado','Você não pode atribuir esse cargo.','error');
+          }
+          let resp;
+          if (this.modalMode==='create') resp = await supabaseClient.from('acessTable').insert([u]);
+          else resp = await supabaseClient.from('acessTable').update({ nome_completo:u.nome_completo, cargo:u.cargo, setor:u.setor }).eq('email', u.email);
+          if (resp.error) return Swal.fire('Erro', resp.error.message, 'error');
+          await this.registerAudit(this.modalMode==='create'?'NOVO_USUARIO':'EDICAO', u.email);
+          this.showModal=false;
+        },
+
+        async deleteUser(user){
+          const ask = await Swal.fire({title:'Excluir usuário?', html:`<b>${user.nome_completo}</b><br/><small>${user.email}</small>`, icon:'warning', showCancelButton:true, confirmButtonText:'Excluir'});
+          if (!ask.isConfirmed) return;
+          // otimista
+          const backup = this.usersList;
+          this.usersList = this.usersList.filter(u => u.email!==user.email);
+          const { error } = await supabaseClient.from('acessTable').delete().eq('email', user.email);
+          if (error){ this.usersList = backup; return Swal.fire('Erro','Não foi possível excluir.','error'); }
+          await this.registerAudit('EXCLUSAO', user.email);
+        },
+
+        async registerAudit(acao, alvo){
+          await supabaseClient.from('audit_logs').insert([{ admin_email:this.userEmail, acao, alvo }]);
+        },
+
+        // ===== AUTH =====
+        async handleLogin(){
+          this.loading = true;
+          try{
+            const { error } = await supabaseClient.auth.signInWithPassword({ email:this.email, password:this.password });
+            if (error) throw error;
+            // onAuthStateChange cuidará do resto
+          }catch(e){
+            Swal.fire('Erro','Acesso negado.','error');
+          }finally{ this.loading=false; }
+        },
+
+        async handleRecovery(){
+          try{
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(this.email, { redirectTo: location.origin + location.pathname });
+            // resposta sempre genérica (anti-enumeração)
+            Swal.fire('Verifique seu e‑mail','Se existir uma conta, enviaremos o link.','success');
+          }catch(e){
+            Swal.fire('Verifique seu e‑mail','Se existir uma conta, enviaremos o link.','success');
+          }
+        },
+
+        async handleUpdatePassword(){
+          if ((this.newPassword||'').length<8 || this.newPassword!==this.confirmPassword){
+            return Swal.fire('Atenção','Senha mínima de 8 caracteres e confirmação idêntica.','warning');
+          }
+          const { error } = await supabaseClient.auth.updateUser({ password:this.newPassword });
+          if (error) return Swal.fire('Erro','Não foi possível alterar a senha.','error');
+          await Swal.fire('Sucesso','Senha definida!','success');
+          this.view='login';
+          this.newPassword=''; this.confirmPassword='';
+        },
+
+        async handleLogout(){ await supabaseClient.auth.signOut(); }
+      }
+    }
+  </script>
 </body>
 </html>
