@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heuriskien | Enterprise v11.7</title>
+    <title>Heuriskien | Enterprise v11.9</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -17,10 +17,9 @@
         .theme-light { --bg: #f8fafc; --text: #0f172a; --card: #ffffff; --border: #cbd5e1; --primary: #2563eb; }
         .theme-glass { --bg: radial-gradient(at top right, #1e293b, #030712); --text: #f9fafb; --card: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.1); --primary: #60a5fa; }
 
-        body { background: var(--bg); color: var(--text); transition: all 0.5s ease; min-height: 100vh; }
+        body { background: var(--bg); color: var(--text); transition: all 0.5s ease; min-height: 100vh; overflow-x: hidden; }
         .glass-container { background: var(--card); backdrop-filter: blur(25px); border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         
-        /* Corrigir visibilidade dos selects/dropdowns */
         select option { background-color: #111827 !important; color: white !important; }
         .theme-light select option { background-color: #ffffff !important; color: #0f172a !important; }
 
@@ -46,8 +45,8 @@
     </div>
 
     <template x-if="view === 'login'">
-        <div class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
-            <div class="w-full max-w-[420px] glass-container p-12 rounded-[40px] fade-in">
+        <div class="min-h-screen flex items-center justify-center p-4 bg-slate-950 relative overflow-hidden">
+            <div class="w-full max-w-[420px] glass-container p-12 rounded-[40px] fade-in shadow-2xl">
                 <div class="text-center mb-10">
                     <h1 class="text-4xl font-black italic tracking-tighter text-white">HEURISKIEN</h1>
                     <p class="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em]">Enterprise Intelligence</p>
@@ -74,11 +73,11 @@
             <nav class="bg-black/40 backdrop-blur-2xl px-8 py-4 flex justify-between items-center sticky top-0 z-40 border-b border-white/5">
                 <div class="flex items-center gap-8">
                     <h1 class="font-black text-2xl italic tracking-tighter">HEURIS<span class="text-blue-500">KIEN</span></h1>
-                    <div class="flex gap-1 bg-white/5 p-1 rounded-2xl">
+                    <div class="flex gap-1 bg-white/5 p-1 rounded-2xl overflow-x-auto no-scrollbar">
                         <template x-for="t in ['news', 'reports', 'users', 'audit', 'profile']">
                             <button x-show="t !== 'audit' || isAdmin" @click="tab = t" 
-                                :class="tab === t ? 'bg-blue-600 text-white' : 'opacity-40'" 
-                                class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all" 
+                                :class="tab === t ? 'bg-blue-600 text-white' : 'opacity-40 hover:bg-white/5'" 
+                                class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all whitespace-nowrap" 
                                 x-text="t === 'users' ? 'Equipe' : (t === 'news' ? 'Notícias' : (t === 'reports' ? 'Reports' : t))"></button>
                         </template>
                     </div>
@@ -91,7 +90,7 @@
                         <button @click="theme = 'light'">☀️</button>
                         <button @click="theme = 'glass'">💎</button>
                     </div>
-                    <button @click="handleLogout" class="bg-red-500/10 hover:bg-red-500 px-4 py-2.5 rounded-xl transition text-red-500 hover:text-white border border-red-500/20 text-[10px] font-black uppercase">Sair</button>
+                    <button @click="handleLogout" class="bg-red-500/10 hover:bg-red-500 px-4 py-2.5 rounded-xl transition text-red-500 hover:text-white border border-red-500/20 text-[10px] font-black uppercase tracking-widest">Sair</button>
                 </div>
             </nav>
 
@@ -102,13 +101,12 @@
                         <h2 class="text-3xl font-black italic uppercase">Hub de Inteligência</h2>
                         <div class="flex gap-4">
                             <div class="relative w-80">
-                                <input type="text" x-model.debounce.300ms="searchQueryReports" placeholder="Filtrar relatórios..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500">
+                                <input type="text" x-model.debounce.300ms="searchQueryReports" placeholder="Filtrar relatórios..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition">
                                 <span class="absolute left-4 top-3.5 opacity-30">🔍</span>
                             </div>
                             <button x-show="isAdmin" @click="openReportModal('create')" class="bg-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase text-white shadow-lg">+ Novo Report</button>
                         </div>
                     </div>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <template x-for="report in filteredReports" :key="report.id">
                             <div class="glass-container p-8 rounded-[35px] hover:border-blue-500/50 transition-all group">
@@ -174,26 +172,6 @@
                     </div>
                 </div>
 
-                <div x-show="tab === 'profile'">
-                    <div class="max-w-4xl mx-auto glass-container p-12 rounded-[60px] flex flex-row items-center gap-12">
-                        <div class="w-44 h-44 bg-gradient-to-tr from-blue-700 to-blue-400 rounded-full flex items-center justify-center text-6xl font-black shadow-2xl text-white" x-text="currentUserData.nome_completo?.charAt(0) || 'U'"></div>
-                        <div class="flex-1">
-                            <h2 class="text-4xl font-black mb-2" x-text="currentUserData.nome_completo"></h2>
-                            <p class="text-blue-500 font-black uppercase tracking-widest text-sm mb-6" x-text="currentUserData.cargo"></p>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
-                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">E-mail Corporativo</p>
-                                    <p class="font-bold text-sm" x-text="currentUserData.email"></p>
-                                </div>
-                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
-                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">Setor Operacional</p>
-                                    <p class="font-bold text-sm" x-text="currentUserData.setor || 'Não informado'"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div x-show="tab === 'audit'">
                     <div class="flex justify-between items-end mb-8">
                         <div>
@@ -225,6 +203,26 @@
                     </div>
                 </div>
 
+                <div x-show="tab === 'profile'">
+                    <div class="max-w-4xl mx-auto glass-container p-12 rounded-[60px] flex flex-row items-center gap-12">
+                        <div class="w-44 h-44 bg-gradient-to-tr from-blue-700 to-blue-400 rounded-full flex items-center justify-center text-6xl font-black shadow-2xl text-white" x-text="currentUserData.nome_completo?.charAt(0) || 'U'"></div>
+                        <div class="flex-1">
+                            <h2 class="text-4xl font-black mb-2" x-text="currentUserData.nome_completo"></h2>
+                            <p class="text-blue-500 font-black uppercase tracking-widest text-sm mb-6" x-text="currentUserData.cargo"></p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">E-mail Corporativo</p>
+                                    <p class="font-bold text-sm" x-text="currentUserData.email"></p>
+                                </div>
+                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">Setor Operacional</p>
+                                    <p class="font-bold text-sm" x-text="currentUserData.setor || 'Não informado'"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div x-show="tab === 'news'" class="max-w-3xl mx-auto space-y-6">
                     <h2 class="text-3xl font-black italic mb-8 uppercase">Intelligence Unit</h2>
                     <template x-for="news in newsList" :key="news.id">
@@ -250,7 +248,7 @@
                         <textarea x-model="formReport.descricao" placeholder="Descrição curta" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white h-24 focus:border-blue-500 outline-none"></textarea>
                         <div class="flex gap-4 pt-6">
                             <button type="button" @click="showReportModal = false" class="flex-1 font-bold opacity-40 text-white">Cancelar</button>
-                            <button type="submit" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl">Salvar</button>
+                            <button type="submit" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl">Confirmar</button>
                         </div>
                     </form>
                 </div>
@@ -272,6 +270,17 @@
                 </div>
             </div>
 
+            <div x-show="showResetPasswordModal" x-cloak class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[80] flex items-center justify-center p-4">
+                <div class="glass-container p-12 rounded-[50px] w-full max-w-md">
+                    <h2 class="text-2xl font-black mb-6 uppercase text-white text-center">Nova Senha</h2>
+                    <p class="text-xs opacity-50 mb-8 uppercase font-bold text-center">Defina sua nova senha de acesso.</p>
+                    <form @submit.prevent="updatePassword" class="space-y-5">
+                        <input type="password" x-model="newPassword" placeholder="Sua nova senha" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500" required minlength="6">
+                        <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Salvar Senha</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </template>
 
@@ -286,12 +295,21 @@
                 email: '', password: '', userEmail: '', isAdmin: false,
                 searchQueryUsers: '', searchQueryReports: '', searchQueryAudit: '', filterAuditAction: '',
                 reportsList: [], usersList: [], auditLogs: [], newsList: [],
-                showReportModal: false, showUserModal: false, modalMode: 'create',
-                currentUserData: {}, 
+                showReportModal: false, showUserModal: false, showResetPasswordModal: false, modalMode: 'create',
+                currentUserData: {}, newPassword: '',
                 formReport: { nome: '', area: '', link: '', descricao: '' },
                 formUser: { nome_completo: '', email: '', cargo: '', setor: '' },
 
                 async init() {
+                    // 1. ESCUTADOR DE EVENTOS DE AUTH (CORRIGIDO PARA RECONHECER O REDIRECIONAMENTO)
+                    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                        console.log("Evento Auth:", event);
+                        if (event === "PASSWORD_RECOVERY" || window.location.hash.includes('type=recovery')) {
+                            this.view = 'dashboard';
+                            this.showResetPasswordModal = true;
+                        }
+                    });
+
                     try {
                         const { data: { session } } = await supabaseClient.auth.getSession();
                         if (session) {
@@ -322,6 +340,19 @@
                     this.auditLogs = data || [];
                 },
 
+                get filteredAuditLogs() {
+                    const q = this.searchQueryAudit.toLowerCase().trim();
+                    const action = this.filterAuditAction;
+                    return this.auditLogs.filter(l => {
+                        const acao = String(l.acao || "").toLowerCase();
+                        const alvo = String(l.alvo || "").toLowerCase();
+                        const admin = String(l.admin_email || "").toLowerCase();
+                        const matchesText = !q || (acao.includes(q) || alvo.includes(q) || admin.includes(q));
+                        const matchesAction = !action || acao.includes(action.toLowerCase());
+                        return matchesText && matchesAction;
+                    });
+                },
+
                 get filteredUsers() {
                     const q = this.searchQueryUsers.toLowerCase().trim();
                     return q ? this.usersList.filter(u => u.nome_completo?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)) : this.usersList;
@@ -332,26 +363,39 @@
                     return q ? this.reportsList.filter(r => r.nome?.toLowerCase().includes(q) || r.area?.toLowerCase().includes(q)) : this.reportsList;
                 },
 
-                get filteredAuditLogs() {
-                    const q = this.searchQueryAudit.toLowerCase().trim();
-                    const action = this.filterAuditAction;
-                    return this.auditLogs.filter(l => {
-                        const matchesText = !q || (l.acao.toLowerCase().includes(q) || l.alvo.toLowerCase().includes(q) || l.admin_email.toLowerCase().includes(q));
-                        const matchesAction = !action || l.acao.includes(action);
-                        return matchesText && matchesAction;
-                    });
-                },
-
                 async handleLogin() {
                     const { error } = await supabaseClient.auth.signInWithPassword({ email: this.email.trim().toLowerCase(), password: this.password });
                     if (error) Swal.fire('Erro', 'Dados incorretos.', 'error'); else window.location.reload();
                 },
 
+                // 2. RECUPERAÇÃO DE SENHA COM REDIRECIONAMENTO DINÂMICO
                 async recoverPassword() {
-                    const { value: email } = await Swal.fire({ title: 'Recuperar Senha', input: 'email', background: '#030712', color: '#fff' });
+                    const { value: email } = await Swal.fire({ 
+                        title: 'Recuperar Senha', 
+                        input: 'email', 
+                        inputPlaceholder: 'E-mail corporativo', 
+                        background: '#030712', 
+                        color: '#fff',
+                        confirmButtonText: 'Enviar Link'
+                    });
                     if (email) {
-                        await supabaseClient.auth.resetPasswordForEmail(email);
-                        Swal.fire('Enviado!', 'Verifique seu e-mail.', 'success');
+                        // redirectTo garante que o link no e-mail volte exatamente para a sua subpasta
+                        const { error } = await supabaseClient.auth.resetPasswordForEmail(email.trim(), {
+                            redirectTo: window.location.origin + window.location.pathname
+                        });
+                        if (error) Swal.fire('Erro', error.message, 'error');
+                        else Swal.fire('Enviado!', 'Verifique sua caixa de entrada e clique no link.', 'success');
+                    }
+                },
+
+                async updatePassword() {
+                    const { error } = await supabaseClient.auth.updateUser({ password: this.newPassword });
+                    if (error) {
+                        Swal.fire('Erro', error.message, 'error');
+                    } else {
+                        await Swal.fire('Sucesso!', 'Senha alterada. Faça login novamente.', 'success');
+                        this.showResetPasswordModal = false;
+                        this.handleLogout();
                     }
                 },
 
@@ -362,11 +406,10 @@
                 },
 
                 async saveReport() {
-                    // CORREÇÃO: Força a limpeza do ID para evitar erro de inserção "non-DEFAULT value into column id"
                     let payload = JSON.parse(JSON.stringify(this.formReport));
                     let res;
                     if (this.modalMode === 'create') {
-                        delete payload.id; // Garante que o Supabase gere o ID automaticamente
+                        delete payload.id;
                         res = await supabaseClient.from('reportsTable').insert([payload]);
                         await this.logAudit('CRIAR_REPORT', `Report: ${payload.nome}`);
                     } else {
