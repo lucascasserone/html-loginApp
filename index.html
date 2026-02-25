@@ -74,18 +74,14 @@
             <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
                 <div class="relative w-full md:w-1/2">
                     <input type="text" x-model.debounce.300ms="searchQuery" placeholder="Pesquisar por nome, e-mail ou setor..." 
-                           class="w-full pl-12 pr-4 py-4 rounded-2xl outline-none ring-2 ring-gray-200/50 focus:ring-blue-500 glass-card transition-all text-sm">
-                    <span class="absolute left-5 top-4.5 opacity-40">🔍</span>
+                           class="w-full pl-12 pr-4 py-4 rounded-2xl outline-none ring-2 ring-gray-200/50 focus:ring-blue-500 glass-card transition-all text-sm text-black">
+                    <span class="absolute left-5 top-4.5 opacity-40 text-black">🔍</span>
                 </div>
                 
                 <div class="flex gap-3" x-show="isAdmin">
                     <button @click="openModal('create')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-xl hover:scale-105 transition-all">
                         + Cadastrar
                     </button>
-                    <div class="relative bg-white/10 px-8 py-4 rounded-2xl font-black text-xs uppercase border border-white/20 cursor-pointer hover:bg-white/20 transition-all">
-                        Excel
-                        <input type="file" @change="handleExcelUpload" class="absolute inset-0 opacity-0 cursor-pointer">
-                    </div>
                 </div>
             </div>
 
@@ -119,7 +115,6 @@
                         </template>
                     </tbody>
                 </table>
-                
                 <div x-show="loadingData" class="p-6 space-y-4">
                     <div class="h-10 animate-skeleton rounded-lg w-full"></div>
                     <div class="h-10 animate-skeleton rounded-lg w-full"></div>
@@ -130,7 +125,7 @@
         <div x-show="tab === 'audit'" x-transition:enter="transition-all duration-300" x-transition:enter-start="opacity-0 translate-y-4">
             <div class="bg-slate-950 rounded-3xl p-8 font-mono text-xs shadow-2xl border border-white/5">
                 <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
-                    <span class="text-blue-400 font-bold tracking-widest uppercase">Relatório de Eventos_v8.0</span>
+                    <span class="text-blue-400 font-bold tracking-widest uppercase">Relatório de Eventos_v8.1</span>
                     <span class="flex items-center gap-2 text-green-500"><span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> Realtime Ativo</span>
                 </div>
                 <div class="space-y-3 max-h-[600px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-white/10">
@@ -150,22 +145,22 @@
 
     <div x-show="showModal" x-cloak x-trap.noscroll="showModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4">
         <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-lg glass-card animate-slide-up" @click.away="showModal = false">
-            <h2 class="text-3xl font-black mb-2" x-text="modalMode === 'create' ? 'Novo Cadastro' : 'Editar Dados'"></h2>
-            <p class="text-[11px] opacity-40 uppercase font-bold tracking-widest mb-8">Administração de Direitos CorpSys</p>
+            <h2 class="text-3xl font-black mb-2 text-black" x-text="modalMode === 'create' ? 'Novo Cadastro' : 'Editar Dados'"></h2>
+            <p class="text-[11px] opacity-40 uppercase font-bold tracking-widest mb-8 text-black">Administração de Direitos CorpSys</p>
             
             <form @submit.prevent="saveUser" class="space-y-4">
                 <div class="space-y-1">
-                    <label class="text-[10px] font-black uppercase opacity-40">Nome Completo</label>
-                    <input type="text" x-model="formUser.nome_completo" class="w-full p-4 rounded-xl bg-black/5 border border-white/10 outline-none focus:ring-2 focus:ring-blue-500" required>
+                    <label class="text-[10px] font-black uppercase opacity-40 text-black">Nome Completo</label>
+                    <input type="text" x-model="formUser.nome_completo" class="w-full p-4 rounded-xl bg-black/5 border border-black/10 outline-none focus:ring-2 focus:ring-blue-500 text-black" required>
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[10px] font-black uppercase opacity-40">E-mail Corporativo</label>
-                    <input type="email" x-model="formUser.email" :disabled="modalMode === 'edit'" class="w-full p-4 rounded-xl bg-black/5 border border-white/10 outline-none disabled:opacity-30" required>
+                    <label class="text-[10px] font-black uppercase opacity-40 text-black">E-mail Corporativo</label>
+                    <input type="email" x-model="formUser.email" :disabled="modalMode === 'edit'" class="w-full p-4 rounded-xl bg-black/5 border border-black/10 outline-none disabled:opacity-30 text-black" required>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                        <label class="text-[10px] font-black uppercase opacity-40">Cargo</label>
-                        <select x-model="formUser.cargo" class="w-full p-4 rounded-xl bg-black/5 border border-white/10 outline-none">
+                        <label class="text-[10px] font-black uppercase opacity-40 text-black">Cargo</label>
+                        <select x-model="formUser.cargo" class="w-full p-4 rounded-xl bg-black/5 border border-black/10 outline-none text-black">
                             <option value="Analista">Analista</option>
                             <option value="Gerente">Gerente</option>
                             <option value="Diretor">Diretor</option>
@@ -173,13 +168,13 @@
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="text-[10px] font-black uppercase opacity-40">Setor</label>
-                        <input type="text" x-model="formUser.setor" class="w-full p-4 rounded-xl bg-black/5 border border-white/10 outline-none">
+                        <label class="text-[10px] font-black uppercase opacity-40 text-black">Setor</label>
+                        <input type="text" x-model="formUser.setor" class="w-full p-4 rounded-xl bg-black/5 border border-black/10 outline-none text-black">
                     </div>
                 </div>
                 
                 <div class="flex gap-4 pt-8">
-                    <button type="button" @click="showModal = false" class="flex-1 py-4 font-bold text-xs uppercase opacity-40">Cancelar</button>
+                    <button type="button" @click="showModal = false" class="flex-1 py-4 font-bold text-xs uppercase opacity-40 text-black">Cancelar</button>
                     <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-blue-500/20">Salvar Registro</button>
                 </div>
             </form>
@@ -198,23 +193,27 @@
                     <input type="email" x-model="email" placeholder="E-mail Corporativo" class="w-full p-5 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-900 text-black">
                     <input type="password" x-model="password" placeholder="Senha" class="w-full p-5 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-900 text-black">
                     <button class="w-full bg-blue-900 text-white py-5 rounded-2xl font-black shadow-xl hover:brightness-125 transition">ENTRAR NO SISTEMA</button>
-                    <p @click="view = 'recover'" class="text-center text-[11px] font-bold opacity-40 hover:underline cursor-pointer">Esqueci minha senha</p>
+                    
+                    <div class="flex flex-col gap-3 mt-4">
+                        <p @click="view = 'recover'" class="text-center text-[11px] font-bold opacity-40 hover:underline cursor-pointer text-black">Esqueci minha senha</p>
+                        <p @click="forceReset" class="text-center text-[10px] text-red-500 font-black opacity-60 hover:opacity-100 cursor-pointer uppercase tracking-tight">Limpar Cache e Sessão (Reset)</p>
+                    </div>
                 </form>
             </template>
 
             <template x-if="view === 'recover'">
                 <div class="space-y-6">
-                    <h2 class="text-2xl font-black">Recuperação</h2>
-                    <p class="text-xs opacity-50">Um link seguro será enviado para o seu e-mail.</p>
+                    <h2 class="text-2xl font-black text-black">Recuperação</h2>
+                    <p class="text-xs opacity-50 text-black">Um link seguro será enviado para o seu e-mail.</p>
                     <input type="email" x-model="email" placeholder="E-mail" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-black">
                     <button @click="handleRecovery" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black">ENVIAR LINK</button>
-                    <button @click="view = 'login'" class="w-full text-xs font-bold opacity-30">Voltar</button>
+                    <button @click="view = 'login'" class="w-full text-xs font-bold opacity-30 text-black">Voltar</button>
                 </div>
             </template>
 
             <template x-if="view === 'reset_password'">
                 <div class="space-y-6">
-                    <h2 class="text-2xl font-black">Nova Senha</h2>
+                    <h2 class="text-2xl font-black text-black">Nova Senha</h2>
                     <input type="password" x-model="newPassword" placeholder="Mínimo 6 caracteres" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-black">
                     <button @click="handleUpdatePassword" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black">REDEFINIR SENHA</button>
                 </div>
@@ -239,26 +238,49 @@
                 async init() {
                     this.theme = localStorage.getItem('corp-theme') || 'light';
                     
-                    // ESCUTA MUDANÇAS DE AUTH (ESSENCIAL PARA RESOLVER O LOOP DO E-MAIL)
+                    // SEGURANÇA: Se o Supabase demorar mais de 6s, força a exibição da tela
+                    setTimeout(() => { if(!this.initialized) this.initialized = true; }, 6000);
+
                     supabaseClient.auth.onAuthStateChange(async (event, session) => {
                         console.log("Auth Event:", event);
                         
-                        if (session) {
-                            this.userEmail = session.user.email;
-                            // Se o link contiver recovery ou se o evento for PASSWORD_RECOVERY
-                            if (window.location.hash.includes('type=recovery') || event === 'PASSWORD_RECOVERY') {
-                                this.view = 'reset_password';
+                        try {
+                            if (session) {
+                                this.userEmail = session.user.email;
+                                if (window.location.hash.includes('type=recovery') || event === 'PASSWORD_RECOVERY') {
+                                    this.view = 'reset_password';
+                                } else {
+                                    this.view = 'dashboard';
+                                    await this.loadInitialData();
+                                    this.setupRealtime();
+                                }
                             } else {
-                                this.view = 'dashboard';
-                                await this.loadInitialData();
-                                this.setupRealtime();
+                                this.view = 'login';
                             }
-                        } else {
-                            this.view = 'login';
+                        } catch (err) {
+                            console.error("Erro no fluxo inicial:", err);
+                        } finally {
+                            // Garante que a mensagem suma sempre
+                            setTimeout(() => { this.initialized = true; }, 800);
                         }
-                        
-                        // DESTRAVA A TELA DE CARREGAMENTO
-                        this.initialized = true;
+                    });
+                },
+
+                // FUNÇÃO DE RESET MANUAL (SOLUÇÃO PC)
+                forceReset() {
+                    Swal.fire({
+                        title: 'Resetar Sistema?',
+                        text: "Isso limpará dados de login travados no navegador.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sim, resetar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            localStorage.clear();
+                            sessionStorage.clear();
+                            window.location.reload();
+                        }
                     });
                 },
 
@@ -268,7 +290,8 @@
                     if (this.view !== 'dashboard') return;
                     this.loadingData = true;
                     try {
-                        const { data: profile } = await supabaseClient.from('acessTable').select('cargo').eq('email', this.userEmail).single();
+                        // Usando maybeSingle para não quebrar o script se o perfil não existir
+                        const { data: profile } = await supabaseClient.from('acessTable').select('cargo').eq('email', this.userEmail).maybeSingle();
                         this.isAdmin = (profile && ['CEO', 'Diretor'].includes(profile.cargo));
                         
                         const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
@@ -279,17 +302,28 @@
                             this.auditLogs = logs || [];
                         }
                     } catch (e) {
-                        console.error(e);
+                        console.error("Erro ao carregar dados:", e);
                     } finally {
                         this.loadingData = false;
+                        this.initialized = true; // Força destravamento
                     }
                 },
 
                 setupRealtime() {
+                    supabaseClient.removeAllChannels(); // Evita conexões duplicadas
                     supabaseClient.channel('db-changes')
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'acessTable' }, () => this.loadInitialData())
-                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, () => this.loadInitialData())
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'acessTable' }, () => this.refreshData())
+                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, () => this.refreshData())
                         .subscribe();
+                },
+
+                async refreshData() {
+                    const { data: users } = await supabaseClient.from('acessTable').select('*').order('nome_completo');
+                    if (users) this.usersList = users;
+                    if (this.isAdmin) {
+                        const { data: logs } = await supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(40);
+                        if (logs) this.auditLogs = logs;
+                    }
                 },
 
                 get filteredUsers() {
@@ -328,6 +362,7 @@
                     if (confirm.isConfirmed) {
                         const { error } = await supabaseClient.from('acessTable').delete().eq('email', user.email);
                         if (!error) await this.registerAudit('USER_DELETE', user.email);
+                        else Swal.fire('Erro', 'Não foi possível excluir.', 'error');
                     }
                 },
 
@@ -361,7 +396,11 @@
                     this.formUser = user ? { ...user } : { nome_completo: '', email: '', cargo: 'Analista', setor: '' };
                     this.showModal = true;
                 },
-                async handleLogout() { await supabaseClient.auth.signOut(); }
+                async handleLogout() { 
+                    await supabaseClient.auth.signOut();
+                    localStorage.removeItem('sb-nqdlxiyzsxkntypyzkie-auth-token');
+                    window.location.reload();
+                }
             }
         }
     </script>
