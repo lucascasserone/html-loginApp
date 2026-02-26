@@ -207,7 +207,7 @@
                                                 <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black text-xs text-white" x-text="user.nome_completo?.charAt(0)" :title="user.nome_completo"></div>
                                                 <div>
                                                     <div class="font-bold text-sm" x-text="user.nome_completo"></div>
-                                                    <div class="text-[10px] opacity-40" x-text="user.email"></div>
+                                                    <div class="text-xs opacity-40" x-text="user.email"></div>
                                                 </div>
                                             </div>
                                         </td>
@@ -249,13 +249,13 @@
                         </div>
                     </div>
                     <div class="glass-container rounded-[40px] overflow-hidden">
-                        <div class="max-h-[600px] overflow-y-auto p-4 space-y-2 custom-scroll">
+                        <div class="max-h-[600px] overflow-y-auto p-6 space-y-3 custom-scroll">
                             <template x-for="log in filteredAuditLogs" :key="log.id">
-                                <div class="p-5 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-4">
-                                    <div class="text-[10px] font-mono opacity-30 w-32" x-text="formatDateTime(log.created_at)"></div>
-                                    <div class="px-3 py-1 bg-blue-500/10 text-blue-400 font-black text-[10px] rounded-lg uppercase" x-text="log.acao"></div>
-                                    <div class="flex-1 text-xs font-bold opacity-80" x-text="log.alvo"></div>
-                                    <div class="text-[10px] font-bold opacity-40 italic" x-text="log.admin_email"></div>
+                                <div class="p-6 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-6">
+                                    <div class="text-sm font-mono opacity-40 w-40 flex-shrink-0" x-text="formatDateTime(log.created_at)"></div>
+                                    <div class="px-3 py-1.5 bg-blue-500/10 text-blue-400 font-black text-xs rounded-lg uppercase flex-shrink-0" x-text="log.acao"></div>
+                                    <div class="flex-1 text-sm font-semibold opacity-80" x-text="log.alvo"></div>
+                                    <div class="text-xs font-semibold opacity-50 italic" x-text="log.admin_email"></div>
                                 </div>
                             </template>
                         </div>
