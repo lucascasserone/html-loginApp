@@ -164,6 +164,42 @@ select option {
     color: #64748b !important;
 }
 
+/* ============================================
+   HOVER STATES E INTERATIVIDADE
+   ============================================ */
+/* Cards hover com melhor feedback */
+.glass-container {
+    transition: all 0.3s ease;
+}
+
+.glass-container:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Botões com melhor feedback */
+button[class*="bg-blue"] {
+    transition: all 0.2s ease;
+}
+
+button[class*="bg-blue"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* Links e elementos clicáveis */
+a {
+    transition: all 0.2s ease;
+}
+
+/* Pill-style badges */
+.rounded-lg[class*="bg-"] {
+    transition: all 0.2s ease;
+}
+
+.rounded-lg[class*="bg-"]:hover {
+    opacity: 0.8;
+}
+
 .theme-light .input-premium::placeholder {
     color: #64748b;
 }
