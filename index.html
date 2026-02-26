@@ -297,9 +297,20 @@
                                             <h3 class="text-xl font-black uppercase tracking-tight mb-1" x-text="news.titulo"></h3>
                                             <p class="text-xs opacity-50 font-bold uppercase tracking-widest" x-text="formatDateTime(news.created_at)"></p>
                                         </div>
-                                        <span class="text-xs font-black bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/30 uppercase tracking-widest" x-text="'v' + news.versao"></span>
+                                        <div class="flex gap-2 flex-wrap justify-end">
+                                            <span class="text-xs font-black bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/30 uppercase tracking-widest" x-text="'v' + news.versao"></span>
+                                            <span x-show="news.categoria" class="text-xs font-black bg-slate-700/40 text-slate-200 px-3 py-1.5 rounded-full border border-slate-600/30 uppercase tracking-widest" x-text="news.categoria"></span>
+                                        </div>
                                     </div>
-                                    <p class="opacity-75 leading-relaxed text-sm" x-text="news.conteudo"></p>
+                                    <p class="opacity-75 leading-relaxed text-sm mb-4" x-text="news.conteudo"></p>
+                                    <div class="flex items-center justify-between text-xs">
+                                        <div class="flex gap-2">
+                                            <span x-show="news.impacto" class="bg-green-500/20 text-green-300 px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider border border-green-500/30">🎯 <span x-text="news.impacto"></span></span>
+                                        </div>
+                                        <div x-show="news.status" class="font-bold uppercase tracking-widest" :class="news.status === 'ativo' ? 'text-green-400' : 'text-slate-400'">
+                                            <span x-text="news.status === 'ativo' ? '🟢 Ativo' : '📌 Arquivado'"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -781,7 +792,7 @@
 
                         const { data: news, error } = await supabaseClient
                             .from('newsTable')
-                            .select('id, created_at, titulo, conteudo, versao')
+                            .select('id, created_at, titulo, conteudo, versao, categoria, impacto, status')
                             .order('created_at', { ascending: false })
                             .limit(20);
                             
@@ -797,6 +808,9 @@
                                 titulo: n.titulo || 'Sem título',
                                 conteudo: n.conteudo || 'Sem conteúdo',
                                 versao: n.versao || 'N/A',
+                                categoria: n.categoria || null,
+                                impacto: n.impacto || null,
+                                status: n.status || 'ativo',
                                 created_at: n.created_at
                             }));
                             localStorage.setItem('cache_news', JSON.stringify(this.newsList));
