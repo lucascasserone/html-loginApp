@@ -323,7 +323,7 @@
                                         <div class="flex gap-2">
                                             <span x-show="news.impacto" class="bg-green-500/20 text-green-300 px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider border border-green-500/30">🎯 <span x-text="news.impacto"></span></span>
                                         </div>
-                                        <div x-show="news.status" class="font-bold uppercase tracking-widest" :class="news.status === 'ativo' ? 'text-green-400' : 'text-slate-400'">
+                                        <div x-show="news.status" class="font-bold uppercase tracking-widest" :class="news.status === 'ativo' ? 'text-green-400 news-status-ativo' : 'text-slate-400 news-status-arquivado'">
                                             <span x-text="news.status === 'ativo' ? '🟢 Ativo' : '📌 Arquivado'"></span>
                                         </div>
                                     </div>
