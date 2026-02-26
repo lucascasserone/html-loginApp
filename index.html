@@ -280,7 +280,7 @@
 
                     <div class="space-y-4">
                         <template x-for="(news, idx) in newsList" :key="news.id">
-                            <div class="glass-container p-6 rounded-[32px] border-l-[6px] hover:shadow-lg transition-all duration-300 flex gap-6 group">
+                            <div class="glass-container p-6 rounded-[32px] border-l-[6px] border-blue-600 hover:shadow-lg transition-all duration-300 flex gap-6 group">
                                 <!-- TIMELINE INDICATOR -->
                                 <div class="flex flex-col items-center pt-1 min-w-fit">
                                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-lg">
@@ -297,20 +297,9 @@
                                             <h3 class="text-xl font-black uppercase tracking-tight mb-1" x-text="news.titulo"></h3>
                                             <p class="text-xs opacity-50 font-bold uppercase tracking-widest" x-text="formatDateTime(news.created_at)"></p>
                                         </div>
-                                        <div class="flex gap-2 flex-wrap justify-end">
-                                            <span class="text-xs font-black bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/30 uppercase tracking-widest" x-text="'v' + news.versao"></span>
-                                            <span x-show="news.categoria" class="text-xs font-black bg-slate-700/40 text-slate-200 px-3 py-1.5 rounded-full border border-slate-600/30 uppercase tracking-widest" x-text="news.categoria"></span>
-                                        </div>
+                                        <span class="text-xs font-black bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/30 uppercase tracking-widest" x-text="'v' + news.versao"></span>
                                     </div>
-                                    <p class="opacity-75 leading-relaxed text-sm mb-4" x-text="news.conteudo"></p>
-                                    <div class="flex items-center justify-between text-xs">
-                                        <div class="flex gap-2">
-                                            <span x-show="news.impacto" class="bg-green-500/20 text-green-300 px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider border border-green-500/30">🎯 <span x-text="news.impacto"></span></span>
-                                        </div>
-                                        <div x-show="news.status" class="font-bold uppercase tracking-widest" :class="news.status === 'ativo' ? 'text-green-400' : 'text-slate-400'">
-                                            <span x-text="news.status === 'ativo' ? '🟢 Ativo' : '📌 Arquivado'"></span>
-                                        </div>
-                                    </div>
+                                    <p class="opacity-75 leading-relaxed text-sm" x-text="news.conteudo"></p>
                                 </div>
                             </div>
                         </template>
@@ -790,100 +779,40 @@
                             this.newsList = JSON.parse(cached);
                         }
 
-                        const { data: news } = await supabaseClient
+                        const { data: news, error } = await supabaseClient
                             .from('newsTable')
-                            .select('*')
+                            .select('id, created_at, titulo, conteudo, versao')
                             .order('created_at', { ascending: false })
                             .limit(20);
                             
+                        if (error) {
+                            console.error('❌ Erro ao buscar notícias:', error);
+                            return;
+                        }
+                            
                         if (news && news.length > 0) {
-                            this.newsList = news;
-                            localStorage.setItem('cache_news', JSON.stringify(news));
-                        } else if (!cached) {
-                            // Carrega seed data se nenhuma notícia existe
-                            this.newsList = this.getDefaultNews();
+                            // Processa dados para garantir formato correto
+                            this.newsList = news.map(n => ({
+                                id: n.id,
+                                titulo: n.titulo || 'Sem título',
+                                conteudo: n.conteudo || 'Sem conteúdo',
+                                versao: n.versao || 'N/A',
+                                created_at: n.created_at
+                            }));
+                            localStorage.setItem('cache_news', JSON.stringify(this.newsList));
+                            console.log('✅ ' + this.newsList.length + ' notícias carregadas');
+                        } else {
+                            this.newsList = [];
+                            console.log('📄 Nenhuma notícia encontrada na tabela');
                         }
                     } catch (err) {
                         console.error('❌ Erro ao carregar notícias:', err);
-                        if (!cached) {
-                            this.newsList = this.getDefaultNews();
+                        if (cached) {
+                            this.newsList = JSON.parse(cached);
+                        } else {
+                            this.newsList = [];
                         }
                     }
-                },
-
-                getDefaultNews() {
-                    return [
-                        {
-                            id: 1,
-                            titulo: 'Sistema Heuriskien v11.3',
-                            conteudo: 'Implementação de filtros avançados de auditoria com busca em tempo real e relatórios detalhados por ação, usuário e período.',
-                            versao: '11.3',
-                            categoria: 'Sistema',
-                            impacto: 'Alto',
-                            status: 'ativo',
-                            created_at: new Date('2026-02-25T16:52:17Z').toISOString()
-                        },
-                        {
-                            id: 2,
-                            titulo: 'Heuriskien Mobile & Intelligence Hub',
-                            conteudo: 'Versão atual com adição de filtros dinâmicos de auditoria, otimização de performance e interface mobile-first responsiva.',
-                            versao: '11.3',
-                            categoria: 'Feature',
-                            impacto: 'Médio',
-                            status: 'ativo',
-                            created_at: new Date('2026-02-25T18:53:49Z').toISOString()
-                        },
-                        {
-                            id: 3,
-                            titulo: 'Gestão Unificada de Ativos',
-                            conteudo: 'Implementação do CRUD completo de usuários com controle de permissões, roles baseadas em função e auditoria integrada.',
-                            versao: '11.2',
-                            categoria: 'Feature',
-                            impacto: 'Alto',
-                            status: 'ativo',
-                            created_at: new Date('2024-02-20T11:00:00Z').toISOString()
-                        },
-                        {
-                            id: 4,
-                            titulo: 'Segurança e Auditoria',
-                            conteudo: 'Lançamento da Trilha de Auditoria administrativa com logs detalhados de todas as ações, quem fez, quando e por quê.',
-                            versao: '11.1',
-                            categoria: 'Segurança',
-                            impacto: 'Alto',
-                            status: 'ativo',
-                            created_at: new Date('2024-02-15T16:20:00Z').toISOString()
-                        },
-                        {
-                            id: 5,
-                            titulo: 'Estabilização de Core',
-                            conteudo: 'Otimização do ciclo de vida do Alpine.js e precarga de dados com cache inteligente para performance máxima.',
-                            versao: '10.6',
-                            categoria: 'Performance',
-                            impacto: 'Médio',
-                            status: 'ativo',
-                            created_at: new Date('2024-02-06T09:30:00Z').toISOString()
-                        },
-                        {
-                            id: 6,
-                            titulo: 'Upgrade Visual: Premium & Glass',
-                            conteudo: 'Introdução do motor de temas dinâmicos com suporte para modo Dark, Light e Glass com transições suaves.',
-                            versao: '10.4',
-                            categoria: 'Design',
-                            impacto: 'Médio',
-                            status: 'ativo',
-                            created_at: new Date('2024-01-25T14:00:00Z').toISOString()
-                        },
-                        {
-                            id: 7,
-                            titulo: 'Lançamento Heuriskien Enterprise',
-                            conteudo: 'Fundação do sistema com integração nativa ao Supabase, autenticação segura e primeira versão do dashboard.',
-                            versao: '10.1',
-                            categoria: 'Sistema',
-                            impacto: 'Alto',
-                            status: 'ativo',
-                            created_at: new Date('2024-01-10T10:00:00Z').toISOString()
-                        }
-                    ];
                 },
 
                 // ============================================
