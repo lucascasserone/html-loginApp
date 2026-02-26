@@ -64,7 +64,7 @@
 
     <!-- DASHBOARD VIEW -->
     <template x-if="view === 'dashboard'">
-        <div x-cloak>
+        <div x-cloak x-data="{ mobileMenuOpen: false }">
             <!-- NAVBAR - NOVO DESIGN -->
             <nav class="bg-gradient-to-r from-slate-900 via-slate-900 to-blue-900/20 backdrop-blur-xl px-8 py-4 flex justify-between items-center sticky top-0 z-40 border-b border-blue-500/10 shadow-lg shadow-blue-500/5">
                 
@@ -78,11 +78,14 @@
                 </div>
 
                 <!-- NAVIGATION TABS - CENTRO -->
-                <div class="flex gap-1 bg-slate-800/40 px-2 py-1.5 rounded-xl border border-slate-700/50">
+                <div 
+                    class="nav-menu-section flex gap-1 bg-slate-800/40 px-2 py-1.5 rounded-xl border border-slate-700/50"
+                    :class="mobileMenuOpen ? 'mobile-menu-open' : ''"
+                    @click:away="mobileMenuOpen = false">
                     <template x-for="t in ['news', 'reports', 'users', 'audit', 'profile']">
                         <button 
                             x-show="t !== 'audit' || isAdmin" 
-                            @click="tab = t; localStorage.setItem('heuriskien_theme', theme)"
+                            @click="tab = t; mobileMenuOpen = false"
                             :class="tab === t 
                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' 
                                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'" 
@@ -94,7 +97,10 @@
                 </div>
 
                 <!-- CONTROLES - DIREITA -->
-                <div class="flex items-center gap-3">
+                <div 
+                    class="nav-controls-section flex items-center gap-3"
+                    :class="mobileMenuOpen ? 'mobile-menu-open' : ''"
+                    @click:away="mobileMenuOpen = false">
                     <!-- TEMA SELECTOR - REDESENHADO -->
                     <div class="flex items-center gap-2 bg-slate-800/40 px-2 py-1.5 rounded-xl border border-slate-700/50">
                         <button 
@@ -127,6 +133,16 @@
                         title="Fazer logout">
                         <svg class="w-4 h-4 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                         <span>Sair</span>
+                    </button>
+
+                    <!-- HAMBURGER MENU (Mobile) -->
+                    <button 
+                        @click="mobileMenuOpen = !mobileMenuOpen"
+                        class="mobile-menu-toggle p-2"
+                        title="Menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </button>
                 </div>
             </nav>
