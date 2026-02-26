@@ -1,0 +1,56 @@
+{
+  "name": "heuriskien-enterprise",
+  "version": "11.9.0",
+  "description": "Plataforma de Inteligência Empresarial - Heuriskien",
+  "type": "module",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .js,.html",
+    "format": "prettier --write .",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": [
+    "enterprise",
+    "intelligence",
+    "dashboard",
+    "supabase",
+    "alpine",
+    "tailwind"
+  ],
+  "author": "Marco Baldassari",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.1.0",
+    "vitest": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "alpinejs": "^3.13.0",
+    "sweetalert2": "^11.10.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://seu-repositório.git"
+  },
+  "bugs": {
+    "url": "https://seu-repositório/issues"
+  },
+  "homepage": "https://seu-repositório#readme"
+}
