@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Carregamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-slate-950 text-white p-8" x-data="{message: 'Alpine funcionando!'}" x-init="console.log('Testando', message)">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-4xl font-bold mb-6">🧪 Teste de Carregamento</h1>
+        
+        <div class="bg-slate-800 p-6 rounded-lg mb-6">
+            <p class="mb-4">✅ Página HTML carregou</p>
+            <p class="mb-4">✅ Tailwind CSS funcionando (fundo escuro)</p>
+            <p class="mb-4" x-text="'✅ Alpine.js funcionando: ' + message"></p>
+            <p class="text-xs opacity-50 mb-4">Verifique o console (F12 > Console) para mensagens de erro</p>
+        </div>
+
+        <h2 class="text-2xl font-bold mb-4 mt-8">Teste de carregamento do index.html original:</h2>
+        <div class="bg-red-900/30 p-4 rounded-lg mb-6 border border-red-500">
+            <p>Possíveis problemas:</p>
+            <ol class="list-decimal list-inside space-y-2 mt-3 text-sm">
+                <li>Arquivo CSS (./css/styles.css) não está carregando</li>
+                <li>Supabase não está carregando/inicializando corretamente</li>
+                <li>Alpine.js está tentando inicializar systemCore()mas há um erro</li>
+                <li>O arquivo index.html está corrompido</li>
+            </ol>
+        </div>
+
+        <h2 class="text-2xl font-bold mb-4 mt-8">Próximos passos:</h2>
+        <ol class="list-decimal list-inside space-y-3 bg-slate-800 p-6 rounded-lg">
+            <li><strong>Verificar console (F12):</strong> Procure por erros vermelhos</li>
+            <li><strong>Verificar Network (F12 Network):</strong> Veja se as URLs de CDN estão carregando</li>
+            <li><strong>Entrar em contato:</strong> Mostre os erros do console ao agent</li>
+        </ol>
+    </div>
+
+    <script>
+        console.log('🧪 Arquivo test.html carregado');
+        console.log('✅ JavaScript está executando');
+    </script>
+</body>
+</html>
