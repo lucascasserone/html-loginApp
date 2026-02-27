@@ -36,11 +36,6 @@
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
         <h2 class="text-blue-500 font-black tracking-widest text-xs uppercase">Heuriskien Intelligence</h2>
     </div>
-    
-    <!-- TEST MODAL para verificar if Alpine está funcionando -->
-    <div x-show="showUserModal" class="fixed top-0 left-0 bg-red-500 p-4 text-white z-[999]" style="display: none;">
-        ✅ TEST: showUserModal is <span x-text="showUserModal"></span>
-    </div>
 
     <!-- LOGIN VIEW -->
     <template x-if="view === 'login'">
@@ -212,8 +207,8 @@
                                 <input type="text" x-model.debounce.300ms="searchQueryUsers" placeholder="Buscar colaborador..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition" aria-label="Buscar usuários">
                                 <span class="absolute left-4 top-3.5 opacity-30" aria-hidden="true">🔍</span>
                             </div>
-                            <button type="button" @click="console.log('BTN CLICADO'); openUserCreateModal();" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white cursor-pointer" title="Adicionar novo usuário">+ Novo Usuário</button>
-                            <button type="button" @click="showUserModal = !showUserModal" class="bg-green-600 hover:bg-green-700 transition px-4 py-3 rounded-lg text-xs uppercase text-white cursor-pointer ml-2">TEST</button>
+                            <button type="button" @click="openUserCreateModal()" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white cursor-pointer" title="Adicionar novo usuário">+ Novo Usuário</button>
+                            
                         </div>
                     </div>
                     <div class="glass-container rounded-[40px] overflow-hidden">
@@ -513,7 +508,7 @@
             </div>
 
             <!-- MODAL: USUÁRIOS -->
-            <div x-show="showUserModal" x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+            <div x-show="showUserModal" x-transition x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4" style="display: none;">
                 <div class="glass-container p-10 rounded-[40px] w-full max-w-lg" @click.stop>
                     <div class="flex justify-between items-center mb-8">
                         <h2 class="text-2xl font-black uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Usuário' : 'Editar Usuário'"></h2>
