@@ -1148,13 +1148,8 @@
                     console.log('🔓 Abrindo modal de novo relatório');
                     this.modalMode = 'create';
                     this.formReport = { nome: '', area: '', link: '', descricao: '' };
-                    
-                    // Force reactivity
-                    this.showReportModal = false;
-                    setTimeout(() => {
-                        this.showReportModal = true;
-                        console.log('✅ showReportModal:', this.showReportModal);
-                    }, 0);
+                    this.showReportModal = true;
+                    console.log('✅ showReportModal:', this.showReportModal);
                 },
 
                 openReportEditModal(reportId) {
@@ -1171,16 +1166,11 @@
                 },
 
                 openUserCreateModal() {
-                    console.log('[DEBUG] openUserCreateModal EXECUTION!');
+                    console.log('[FUNCTION] openUserCreateModal called');
                     this.modalMode = 'create';
                     this.formUser = { nome_completo: '', email: '', cargo: '', setor: '' };
-                    
-                    // Force reactivity
-                    this.showUserModal = false;
-                    setTimeout(() => {
-                        this.showUserModal = true;
-                        console.log('[DEBUG] showUserModal is now:', this.showUserModal);
-                    }, 0);
+                    this.showUserModal = true;
+                    console.log('[RESULT] showUserModal is now:', this.showUserModal);
                 },
 
                 openUserEditModal(userEmail) {
