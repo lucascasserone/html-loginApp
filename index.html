@@ -462,78 +462,96 @@
 
             <!-- MODAL: RELATÓRIOS -->
             <div x-show="showReportModal" x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
-                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg">
-                    <h2 class="text-2xl font-black mb-8 uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Relatório' : 'Editar Relatório'"></h2>
-                    <form @submit.prevent="saveReport()" class="space-y-4">
+                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg" @click.stop>
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-2xl font-black uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Relatório' : 'Editar Relatório'"></h2>
+                        <button @click="showReportModal = false" class="text-white opacity-50 hover:opacity-100 text-2xl">✕</button>
+                    </div>
+                    
+                    <div class="space-y-5">
                         <div>
-                            <label for="reportName" class="block text-xs font-black uppercase mb-2 opacity-50">Título do Relatório</label>
-                            <input id="reportName" type="text" x-model="formReport.nome" placeholder="Ex: Análise de Vendas" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Título do Relatório</label>
+                            <input type="text" x-model="formReport.nome" placeholder="Ex: Análise de Vendas" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
                         </div>
+                        
                         <div>
-                            <label for="reportDept" class="block text-xs font-black uppercase mb-2 opacity-50">Departamento</label>
-                            <input id="reportDept" type="text" x-model="formReport.area" placeholder="Ex: Finance" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Departamento</label>
+                            <input type="text" x-model="formReport.area" placeholder="Ex: Finance" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
                         </div>
+                        
                         <div>
-                            <label for="reportLink" class="block text-xs font-black uppercase mb-2 opacity-50">Link do Power BI</label>
-                            <input id="reportLink" type="url" x-model="formReport.link" placeholder="https://app.powerbi.com..." class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Link do Power BI</label>
+                            <input type="url" x-model="formReport.link" placeholder="https://app.powerbi.com/..." class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
                         </div>
+                        
                         <div>
-                            <label for="reportDesc" class="block text-xs font-black uppercase mb-2 opacity-50">Descrição</label>
-                            <textarea id="reportDesc" x-model="formReport.descricao" placeholder="Descreva brevemente o relatório..." class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white h-24 focus:border-blue-500 outline-none transition resize-none" maxlength="500"></textarea>
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Descrição</label>
+                            <textarea x-model="formReport.descricao" placeholder="Descreva brevemente..." class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white h-20 focus:border-blue-500 outline-none transition resize-none" maxlength="500"></textarea>
                             <p class="text-[10px] opacity-40 mt-1" x-text="(formReport.descricao || '').length + ' / 500'"></p>
                         </div>
-                        <div class="flex gap-4 pt-6">
-                            <button type="button" @click="showReportModal = false" class="flex-1 font-bold opacity-40 hover:opacity-60 text-white transition">Cancelar</button>
-                            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl font-black shadow-xl transition">Confirmar</button>
+                        
+                        <div class="flex gap-3 pt-4">
+                            <button @click="showReportModal = false" class="flex-1 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition">Cancelar</button>
+                            <button @click="saveReport()" class="flex-1 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black transition">Salvar</button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
             <!-- MODAL: USUÁRIOS -->
             <div x-show="showUserModal" x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
-                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg">
-                    <h2 class="text-2xl font-black mb-8 uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Usuário' : 'Editar Usuário'"></h2>
-                    <form @submit.prevent="saveUser()" class="space-y-4">
+                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg" @click.stop>
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-2xl font-black uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Usuário' : 'Editar Usuário'"></h2>
+                        <button @click="showUserModal = false" class="text-white opacity-50 hover:opacity-100 text-2xl">✕</button>
+                    </div>
+                    
+                    <div class="space-y-5">
                         <div>
-                            <label for="userName" class="block text-xs font-black uppercase mb-2 opacity-50">Nome Completo</label>
-                            <input id="userName" type="text" x-model="formUser.nome_completo" placeholder="Ex: João Silva" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Nome Completo</label>
+                            <input type="text" x-model="formUser.nome_completo" placeholder="Ex: João Silva" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
                         </div>
+                        
                         <div>
-                            <label for="userEmail" class="block text-xs font-black uppercase mb-2 opacity-50">E-mail Corporativo</label>
-                            <input id="userEmail" type="email" x-model="formUser.email" placeholder="usuario@empresa.com" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" :disabled="modalMode === 'edit'" required>
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">E-mail Corporativo</label>
+                            <input type="email" x-model="formUser.email" placeholder="usuario@empresa.com" :disabled="modalMode === 'edit'" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition disabled:opacity-50">
                         </div>
+                        
                         <div>
-                            <label for="userRole" class="block text-xs font-black uppercase mb-2 opacity-50">Cargo</label>
-                            <input id="userRole" type="text" x-model="formUser.cargo" placeholder="Ex: Analista" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Cargo</label>
+                            <input type="text" x-model="formUser.cargo" placeholder="Ex: CEO, Diretor, Analista" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
                         </div>
+                        
                         <div>
-                            <label for="userDept" class="block text-xs font-black uppercase mb-2 opacity-50">Setor (opcional)</label>
-                            <input id="userDept" type="text" x-model="formUser.setor" placeholder="Ex: Financeiro" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Setor (opcional)</label>
+                            <input type="text" x-model="formUser.setor" placeholder="Ex: Financeiro" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
                         </div>
-                        <div class="flex gap-4 pt-6">
-                            <button type="button" @click="showUserModal = false" class="flex-1 font-bold opacity-40 hover:opacity-60 text-white transition">Cancelar</button>
-                            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl font-black shadow-xl transition">Salvar</button>
+                        
+                        <div class="flex gap-3 pt-4">
+                            <button @click="showUserModal = false" class="flex-1 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition">Cancelar</button>
+                            <button @click="saveUser()" class="flex-1 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black transition">Salvar</button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
             <!-- MODAL: RESET DE SENHA -->
             <div x-show="showResetPasswordModal" x-cloak class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[80] flex items-center justify-center p-4">
-                <div class="glass-container p-12 rounded-[50px] w-full max-w-md">
+                <div class="glass-container p-12 rounded-[50px] w-full max-w-md" @click.stop>
                     <h2 class="text-2xl font-black mb-6 uppercase text-white text-center">Nova Senha</h2>
-                    <p class="text-xs opacity-50 mb-8 uppercase font-bold text-center">Defina sua nova senha de acesso. Mínimo 6 caracteres.</p>
-                    <form @submit.prevent="updatePassword()" x-data="{ isLoading: false }" class="space-y-5">
+                    <p class="text-xs opacity-50 mb-8 uppercase font-bold text-center">Mínimo 6 caracteres</p>
+                    
+                    <div class="space-y-5">
                         <div>
-                            <label for="newPassword" class="block text-xs font-black uppercase mb-2 opacity-50">Nova Senha</label>
-                            <input id="newPassword" type="password" x-model="newPassword" placeholder="•••••••••" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500 transition" aria-label="Nova senha" required minlength="6">
-                            <p class="text-[10px] opacity-40 mt-2">Mínimo 6 caracteres para maior segurança.</p>
+                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Nova Senha</label>
+                            <input type="password" x-model="newPassword" placeholder="•••••••••" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500 transition" minlength="6">
                         </div>
-                        <button type="submit" :disabled="isLoading" class="w-full bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl transition">
-                            <span x-text="isLoading ? 'Salvando...' : 'Salvar Senha'"></span>
-                        </button>
-                    </form>
+                        
+                        <div class="flex gap-3">
+                            <button @click="showResetPasswordModal = false; newPassword = ''" class="flex-1 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition">Cancelar</button>
+                            <button @click="updatePassword()" class="flex-1 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black transition">Salvar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1177,7 +1195,7 @@
                 // ============================================
                 // USUÁRIOS
                 // ============================================
-                openUserModal(mode, user = null) {
+                async openUserModal(mode, user = null) {
                     this.modalMode = mode;
                     this.formUser = user
                         ? JSON.parse(JSON.stringify(user))
