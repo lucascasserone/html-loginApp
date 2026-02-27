@@ -469,7 +469,7 @@
             </main>
 
             <!-- MODAL: RELATÓRIOS -->
-            <div x-show="showReportModal" x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+            <div x-show="showReportModal" x-transition x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4" style="display: none;">
                 <div class="glass-container p-10 rounded-[40px] w-full max-w-lg" @click.stop>
                     <div class="flex justify-between items-center mb-8">
                         <h2 class="text-2xl font-black uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Relatório' : 'Editar Relatório'"></h2>
@@ -1142,8 +1142,13 @@
                     console.log('🔓 Abrindo modal de novo relatório');
                     this.modalMode = 'create';
                     this.formReport = { nome: '', area: '', link: '', descricao: '' };
-                    this.showReportModal = true;
-                    console.log('✅ showReportModal:', this.showReportModal);
+                    
+                    // Force reactivity
+                    this.showReportModal = false;
+                    setTimeout(() => {
+                        this.showReportModal = true;
+                        console.log('✅ showReportModal:', this.showReportModal);
+                    }, 0);
                 },
 
                 openReportEditModal(reportId) {
@@ -1163,8 +1168,13 @@
                     console.log('[DEBUG] openUserCreateModal EXECUTION!');
                     this.modalMode = 'create';
                     this.formUser = { nome_completo: '', email: '', cargo: '', setor: '' };
-                    this.showUserModal = true;
-                    console.log('[DEBUG] showUserModal is now:', this.showUserModal);
+                    
+                    // Force reactivity
+                    this.showUserModal = false;
+                    setTimeout(() => {
+                        this.showUserModal = true;
+                        console.log('[DEBUG] showUserModal is now:', this.showUserModal);
+                    }, 0);
                 },
 
                 openUserEditModal(userEmail) {
