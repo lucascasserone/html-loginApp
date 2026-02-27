@@ -1097,7 +1097,7 @@
                 // ============================================
                 // RELATÓRIOS
                 // ============================================
-                openReportModal(mode, report = null) {
+                async openReportModal(mode, report = null) {
                     this.modalMode = mode;
                     this.formReport = report
                         ? JSON.parse(JSON.stringify(report))
