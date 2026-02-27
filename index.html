@@ -1098,11 +1098,13 @@
                 // RELATÓRIOS
                 // ============================================
                 openReportModal(mode, report = null) {
+                    console.log('🔵 openReportModal called with mode:', mode);
                     this.modalMode = mode;
                     this.formReport = report
                         ? JSON.parse(JSON.stringify(report))
                         : { nome: '', area: '', link: '', descricao: '' };
                     this.showReportModal = true;
+                    console.log('✅ showReportModal is now:', this.showReportModal);
                 },
 
                 async saveReport() {
@@ -1178,11 +1180,13 @@
                 // USUÁRIOS
                 // ============================================
                 openUserModal(mode, user = null) {
+                    console.log('🔵 openUserModal called with mode:', mode);
                     this.modalMode = mode;
                     this.formUser = user
                         ? JSON.parse(JSON.stringify(user))
                         : { nome_completo: '', email: '', cargo: '', setor: '' };
                     this.showUserModal = true;
+                    console.log('✅ showUserModal is now:', this.showUserModal);
                 },
 
                 async saveUser() {
