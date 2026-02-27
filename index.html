@@ -591,6 +591,18 @@
         }
 
         /**
+         * Valida se é URL válida
+         */
+        function isValidUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        /**
          * Traduz ações de auditoria para linguagem humana
          */
         function getHumanReadableAction(action) {
