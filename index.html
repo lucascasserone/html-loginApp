@@ -176,7 +176,7 @@
                                 <p class="text-xs opacity-60 mb-5 line-clamp-2 h-9" x-text="report.descricao || 'Sem descrição.'"></p>
                                 <div class="flex gap-2">
                                     <a :href="report.link" target="_blank" rel="noopener noreferrer" class="flex-1 bg-blue-600 hover:bg-blue-700 text-center py-2.5 rounded-xl text-xs font-bold uppercase transition text-white" title="Abrir relatório em nova aba">Acessar</a>
-                                    <button @click="openReportModal('edit', report)" class="p-2 bg-white/5 hover:bg-blue-500/30 border border-white/10 rounded-xl transition" aria-label="Editar relatório" title="Editar">✏️</button>
+                                    <button @click="openReportModal('edit', report.id)" class="p-2 bg-white/5 hover:bg-blue-500/30 border border-white/10 rounded-xl transition" aria-label="Editar relatório" title="Editar">✏️</button>
                                     <button x-show="isAdmin" @click="deleteReport(report.id)" class="p-2 bg-red-500/5 hover:bg-red-600 border border-red-500/20 rounded-xl transition" aria-label="Deletar relatório" title="Deletar">🗑️</button>
                                 </div>
                             </div>
@@ -231,7 +231,7 @@
                                         </td>
                                         <td x-show="isAdmin" class="p-8 text-right">
                                             <div class="flex justify-end gap-2">
-                                                <button @click="openUserModal('edit', user)" class="p-2.5 bg-white/5 rounded-xl hover:bg-blue-600 transition" aria-label="Editar usuário" title="Editar">✏️</button>
+                                                <button @click="openUserModal('edit', user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-blue-600 transition" aria-label="Editar usuário" title="Editar">✏️</button>
                                                 <button @click="deleteUser(user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-red-600 transition" aria-label="Deletar usuário" title="Deletar">🗑️</button>
                                             </div>
                                         </td>
@@ -1115,11 +1115,14 @@
                 // ============================================
                 // RELATÓRIOS
                 // ============================================
-                async openReportModal(mode, report = null) {
+                async openReportModal(mode, reportId = null) {
                     this.modalMode = mode;
-                    this.formReport = report
-                        ? JSON.parse(JSON.stringify(report))
-                        : { nome: '', area: '', link: '', descricao: '' };
+                    if (mode === 'create') {
+                        this.formReport = { nome: '', area: '', link: '', descricao: '' };
+                    } else if (reportId) {
+                        const report = this.reportsList.find(r => r.id === reportId);
+                        this.formReport = report ? JSON.parse(JSON.stringify(report)) : { nome: '', area: '', link: '', descricao: '' };
+                    }
                     this.showReportModal = true;
                 },
 
