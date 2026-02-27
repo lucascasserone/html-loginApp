@@ -64,7 +64,7 @@
 
     <!-- DASHBOARD VIEW -->
     <template x-if="view === 'dashboard'">
-        <div x-cloak x-data="{ mobileMenuOpen: false }">
+        <div x-cloak>
             <!-- NAVBAR - NOVO DESIGN -->
             <nav class="bg-gradient-to-r from-slate-900 via-slate-900 to-blue-900/20 backdrop-blur-xl px-8 py-4 flex justify-between items-center sticky top-0 z-40 border-b border-blue-500/10 shadow-lg shadow-blue-500/5">
                 
@@ -655,6 +655,7 @@
                 showReportModal: false,
                 showUserModal: false,
                 showResetPasswordModal: false,
+                mobileMenuOpen: false,
                 modalMode: 'create',
                 
                 // LOADING STATES
