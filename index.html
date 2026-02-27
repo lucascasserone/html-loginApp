@@ -173,32 +173,6 @@
                                 <input type="text" x-model.debounce.300ms="searchQueryReports" placeholder="Filtrar relatórios..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition" aria-label="Buscar relatórios">
                                 <span class="absolute left-4 top-3.5 opacity-30" aria-hidden="true">🔍</span>
                             </div>
-                            <button @click="openReportCreateModal()" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white shadow-lg" title="Criar novo relatório">+ Novo Report</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <template x-for="report in filteredReports" :key="report.id">
-                            <div class="glass-container p-5 rounded-3xl hover:border-blue-500/70 hover:shadow-lg hover:shadow-blue-500/20 transition-all group cursor-pointer">
-                                <h4 class="font-black text-lg mb-1 truncate" x-text="report.nome" :title="report.nome"></h4>
-                                <span class="inline-block bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider mb-3" x-text="report.area"></span>
-                                <p class="text-xs opacity-60 mb-5 line-clamp-2 h-9" x-text="report.descricao || 'Sem descrição.'"></p>
-                                <div class="flex gap-2">
-                                    <a :href="report.link" target="_blank" rel="noopener noreferrer" class="flex-1 bg-blue-600 hover:bg-blue-700 text-center py-2.5 rounded-xl text-xs font-bold uppercase transition text-white" title="Abrir relatório em nova aba">Acessar</a>
-                                    <button @click="openReportEditModal(report.id)" class="p-2 bg-white/5 hover:bg-blue-500/30 border border-white/10 rounded-xl transition" aria-label="Editar relatório" title="Editar">✏️</button>
-                                    <button x-show="isAdmin" @click="deleteReport(report.id)" class="p-2 bg-red-500/5 hover:bg-red-600 border border-red-500/20 rounded-xl transition" aria-label="Deletar relatório" title="Deletar">🗑️</button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- TAB: USUÁRIOS -->
-                <div x-show="tab === 'users'">
-                    <div class="mb-8">
-                        <div class="flex items-start justify-between mb-6">
-                            <div>
-                                <h1 class="text-4xl font-black italic uppercase mb-2">Gestão de Equipe</h1>
-                                <p class="text-sm opacity-60 font-bold uppercase tracking-widest" x-text="`${usersList.length} colaboradorces`"></p>
                             </div>
                             <div class="text-4xl opacity-20">👥</div>
                         </div>
@@ -207,57 +181,6 @@
                                 <input type="text" x-model.debounce.300ms="searchQueryUsers" placeholder="Buscar colaborador..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition" aria-label="Buscar usuários">
                                 <span class="absolute left-4 top-3.5 opacity-30" aria-hidden="true">🔍</span>
                             </div>
-                            <button type="button" @click="openUserCreateModal()" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white cursor-pointer" title="Adicionar novo usuário">+ Novo Usuário</button>
-                            
-                        </div>
-                    </div>
-                    <div class="glass-container rounded-[40px] overflow-hidden">
-                        <table class="w-full text-left">
-                            <thead class="bg-white/5 text-xs font-black uppercase border-b border-white/10">
-                                <tr>
-                                    <th class="p-8">Colaborador</th>
-                                    <th class="p-8">Cargo / Setor</th>
-                                    <th x-show="isAdmin" class="p-8 text-right">Gerenciar</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/5">
-                                <template x-for="user in filteredUsers" :key="user.email">
-                                    <tr class="hover:bg-white/[0.02]">
-                                        <td class="p-8">
-                                            <div class="flex items-center gap-4">
-                                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black text-xs text-white" x-text="user.nome_completo?.charAt(0)" :title="user.nome_completo"></div>
-                                                <div>
-                                                    <div class="font-bold text-sm" x-text="user.nome_completo"></div>
-                                                    <div class="text-xs opacity-40" x-text="user.email"></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="p-8">
-                                            <div class="flex flex-col gap-2">
-                                                <span class="inline-block w-fit bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded-lg text-xs font-bold uppercase" x-text="user.cargo"></span>
-                                                <span class="inline-block w-fit bg-slate-500/20 text-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold uppercase" x-text="user.setor || 'GERAL'"></span>
-                                            </div>
-                                        </td>
-                                        <td x-show="isAdmin" class="p-8 text-right">
-                                            <div class="flex justify-end gap-2">
-                                                <button @click="openUserEditModal(user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-blue-600 transition" aria-label="Editar usuário" title="Editar">✏️</button>
-                                                <button @click="deleteUser(user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-red-600 transition" aria-label="Deletar usuário" title="Deletar">🗑️</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- TAB: AUDITORIA -->
-                <div x-show="tab === 'audit'">
-                    <div class="mb-8">
-                        <div class="flex items-start justify-between mb-6">
-                            <div>
-                                <h1 class="text-4xl font-black italic uppercase mb-2">Trilha de Auditoria</h1>
-                                <p class="text-sm opacity-60 font-bold uppercase tracking-widest" x-text="`${auditLogs.length} registro(s)`"></p>
                             </div>
                             <div class="text-4xl opacity-20">📋</div>
                         </div>
@@ -467,45 +390,38 @@
                         <span x-text="`${filteredNewsItems.length} de ${newsList.length} noticias`"></span>
                     </div>
                 </div>
-            </main>
-
-            <!-- MODAL: RELATÓRIOS -->
+            
+            <!-- MODAL: NOVO RELATÓRIO -->
             <div x-show="showReportModal" x-transition x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4" style="display: none;">
-                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg" @click.stop>
-                    <div class="flex justify-between items-center mb-8">
-                        <h2 class="text-2xl font-black uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Relatório' : 'Editar Relatório'"></h2>
-                        <button @click="showReportModal = false" class="text-white opacity-50 hover:opacity-100 text-2xl">✕</button>
-                    </div>
-                    
-                    <div class="space-y-5">
-                        <div>
-                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Título do Relatório</label>
-                            <input type="text" x-model="formReport.nome" placeholder="Ex: Análise de Vendas" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Departamento</label>
-                            <input type="text" x-model="formReport.area" placeholder="Ex: Finance" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Link do Power BI</label>
-                            <input type="url" x-model="formReport.link" placeholder="https://app.powerbi.com/..." class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-black uppercase mb-2 opacity-50">Descrição</label>
-                            <textarea x-model="formReport.descricao" placeholder="Descreva brevemente..." class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white h-20 focus:border-blue-500 outline-none transition resize-none" maxlength="500"></textarea>
-                            <p class="text-[10px] opacity-40 mt-1" x-text="(formReport.descricao || '').length + ' / 500'"></p>
-                        </div>
-                        
-                        <div class="flex gap-3 pt-4">
-                            <button @click="showReportModal = false" class="flex-1 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition">Cancelar</button>
-                            <button @click="saveReport()" class="flex-1 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black transition">Salvar</button>
-                        </div>
+                <div class="bg-slate-900 p-8 rounded-2xl w-full max-w-md border border-slate-700">
+                    <h2 class="text-2xl font-bold text-white mb-6">Novo Relatório</h2>
+                    <input type="text" x-model="formReport.nome" placeholder="Nome" class="w-full p-2 mb-3 bg-slate-800 border border-slate-700 text-white rounded">
+                    <input type="text" x-model="formReport.area" placeholder="Área" class="w-full p-2 mb-3 bg-slate-800 border border-slate-700 text-white rounded">
+                    <input type="url" x-model="formReport.link" placeholder="URL" class="w-full p-2 mb-3 bg-slate-800 border border-slate-700 text-white rounded">
+                    <textarea x-model="formReport.descricao" placeholder="Descrição" class="w-full p-2 mb-3 bg-slate-800 border border-slate-700 text-white rounded h-20"></textarea>
+                    <div class="flex gap-2">
+                        <button @click="showReportModal = false" class="flex-1 px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600">Cancelar</button>
+                        <button @click="saveReport()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Salvar</button>
                     </div>
                 </div>
             </div>
+
+            <!-- MODAL: NOVO USUÁRIO -->
+            <div x-show="showUserModal" x-transition x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4" style="display: none;">
+                <div class="bg-slate-900 p-8 rounded-2xl w-full max-w-md border border-slate-700">
+                    <h2 class="text-2xl font-bold text-white mb-6" x-text="modalMode === 'create' ? 'Novo Usuário' : 'Editar Usuário'"></h2>
+                    <input type="text" x-model="formUser.nome_completo" placeholder="Nome Completo" class="w-full p-2 mb-3 bg-slate-800 border border-slate-700 text-white rounded">
+                    <input type="email" x-model="formUser.email" placeholder="Email" :disabled="modalMode === 'edit'" class="w-full p-2 mb-3 bg-slate-800 border border-slate-700 text-white rounded">
+                    <input type="text" x-model="formUser.cargo" placeholder="Cargo" class="w-full p-2 mb-3 bg-slate-800 border border-slate-700 text-white rounded">
+                    <input type="text" x-model="formUser.setor" placeholder="Setor" class="w-full p-2 mb-3 bg-slate-800 border border-slate-700 text-white rounded">
+                    <div class="flex gap-2">
+                        <button @click="showUserModal = false" class="flex-1 px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600">Cancelar</button>
+                        <button @click="saveUser()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Salvar</button>
+                    </div>
+                </div>
+            </div>
+
+</main>
 
             <!-- MODAL: USUÁRIOS -->
             <div x-show="showUserModal" x-transition x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4" style="display: none;">
@@ -1139,44 +1055,15 @@
                 // FUNÇÕES AUXILIARES PARA ABRIR MODAIS
                 // ============================================
                 
-                openReportCreateModal() {
-                    console.log('🔓 Abrindo modal de novo relatório');
-                    this.modalMode = 'create';
-                    this.formReport = { nome: '', area: '', link: '', descricao: '' };
                     this.showReportModal = true;
                     console.log('✅ showReportModal:', this.showReportModal);
                 },
 
-                openReportEditModal(reportId) {
-                    console.log('🔓 Abrindo modal de edição para relatório:', reportId);
-                    const report = this.reportsList.find(r => r.id === reportId);
-                    if (report) {
-                        this.modalMode = 'edit';
-                        this.formReport = JSON.parse(JSON.stringify(report));
-                        this.showReportModal = true;
-                        console.log('✅ showReportModal:', this.showReportModal, 'formReport:', this.formReport);
-                    } else {
                         console.error('❌ Relatório não encontrado:', reportId);
                     }
                 },
 
-                openUserCreateModal() {
-                    console.log('[FUNCTION] openUserCreateModal called');
-                    this.modalMode = 'create';
-                    this.formUser = { nome_completo: '', email: '', cargo: '', setor: '' };
-                    this.showUserModal = true;
-                    console.log('[RESULT] showUserModal is now:', this.showUserModal);
-                },
 
-                openUserEditModal(userEmail) {
-                    console.log('🔓 Abrindo modal de edição para usuário:', userEmail);
-                    const user = this.usersList.find(u => u.email === userEmail);
-                    if (user) {
-                        this.modalMode = 'edit';
-                        this.formUser = JSON.parse(JSON.stringify(user));
-                        this.showUserModal = true;
-                        console.log('✅ showUserModal:', this.showUserModal, 'formUser:', this.formUser);
-                    } else {
                         console.error('❌ Usuário não encontrado:', userEmail);
                     }
                 },
