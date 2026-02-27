@@ -1,319 +1,1096 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heuriskien | Enterprise</title>
+    <title>Heuriskien | Enterprise v11.9</title>
+    
+    <!-- CSS FRAMEWORKS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- LIBRARIES -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="./css/styles.css">
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
+    
+    <script>
+        // Armazena Supabase globalmente para acesso - remove após implementar import maps
+        // TODO: Refatorar para ES modules com import maps quando suportar
+    </script>
 </head>
-<body class="theme-dark" x-data="appData()" x-init="init()" x-cloak>
+<body :class="'theme-' + theme" x-data="systemCore()" x-init="init()">
 
-    <!-- SPLASH -->
-    <div x-show="!initialized" class="fixed inset-0 bg-slate-950 z-[100] flex items-center justify-center">
-        <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <h2 class="text-blue-500 font-black text-xs uppercase tracking-widest">Heuriskien</h2>
-            <p class="text-xs opacity-50 mt-2">Carregando...</p>
-        </div>
+    <!-- SPLASH SCREEN -->
+    <div x-show="!initialized" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <h2 class="text-blue-500 font-black tracking-widest text-xs uppercase">Heuriskien Intelligence</h2>
     </div>
 
-    <!-- LOGIN -->
-    <template x-if="view === 'login' && initialized">
-        <div class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
-            <div class="w-full max-w-[420px] glass-container p-12 rounded-[40px]">
-                <h1 class="text-4xl font-black text-center mb-2">HEURISKIEN</h1>
-                <p class="text-xs text-blue-500 text-center font-bold uppercase mb-8">Enterprise Intelligence</p>
-                
-                <div class="space-y-5">
+    <!-- LOGIN VIEW -->
+    <template x-if="view === 'login'">
+        <div class="login-view min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+            <div class="w-full max-w-[420px] glass-container p-12 rounded-[40px] fade-in shadow-2xl">
+                <div class="text-center mb-10">
+                    <h1 class="text-4xl font-black italic tracking-tighter">HEURISKIEN</h1>
+                    <p class="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em]">Enterprise Intelligence</p>
+                </div>
+                <form @submit.prevent="handleLogin()" x-data="{ showPass: false, isLoading: false }" class="space-y-5">
                     <div>
-                        <label class="block text-xs font-black uppercase mb-2 opacity-50">E-mail</label>
-                        <input type="email" x-model="email" placeholder="usuario@empresa.com" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500">
+                        <label for="email" class="block text-xs font-black uppercase mb-2 opacity-50">E-mail Corporativo</label>
+                        <input id="email" type="email" x-model="email" @blur="$el.classList.toggle('border-red-500', !$el.checkValidity())" placeholder="seu@email.com" class="w-full px-6 py-5 rounded-2xl input-premium border-white/10 text-white" aria-label="E-mail corporativo" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-black uppercase mb-2 opacity-50">Senha</label>
-                        <input type="password" x-model="password" placeholder="••••••••" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500">
+                        <label for="password" class="block text-xs font-black uppercase mb-2 opacity-50">Senha</label>
+                        <div class="relative">
+                            <input id="password" :type="showPass ? 'text' : 'password'" x-model="password" placeholder="•••••••••" class="w-full px-6 py-5 rounded-2xl input-premium border-white/10 pr-14 text-white" aria-label="Senha de acesso" required>
+                            <button type="button" @click="showPass = !showPass" aria-label="Alternar visibilidade da senha" class="absolute right-5 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-100 transition text-white" title="Mostrar/Ocultar senha">
+                                <span x-text="showPass ? '👁️' : '🙈'" aria-hidden="true"></span>
+                            </button>
+                        </div>
                     </div>
-                    <button @click="testLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black uppercase transition">Acessar</button>
-                </div>
-
-                <div class="mt-6 p-4 bg-blue-900/30 rounded-lg text-xs text-blue-300 border border-blue-500/50">
-                    <p><strong>🧪 Modo Demo:</strong> Use qualquer email/senha para testar</p>
-                </div>
+                    <div class="flex justify-end">
+                        <button type="button" @click="recoverPassword()" class="text-[10px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-400 transition">Esqueceu a senha?</button>
+                    </div>
+                    <button type="submit" :disabled="isLoading" class="w-full bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-600/20 transition">
+                        <span x-text="isLoading ? 'Acessando...' : 'Acessar Hub'"></span>
+                    </button>
+                </form>
             </div>
         </div>
     </template>
 
-    <!-- DASHBOARD -->
-    <template x-if="view === 'dashboard' && initialized">
-        <div class="min-h-screen bg-slate-950">
-            <!-- NAV -->
-            <nav class="bg-gradient-to-r from-slate-900 to-blue-900/20 px-8 py-4 border-b border-blue-500/10 sticky top-0 z-40">
-                <div class="max-w-7xl mx-auto flex justify-between items-center">
-                    <h1 class="text-xl font-black">HEURISKIEN</h1>
-                    <div class="flex gap-4">
-                        <button @click="view = 'dashboard'; currentTab = 'reports'" :class="currentTab === 'reports' ? 'bg-blue-600' : 'bg-slate-700'" class="px-4 py-2 rounded-lg font-bold text-xs uppercase">Relatórios</button>
-                        <button @click="view = 'dashboard'; currentTab = 'users'" :class="currentTab === 'users' ? 'bg-blue-600' : 'bg-slate-700'" class="px-4 py-2 rounded-lg font-bold text-xs uppercase">Usuários</button>
-                        <button @click="logout()" class="px-4 py-2 bg-red-600 rounded-lg font-bold text-xs uppercase">Sair</button>
+    <!-- DASHBOARD VIEW -->
+    <template x-if="view === 'dashboard'">
+        <div x-cloak x-data="{ mobileMenuOpen: false }">
+            <!-- NAVBAR - NOVO DESIGN -->
+            <nav class="bg-gradient-to-r from-slate-900 via-slate-900 to-blue-900/20 backdrop-blur-xl px-8 py-4 flex justify-between items-center sticky top-0 z-40 border-b border-blue-500/10 shadow-lg shadow-blue-500/5">
+                
+                <!-- LOGO + BRAND -->
+                <div class="flex items-center gap-6 min-w-fit">
+                    <div class="flex items-baseline gap-1">
+                        <h1 class="font-black text-xl italic tracking-tighter text-white">HEURIS</h1>
+                        <h1 class="font-black text-xl italic tracking-tighter text-blue-400">KIEN</h1>
                     </div>
+                    <div class="h-6 w-px bg-blue-500/30"></div>
+                </div>
+
+                <!-- NAVIGATION TABS - CENTRO -->
+                <div 
+                    class="nav-menu-section flex gap-1 bg-slate-800/40 px-2 py-1.5 rounded-xl border border-slate-700/50"
+                    :class="mobileMenuOpen ? 'mobile-menu-open' : ''"
+                    @click:away="mobileMenuOpen = false">
+                    <template x-for="t in ['news', 'reports', 'users', 'audit', 'profile']">
+                        <button 
+                            x-show="t !== 'audit' || isAdmin" 
+                            @click="tab = t; mobileMenuOpen = false"
+                            :class="tab === t 
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' 
+                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'" 
+                            class="px-4 py-1.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap"
+                            :title="t === 'users' ? 'Equipe' : (t === 'news' ? 'Notícias' : (t === 'reports' ? 'Relatórios' : t))">
+                            <span x-text="t === 'users' ? '👥 Equipe' : (t === 'news' ? '📰 Notícias' : (t === 'reports' ? '📊 Reports' : (t === 'audit' ? '📋 Auditoria' : '👤 Perfil')))"></span>
+                        </button>
+                    </template>
+                </div>
+
+                <!-- CONTROLES - DIREITA -->
+                <div 
+                    class="nav-controls-section flex items-center gap-3"
+                    :class="mobileMenuOpen ? 'mobile-menu-open' : ''"
+                    @click:away="mobileMenuOpen = false">
+                    <!-- TEMA SELECTOR - REDESENHADO -->
+                    <div class="flex items-center gap-2 bg-slate-800/40 px-2 py-1.5 rounded-xl border border-slate-700/50">
+                        <button 
+                            @click="theme = 'dark'; localStorage.setItem('heuriskien_theme', 'dark')" 
+                            :class="theme === 'dark' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:text-slate-200'"
+                            class="p-1.5 rounded-lg transition-all duration-200" 
+                            title="Tema escuro">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        </button>
+                        <button 
+                            @click="theme = 'light'; localStorage.setItem('heuriskien_theme', 'light')" 
+                            :class="theme === 'light' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:text-slate-200'"
+                            class="p-1.5 rounded-lg transition-all duration-200" 
+                            title="Tema claro">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l1.414 1.414a1 1 0 001.414-1.414l-1.414-1.414a1 1 0 00-1.414 1.414zm0-7.778l1.414-1.414a1 1 0 10-1.414-1.414l-1.414 1.414a1 1 0 001.414 1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <button 
+                            @click="theme = 'glass'; localStorage.setItem('heuriskien_theme', 'glass')" 
+                            :class="theme === 'glass' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:text-slate-200'"
+                            class="p-1.5 rounded-lg transition-all duration-200" 
+                            title="Tema cristalino">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a1 1 0 001 1h12a1 1 0 001-1V6a2 2 0 00-2-2H4zm12 12H4a2 2 0 01-2-2v-4a1 1 0 00-1-1H.5a.5.5 0 00-.5.5v4a4 4 0 004 4h12a4 4 0 004-4v-4a.5.5 0 00-.5-.5H17a1 1 0 00-1 1v4a2 2 0 01-2 2z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- LOGOUT -->
+                    <button 
+                        @click="handleLogout()" 
+                        class="flex items-center gap-2 bg-red-600/10 hover:bg-red-600 px-4 py-2 rounded-lg transition-all duration-200 text-red-500 hover:text-white border border-red-600/30 text-xs font-bold uppercase tracking-widest group"
+                        title="Fazer logout">
+                        <svg class="w-4 h-4 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        <span>Sair</span>
+                    </button>
+
+                    <!-- HAMBURGER MENU (Mobile) -->
+                    <button 
+                        @click="mobileMenuOpen = !mobileMenuOpen"
+                        class="mobile-menu-toggle p-2"
+                        title="Menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
                 </div>
             </nav>
 
-            <!-- MAIN -->
-            <main class="max-w-7xl mx-auto p-8">
-
+            <!-- MAIN CONTENT -->
+            <main class="p-8 max-w-[1600px] mx-auto fade-in">
+                
                 <!-- TAB: RELATÓRIOS -->
-                <div x-show="currentTab === 'reports'">
-                    <div class="mb-8">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-4xl font-black italic uppercase">Hub de Inteligência</h2>
-                            <button @click="openReportModal()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-bold text-white">+ Novo Relatório</button>
+                <div x-show="tab === 'reports'">
+                    <div class="flex justify-between items-center mb-10">
+                        <h2 class="text-3xl font-black italic uppercase">Hub de Inteligência</h2>
+                        <div class="flex gap-4">
+                            <div class="relative w-80">
+                                <input type="text" x-model.debounce.300ms="searchQueryReports" placeholder="Filtrar relatórios..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition" aria-label="Buscar relatórios">
+                                <span class="absolute left-4 top-3.5 opacity-30" aria-hidden="true">🔍</span>
+                            </div>
+                            <button x-show="isAdmin" @click="openReportModal('create')" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white shadow-lg" title="Criar novo relatório">+ Novo Report</button>
                         </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <template x-for="report in filteredReports" :key="report.id">
+                            <div class="glass-container p-8 rounded-[35px] hover:border-blue-500/50 transition-all group">
+                                <h4 class="font-black text-xl mb-1 truncate" x-text="report.nome" :title="report.nome"></h4>
+                                <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4 block" x-text="report.area"></span>
+                                <p class="text-xs opacity-50 mb-8 line-clamp-2 h-10" x-text="report.descricao || 'Sem descrição.'"></p>
+                                <div class="flex gap-2">
+                                    <a :href="report.link" target="_blank" rel="noopener noreferrer" class="flex-1 bg-white/5 hover:bg-blue-600 text-center py-3 rounded-2xl text-[10px] font-black uppercase transition hover:text-white" title="Abrir relatório em nova aba">Acessar</a>
+                                    <button x-show="isAdmin" @click="openReportModal('edit', report)" class="p-3 border border-white/10 rounded-2xl hover:bg-white/10 transition" aria-label="Editar relatório" title="Editar">✏️</button>
+                                    <button x-show="isAdmin" @click="deleteReport(report.id)" class="p-3 border border-red-500/20 rounded-2xl hover:bg-red-600 transition" aria-label="Deletar relatório" title="Deletar">🗑️</button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
 
-                        <div x-show="reports.length === 0" class="glass-container p-12 rounded-lg text-center">
-                            <p class="opacity-50">Nenhum relatório cadastrado</p>
+                <!-- TAB: USUÁRIOS -->
+                <div x-show="tab === 'users'">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-3xl font-black italic uppercase">Gestão de Equipe</h2>
+                        <div class="flex gap-4">
+                            <div class="relative w-80">
+                                <input type="text" x-model.debounce.300ms="searchQueryUsers" placeholder="Buscar colaborador..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition" aria-label="Buscar usuários">
+                                <span class="absolute left-4 top-3.5 opacity-30" aria-hidden="true">🔍</span>
+                            </div>
+                            <button x-show="isAdmin" @click="openUserModal('create')" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white" title="Adicionar novo usuário">+ Novo Usuário</button>
                         </div>
+                    </div>
+                    <div class="glass-container rounded-[40px] overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-white/5 text-xs font-black uppercase border-b border-white/10">
+                                <tr>
+                                    <th class="p-8">Colaborador</th>
+                                    <th class="p-8">Cargo / Setor</th>
+                                    <th x-show="isAdmin" class="p-8 text-right">Gerenciar</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5">
+                                <template x-for="user in filteredUsers" :key="user.email">
+                                    <tr class="hover:bg-white/[0.02]">
+                                        <td class="p-8">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black text-xs text-white" x-text="user.nome_completo?.charAt(0)" :title="user.nome_completo"></div>
+                                                <div>
+                                                    <div class="font-bold text-sm" x-text="user.nome_completo"></div>
+                                                    <div class="text-xs opacity-40" x-text="user.email"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-8">
+                                            <span class="text-xs font-black text-blue-400 uppercase" x-text="user.cargo"></span>
+                                            <div class="text-xs opacity-40 font-bold uppercase" x-text="user.setor || 'GERAL'"></div>
+                                        </td>
+                                        <td x-show="isAdmin" class="p-8 text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button @click="openUserModal('edit', user)" class="p-2.5 bg-white/5 rounded-xl hover:bg-blue-600 transition" aria-label="Editar usuário" title="Editar">✏️</button>
+                                                <button @click="deleteUser(user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-red-600 transition" aria-label="Deletar usuário" title="Deletar">🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <template x-for="report in reports" :key="report.id">
-                                <div class="glass-container p-6 rounded-lg">
-                                    <h3 class="font-bold text-lg mb-2" x-text="report.nome"></h3>
-                                    <p class="text-xs opacity-60 mb-4" x-text="report.area"></p>
-                                    <div class="flex gap-2">
-                                        <button @click="editReport(report)" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded text-sm">✏️ Editar</button>
-                                        <button @click="deleteReport(report.id)" class="flex-1 bg-red-600 hover:bg-red-700 py-2 rounded text-sm">🗑️ Deletar</button>
-                                    </div>
+                <!-- TAB: AUDITORIA -->
+                <div x-show="tab === 'audit'">
+                    <div class="flex justify-between items-end mb-8">
+                        <div>
+                            <h2 class="text-3xl font-black italic uppercase">Trilha de Auditoria</h2>
+                            <p class="text-[10px] font-bold opacity-40 uppercase mt-1">Logs de atividades administrativas</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <select x-model="filterAuditAction" class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none focus:border-blue-500 cursor-pointer" aria-label="Filtrar por ação">
+                                <option value="">Todas Ações</option>
+                                <option value="CRIAR">Criar</option>
+                                <option value="EDITAR">Editar</option>
+                                <option value="DELETAR">Deletar</option>
+                            </select>
+                            <input type="text" x-model="searchQueryAudit" placeholder="Buscar no log..." class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-blue-500 w-64" aria-label="Buscar nos logs">
+                            <button @click="loadAuditLogs()" :disabled="isLoadingAudit" class="bg-white/5 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-xl text-[10px] font-black transition uppercase" :title="isLoadingAudit ? 'Sincronizando...' : 'Recarregar logs de auditoria'">
+                                <span x-text="isLoadingAudit ? '⟳ Sincronizando...' : 'Sincronizar'"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="glass-container rounded-[40px] overflow-hidden">
+                        <div class="max-h-[600px] overflow-y-auto p-6 space-y-3 custom-scroll">
+                            <template x-for="log in filteredAuditLogs" :key="log.id">
+                                <div class="p-6 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-6">
+                                    <div class="text-sm font-mono opacity-40 w-40 flex-shrink-0" x-text="formatDateTime(log.created_at)"></div>
+                                    <div class="px-3 py-1.5 bg-blue-500/10 text-blue-400 font-black text-xs rounded-lg uppercase flex-shrink-0" x-text="log.acao"></div>
+                                    <div class="flex-1 text-sm font-semibold opacity-80" x-text="log.alvo"></div>
+                                    <div class="text-xs font-semibold opacity-50 italic" x-text="log.admin_email"></div>
                                 </div>
                             </template>
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB: USUÁRIOS -->
-                <div x-show="currentTab === 'users'">
-                    <div class="mb-8">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-4xl font-black italic uppercase">Gestão de Usuários</h2>
-                            <button @click="openUserModal()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-bold text-white">+ Novo Usuário</button>
-                        </div>
-
-                        <div x-show="users.length === 0" class="glass-container p-12 rounded-lg text-center">
-                            <p class="opacity-50">Nenhum usuário cadastrado</p>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full" x-show="users.length > 0">
-                                <thead>
-                                    <tr class="border-b border-white/10">
-                                        <th class="text-left p-4 font-bold text-xs uppercase opacity-50">Nome</th>
-                                        <th class="text-left p-4 font-bold text-xs uppercase opacity-50">Email</th>
-                                        <th class="text-left p-4 font-bold text-xs uppercase opacity-50">Cargo</th>
-                                        <th class="text-center p-4 font-bold text-xs uppercase opacity-50">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <template x-for="user in users" :key="user.id">
-                                        <tr class="border-b border-white/5 hover:bg-white/5">
-                                            <td class="p-4" x-text="user.nome"></td>
-                                            <td class="p-4 text-sm opacity-80" x-text="user.email"></td>
-                                            <td class="p-4 text-sm opacity-80" x-text="user.cargo"></td>
-                                            <td class="p-4 text-center flex justify-center gap-2">
-                                                <button @click="editUser(user)" class="px-3 py-1 bg-blue-600 rounded text-xs">✏️</button>
-                                                <button @click="deleteUser(user.id)" class="px-3 py-1 bg-red-600 rounded text-xs">🗑️</button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
+                <!-- TAB: PERFIL -->
+                <div x-show="tab === 'profile'">
+                    <div class="max-w-4xl mx-auto glass-container p-12 rounded-[60px] flex flex-row items-center gap-12">
+                        <div class="w-44 h-44 bg-gradient-to-tr from-blue-700 to-blue-400 rounded-full flex items-center justify-center text-6xl font-black shadow-2xl text-white" x-text="currentUserData.nome_completo?.charAt(0) || 'U'"></div>
+                        <div class="flex-1">
+                            <h2 class="text-4xl font-black mb-2" x-text="currentUserData.nome_completo"></h2>
+                            <p class="text-blue-500 font-black uppercase tracking-widest text-sm mb-6" x-text="currentUserData.cargo"></p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">E-mail Corporativo</p>
+                                    <p class="font-bold text-sm" x-text="currentUserData.email"></p>
+                                </div>
+                                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                                    <p class="text-[10px] opacity-40 uppercase font-black mb-1">Setor Operacional</p>
+                                    <p class="font-bold text-sm" x-text="currentUserData.setor || 'Não informado'"></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- TAB: NOTÍCIAS -->
+                <div x-show="tab === 'news'" class="max-w-5xl mx-auto">
+                    <div class="mb-12">
+                        <h2 class="text-4xl font-black italic mb-3 uppercase">🗞️ Intelligence Unit</h2>
+                        <p class="text-sm opacity-60 font-bold uppercase tracking-widest">Últimas atualizações e melhorias do sistema</p>
+                    </div>
+
+                    <div x-show="newsList.length === 0" class="glass-container p-12 rounded-[40px] text-center">
+                        <p class="opacity-50 font-bold">Nenhuma notícia disponível</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <template x-for="(news, idx) in newsList" :key="news.id">
+                            <div class="glass-container p-6 rounded-[32px] border-l-[6px] border-blue-600 hover:shadow-lg transition-all duration-300 flex gap-6 group">
+                                <!-- TIMELINE INDICATOR -->
+                                <div class="flex flex-col items-center pt-1 min-w-fit">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-lg">
+                                        <span x-show="idx === 0">✨</span>
+                                        <span x-show="idx !== 0" x-text="idx + 1"></span>
+                                    </div>
+                                    <div x-show="idx < newsList.length - 1" class="w-1 h-8 bg-gradient-to-b from-blue-500 to-transparent mt-1"></div>
+                                </div>
+
+                                <!-- CONTEÚDO -->
+                                <div class="flex-1 py-1">
+                                    <div class="flex items-start justify-between mb-3 gap-4 flex-wrap">
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-black uppercase tracking-tight mb-1" x-text="news.titulo"></h3>
+                                            <p class="text-xs opacity-50 font-bold uppercase tracking-widest" x-text="formatDateTime(news.created_at)"></p>
+                                        </div>
+                                        <div class="flex gap-2 flex-wrap justify-end">
+                                            <span class="text-xs font-black bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/30 uppercase tracking-widest" x-text="'v' + news.versao"></span>
+                                            <span x-show="news.categoria" class="text-xs font-black bg-slate-700/40 text-slate-200 px-3 py-1.5 rounded-full border border-slate-600/30 uppercase tracking-widest" x-text="news.categoria"></span>
+                                        </div>
+                                    </div>
+                                    <p class="opacity-75 leading-relaxed text-sm mb-4" x-text="news.conteudo"></p>
+                                    <div class="flex items-center justify-between text-xs">
+                                        <div class="flex gap-2">
+                                            <span x-show="news.impacto" class="bg-green-500/20 text-green-300 px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider border border-green-500/30">🎯 <span x-text="news.impacto"></span></span>
+                                        </div>
+                                        <div x-show="news.status" class="font-bold uppercase tracking-widest" :class="news.status === 'ativo' ? 'text-green-400 news-status-ativo' : 'text-slate-400 news-status-arquivado'">
+                                            <span x-text="news.status === 'ativo' ? '🟢 Ativo' : '📌 Arquivado'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
             </main>
+
+            <!-- MODAL: RELATÓRIOS -->
+            <div x-show="showReportModal" x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg">
+                    <h2 class="text-2xl font-black mb-8 uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Relatório' : 'Editar Relatório'"></h2>
+                    <form @submit.prevent="saveReport()" x-data="{ isLoading: false }" class="space-y-4">
+                        <div>
+                            <label for="reportName" class="block text-xs font-black uppercase mb-2 opacity-50">Título do Relatório</label>
+                            <input id="reportName" type="text" x-model="formReport.nome" placeholder="Ex: Análise de Vendas" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                        </div>
+                        <div>
+                            <label for="reportDept" class="block text-xs font-black uppercase mb-2 opacity-50">Departamento</label>
+                            <input id="reportDept" type="text" x-model="formReport.area" placeholder="Ex: Finance" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                        </div>
+                        <div>
+                            <label for="reportLink" class="block text-xs font-black uppercase mb-2 opacity-50">Link do Power BI</label>
+                            <input id="reportLink" type="url" x-model="formReport.link" placeholder="https://app.powerbi.com..." class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                        </div>
+                        <div>
+                            <label for="reportDesc" class="block text-xs font-black uppercase mb-2 opacity-50">Descrição</label>
+                            <textarea id="reportDesc" x-model="formReport.descricao" placeholder="Descreva brevemente o relatório..." class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white h-24 focus:border-blue-500 outline-none transition resize-none" maxlength="500"></textarea>
+                            <p class="text-[10px] opacity-40 mt-1" x-text="(formReport.descricao || '').length + ' / 500'"></p>
+                        </div>
+                        <div class="flex gap-4 pt-6">
+                            <button type="button" @click="showReportModal = false" class="flex-1 font-bold opacity-40 hover:opacity-60 text-white transition">Cancelar</button>
+                            <button type="submit" :disabled="isLoading" class="flex-1 bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 text-white py-5 rounded-2xl font-black shadow-xl transition">
+                                <span x-text="isLoading ? 'Salvando...' : 'Confirmar'"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MODAL: USUÁRIOS -->
+            <div x-show="showUserModal" x-cloak class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+                <div class="glass-container p-10 rounded-[40px] w-full max-w-lg">
+                    <h2 class="text-2xl font-black mb-8 uppercase tracking-tighter text-white" x-text="modalMode === 'create' ? 'Novo Usuário' : 'Editar Usuário'"></h2>
+                    <form @submit.prevent="saveUser()" x-data="{ isLoading: false }" class="space-y-4">
+                        <div>
+                            <label for="userName" class="block text-xs font-black uppercase mb-2 opacity-50">Nome Completo</label>
+                            <input id="userName" type="text" x-model="formUser.nome_completo" placeholder="Ex: João Silva" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                        </div>
+                        <div>
+                            <label for="userEmail" class="block text-xs font-black uppercase mb-2 opacity-50">E-mail Corporativo</label>
+                            <input id="userEmail" type="email" x-model="formUser.email" placeholder="usuario@empresa.com" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" :disabled="modalMode === 'edit'" required>
+                        </div>
+                        <div>
+                            <label for="userRole" class="block text-xs font-black uppercase mb-2 opacity-50">Cargo</label>
+                            <input id="userRole" type="text" x-model="formUser.cargo" placeholder="Ex: Analista" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition" required>
+                        </div>
+                        <div>
+                            <label for="userDept" class="block text-xs font-black uppercase mb-2 opacity-50">Setor (opcional)</label>
+                            <input id="userDept" type="text" x-model="formUser.setor" placeholder="Ex: Financeiro" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-blue-500 outline-none transition">
+                        </div>
+                        <div class="flex gap-4 pt-6">
+                            <button type="button" @click="showUserModal = false" class="flex-1 font-bold opacity-40 hover:opacity-60 text-white transition">Cancelar</button>
+                            <button type="submit" :disabled="isLoading" class="flex-1 bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 text-white py-5 rounded-2xl font-black shadow-xl transition">
+                                <span x-text="isLoading ? 'Salvando...' : 'Salvar'"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MODAL: RESET DE SENHA -->
+            <div x-show="showResetPasswordModal" x-cloak class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[80] flex items-center justify-center p-4">
+                <div class="glass-container p-12 rounded-[50px] w-full max-w-md">
+                    <h2 class="text-2xl font-black mb-6 uppercase text-white text-center">Nova Senha</h2>
+                    <p class="text-xs opacity-50 mb-8 uppercase font-bold text-center">Defina sua nova senha de acesso. Mínimo 6 caracteres.</p>
+                    <form @submit.prevent="updatePassword()" x-data="{ isLoading: false }" class="space-y-5">
+                        <div>
+                            <label for="newPassword" class="block text-xs font-black uppercase mb-2 opacity-50">Nova Senha</label>
+                            <input id="newPassword" type="password" x-model="newPassword" placeholder="•••••••••" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500 transition" aria-label="Nova senha" required minlength="6">
+                            <p class="text-[10px] opacity-40 mt-2">Mínimo 6 caracteres para maior segurança.</p>
+                        </div>
+                        <button type="submit" :disabled="isLoading" class="w-full bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl transition">
+                            <span x-text="isLoading ? 'Salvando...' : 'Salvar Senha'"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </template>
 
-    <!-- MODALS -->
-    <!-- Report Modal -->
-    <div x-show="showReportModal" x-transition class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4" style="display: none;">
-        <div class="glass-container p-10 rounded-lg w-full max-w-md" @click.stop>
-            <h2 class="text-2xl font-bold mb-6" x-text="editingReport ? 'Editar Relatório' : 'Novo Relatório'"></h2>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 opacity-60">Título</label>
-                    <input type="text" x-model="formReport.nome" placeholder="Ex: Relatório Vendas" class="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 opacity-60">Departamento</label>
-                    <input type="text" x-model="formReport.area" placeholder="Ex: Financeiro" class="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 opacity-60">URL</label>
-                    <input type="url" x-model="formReport.link" placeholder="https://..." class="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500">
-                </div>
-                <div class="flex gap-2 mt-6">
-                    <button @click="showReportModal = false" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg font-bold">Cancelar</button>
-                    <button @click="saveReport()" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-bold">Salvar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Modal -->
-    <div x-show="showUserModal" x-transition class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4" style="display: none;">
-        <div class="glass-container p-10 rounded-lg w-full max-w-md" @click.stop>
-            <h2 class="text-2xl font-bold mb-6" x-text="editingUser ? 'Editar Usuário' : 'Novo Usuário'"></h2>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 opacity-60">Nome Completo</label>
-                    <input type="text" x-model="formUser.nome" placeholder="Ex: João Silva" class="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 opacity-60">Email</label>
-                    <input type="email" x-model="formUser.email" placeholder="usuario@empresa.com" class="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 opacity-60">Cargo</label>
-                    <input type="text" x-model="formUser.cargo" placeholder="Ex: Analista" class="w-full p-3 rounded-lg bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500">
-                </div>
-                <div class="flex gap-2 mt-6">
-                    <button @click="showUserModal = false" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg font-bold">Cancelar</button>
-                    <button @click="saveUser()" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-bold">Salvar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- SUPABASE CLIENT INITIALIZATION -->
     <script>
-        function appData() {
-            return {
-                initialized: false,
-                view: 'login',
-                currentTab: 'reports',
-                email: '',
-                password: '',
-                
-                // Data
-                reports: [
-                    { id: 1, nome: 'Relatório de Vendas', area: 'Financeiro', link: 'https://powerbi.com' },
-                    { id: 2, nome: 'Análise de Clientes', area: 'Marketing', link: 'https://powerbi.com' }
-                ],
-                users: [
-                    { id: 1, nome: 'João Silva', email: 'joao@empresa.com', cargo: 'Gerente' },
-                    { id: 2, nome: 'Maria Santos', email: 'maria@empresa.com', cargo: 'Analista' }
-                ],
-                
-                // Modal state
-                showReportModal: false,
-                showUserModal: false,
-                editingReport: null,
-                editingUser: null,
-                formReport: { nome: '', area: '', link: '' },
-                formUser: { nome: '', email: '', cargo: '' },
-                
-                async init() {
-                    console.log('✅ App iniciando...');
-                    await new Promise(r => setTimeout(r, 500));
-                    this.initialized = true;
-                    console.log('✅ App pronto!');
-                },
-                
-                testLogin() {
-                    if (!this.email || !this.password) {
-                        alert('Preencha email e senha');
-                        return;
-                    }
-                    this.view = 'dashboard';
-                },
-                
-                logout() {
-                    this.view = 'login';
-                    this.email = '';
-                    this.password = '';
-                },
-                
-                // Report functions
-               openReportModal() {
-                    this.editingReport = null;
-                    this.formReport = { nome: '', area: '', link: '' };
-                    this.showReportModal = true;
-                },
-                
-                editReport(report) {
-                    this.editingReport = report.id;
-                    this.formReport = { ...report };
-                    this.showReportModal = true;
-                },
-                
-                saveReport() {
-                    if (!this.formReport.nome || !this.formReport.area) {
-                        alert('Preencha todos os campos');
-                        return;
-                    }
-                    
-                    if (this.editingReport) {
-                        const idx = this.reports.findIndex(r => r.id === this.editingReport);
-                        if (idx >= 0) {
-                            this.reports[idx] = { ...this.reports[idx], ...this.formReport };
-                        }
-                    } else {
-                        this.reports.push({ id: Math.random(), ...this.formReport });
-                    }
-                    
-                    this.showReportModal = false;
-                },
-                
-                deleteReport(id) {
-                    if (confirm('Tem certeza?')) {
-                        this.reports = this.reports.filter(r => r.id !== id);
-                    }
-                },
-                
-                // User functions
-                openUserModal() {
-                    this.editingUser = null;
-                    this.formUser = { nome: '', email: '', cargo: '' };
-                    this.showUserModal = true;
-                },
-                
-                editUser(user) {
-                    this.editingUser = user.id;
-                    this.formUser = { ...user };
-                    this.showUserModal = true;
-                },
-                
-                saveUser() {
-                    if (!this.formUser.nome || !this.formUser.email) {
-                        alert('Preencha todos os campos');
-                        return;
-                    }
-                    
-                    if (this.editingUser) {
-                        const idx = this.users.findIndex(u => u.id === this.editingUser);
-                        if (idx >= 0) {
-                            this.users[idx] = { ...this.users[idx], ...this.formUser };
-                        }
-                    } else {
-                        this.users.push({ id: Math.random(), ...this.formUser });
-                    }
-                    
-                    this.showUserModal = false;
-                },
-                
-                deleteUser(id) {
-                    if (confirm('Tem certeza?')) {
-                        this.users = this.users.filter(u => u.id !== id);
-                    }
+        // ============================================
+        // CONFIGURAÇÃO SUPABASE
+        // ============================================
+        const SUPABASE_URL = 'https://nqdlxiyzsxkntypyzkie.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xZGx4aXl6c3hrbnR5cHl6a2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjY1ODIsImV4cCI6MjA4NzU0MjU4Mn0.8npxzHMR3VdaufiqmsJKdLR2zpXDOFzDldFwdth18f0';
+        
+        console.warn('⚠️ SEGURANÇA: Em produção, use variáveis de ambiente em vez de credenciais hardcoded.');
+        
+        let supabaseClient = null;
+        
+        // Aguarda Supabase e cria cliente
+        function initSupabaseClient() {
+            if (typeof supabase !== 'undefined') {
+                try {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    window.__SUPABASE_CLIENT = supabaseClient; // Para acesso global
+                    console.log('✅ Supabase cliente iniciado com sucesso');
+                } catch (err) {
+                    console.error('❌ Erro ao criar cliente:', err);
                 }
+            } else {
+                setTimeout(initSupabaseClient, 100);
             }
         }
+        
+        initSupabaseClient();
+    </script>
+
+    <!-- FUNÇÃO HELPER DE FORMATAÇÃO -->
+    <script>
+        /**
+         * Formata data para locale string
+         */
+        function formatDateTime(date) {
+            try {
+                return new Date(date).toLocaleString('pt-BR');
+            } catch {
+                return 'Data/hora inválida';
+            }
+        }
+
+        /**
+         * Valida se é email válido
+         */
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
+        }
+
+        /**
+         * Valida se é URL válida
+         */
+        function isValidUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+    </script>
+
+    <!-- LÓGICA PRINCIPAL - ALPINE.JS STORE -->
+    <script>
+        /**
+         * Store principal da aplicação
+         * Gerencia estado, eventos e integrações com Supabase
+         */
+        function systemCore() {
+            return {
+                // ============================================
+                // ESTADO GERAL
+                // ============================================
+                initialized: false,
+                view: 'login',
+                tab: 'news',
+                theme: localStorage.getItem('heuriskien_theme') || 'dark',
+                userEmail: '',
+                isAdmin: false,
+                currentUserData: {},
+
+                // FORMULÁRIOS
+                email: '',
+                password: '',
+                newPassword: '',
+                formReport: { nome: '', area: '', link: '', descricao: '' },
+                formUser: { nome_completo: '', email: '', cargo: '', setor: '' },
+
+                // DADOS
+                reportsList: [],
+                usersList: [],
+                auditLogs: [],
+                newsList: [],
+
+                // BUSCA E FILTROS
+                searchQueryUsers: '',
+                searchQueryReports: '',
+                searchQueryAudit: '',
+                filterAuditAction: '',
+
+                // UI STATE
+                showReportModal: false,
+                showUserModal: false,
+                showResetPasswordModal: false,
+                modalMode: 'create',
+                
+                // LOADING STATES
+                isLoadingLogin: false,
+                isLoadingReports: false,
+                isLoadingUsers: false,
+                isLoadingAudit: false,
+                isLoadingProfile: false,
+                lastSyncTime: null,
+
+                // ============================================
+                // INIT
+                // ============================================
+                async init() {
+                    try {
+                        console.log('🚀 Iniciando Heuriskien...');
+
+                        // Aguarda Supabase estar pronto
+                        let attempts = 0;
+                        while (!supabaseClient && attempts < 50) {
+                            await new Promise(r => setTimeout(r, 100));
+                            attempts++;
+                        }
+
+                        if (!supabaseClient) {
+                            throw new Error('Supabase não carregou em tempo hábil');
+                        }
+
+                        console.log('✅ Cliente Supabase pronto');
+
+                        // Registra listener de auth
+                        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                            console.log('🔐 Auth event:', event);
+                            if (event === 'PASSWORD_RECOVERY' || window.location.hash.includes('type=recovery')) {
+                                this.view = 'dashboard';
+                                this.showResetPasswordModal = true;
+                            }
+                        });
+
+                        // Verifica sessão
+                        const { data: { session }, error } = await supabaseClient.auth.getSession();
+                        if (error) throw error;
+
+                        if (session) {
+                            this.userEmail = session.user.email;
+                            await this.loadInitialData();
+                            this.view = 'dashboard';
+                            console.log('✅ Usuário autenticado:', this.userEmail);
+                        } else {
+                            this.view = 'login';
+                            console.log('👤 Exibindo tela de login');
+                        }
+                    } catch (err) {
+                        console.error('❌ Erro de inicialização:', err);
+                        Swal.fire('Erro', 'Falha ao inicializar: ' + err.message, 'error');
+                        this.view = 'login';
+                    } finally {
+                        this.initialized = true;
+                    }
+                },
+
+                // ============================================
+                // AUTENTICAÇÃO
+                // ============================================
+                async handleLogin() {
+                    try {
+                        if (!this.email || !this.password) {
+                            Swal.fire('Aviso', 'Preencha e-mail e senha.', 'warning');
+                            return;
+                        }
+
+                        if (!isValidEmail(this.email)) {
+                            Swal.fire('Aviso', 'E-mail inválido.', 'warning');
+                            return;
+                        }
+
+                        if (!supabaseClient) {
+                            Swal.fire('Erro', 'Supabase não está disponível. Recarregue a página.', 'error');
+                            return;
+                        }
+
+                        console.log('🔒 Tentando login:', this.email);
+
+                        const { error, data } = await supabaseClient.auth.signInWithPassword({
+                            email: this.email.trim().toLowerCase(),
+                            password: this.password,
+                        });
+
+                        if (error) {
+                            console.error('❌ Erro de autenticação:', error);
+                            throw error;
+                        }
+
+                        console.log('✅ Login bem sucedido');
+                        window.location.reload();
+                    } catch (err) {
+                        console.error('❌ Erro de login:', err);
+                        const msg = err?.message?.includes('Invalid login credentials') 
+                            ? 'E-mail ou senha incorretos' 
+                            : err?.message || 'Erro ao fazer login';
+                        Swal.fire('Erro', msg, 'error');
+                    }
+                },
+
+                async recoverPassword() {
+                    const { value: email } = await Swal.fire({
+                        title: 'Recuperar Senha',
+                        input: 'email',
+                        inputPlaceholder: 'seu@email.com',
+                        inputValidator: (value) => {
+                            if (!value) return 'E-mail é obrigatório';
+                            if (!isValidEmail(value)) return 'E-mail inválido';
+                        },
+                        background: '#030712',
+                        color: '#fff',
+                        confirmButtonText: 'Enviar Link',
+                    });
+
+                    if (email) {
+                        try {
+                            console.log('📧 Enviando recuperação:', email);
+
+                            const { error } = await supabaseClient.auth.resetPasswordForEmail(
+                                email.trim().toLowerCase(),
+                                {
+                                    redirectTo: window.location.origin + window.location.pathname,
+                                }
+                            );
+
+                            if (error) throw error;
+
+                            Swal.fire('Sucesso!', 'Verifique seu e-mail.', 'success');
+                        } catch (err) {
+                            console.error('❌ Erro:', err);
+                            Swal.fire('Erro', err.message || 'Falha ao enviar.', 'error');
+                        }
+                    }
+                },
+
+                async updatePassword() {
+                    try {
+                        if (!this.newPassword || this.newPassword.length < 6) {
+                            Swal.fire('Aviso', 'Mínimo 6 caracteres.', 'warning');
+                            return;
+                        }
+
+                        console.log('🔐 Atualizando senha...');
+
+                        const { error } = await supabaseClient.auth.updateUser({
+                            password: this.newPassword,
+                        });
+
+                        if (error) throw error;
+
+                        await Swal.fire('Sucesso!', 'Senha alterada.', 'success');
+                        await this.handleLogout();
+                    } catch (err) {
+                        console.error('❌ Erro:', err);
+                        Swal.fire('Erro', err.message, 'error');
+                    }
+                },
+
+                async handleLogout() {
+                    try {
+                        console.log('👋 Fazendo logout...');
+                        await supabaseClient.auth.signOut();
+                        window.location.reload();
+                    } catch (err) {
+                        console.error('❌ Erro:', err);
+                        window.location.reload();
+                    }
+                },
+
+                // ============================================
+                // CARREGAMENTO DE DADOS COM CACHE
+                // ============================================
+                async loadInitialData() {
+                    try {
+                        const client = supabaseClient;
+                        
+                        // Tenta cache primeiro
+                        const cachedReports = localStorage.getItem('cache_reports');
+                        const cachedUsers = localStorage.getItem('cache_users');
+                        const cachedNews = localStorage.getItem('cache_news');
+
+                        // Carrega dados em paralelo
+                        const [profile, reports, users, news] = await Promise.all([
+                            this.loadProfile(),
+                            this.loadReports(cachedReports),
+                            this.loadUsers(cachedUsers),
+                            this.loadNews(cachedNews)
+                        ]);
+
+                        // Carrega auditoria se admin
+                        if (this.isAdmin) {
+                            await this.loadAuditLogs();
+                        }
+
+                        this.lastSyncTime = new Date().toLocaleTimeString('pt-BR');
+                        console.log('✅ Dados carregados com sucesso');
+                    } catch (err) {
+                        console.error('❌ Erro ao carregar dados:', err);
+                        Swal.fire('Erro', 'Falha ao sincronizar dados. Tente novamente.', 'error');
+                    }
+                },
+
+                async loadProfile() {
+                    try {
+                        const { data: profile } = await supabaseClient
+                            .from('acessTable')
+                            .select('*')
+                            .ilike('email', this.userEmail)
+                            .maybeSingle();
+
+                        if (profile) {
+                            this.currentUserData = profile;
+                            this.isAdmin = ['CEO', 'Diretor'].includes(profile.cargo);
+                            localStorage.setItem('cache_profile', JSON.stringify(profile));
+                        }
+                        return profile;
+                    } catch (err) {
+                        console.error('❌ Erro ao carregar perfil:', err);
+                        return null;
+                    }
+                },
+
+                async loadReports(cached = null) {
+                    try {
+                        this.isLoadingReports = true;
+                        
+                        // Se tem cache válido, usa primeiro
+                        if (cached) {
+                            this.reportsList = JSON.parse(cached);
+                        }
+
+                        // Depois atualiza do Supabase
+                        const { data: reports } = await supabaseClient
+                            .from('reportsTable')
+                            .select('*')
+                            .order('nome');
+                            
+                        if (reports) {
+                            this.reportsList = reports;
+                            localStorage.setItem('cache_reports', JSON.stringify(reports));
+                            localStorage.setItem('cache_reports_time', Date.now().toString());
+                        }
+                    } catch (err) {
+                        console.error('❌ Erro ao carregar relatórios:', err);
+                    } finally {
+                        this.isLoadingReports = false;
+                    }
+                },
+
+                async loadUsers(cached = null) {
+                    try {
+                        this.isLoadingUsers = true;
+                        
+                        if (cached) {
+                            this.usersList = JSON.parse(cached);
+                        }
+
+                        const { data: users } = await supabaseClient
+                            .from('acessTable')
+                            .select('*')
+                            .order('nome_completo');
+                            
+                        if (users) {
+                            this.usersList = users;
+                            localStorage.setItem('cache_users', JSON.stringify(users));
+                        }
+                    } catch (err) {
+                        console.error('❌ Erro ao carregar usuários:', err);
+                    } finally {
+                        this.isLoadingUsers = false;
+                    }
+                },
+
+                async loadNews(cached = null) {
+                    try {
+                        if (cached) {
+                            this.newsList = JSON.parse(cached);
+                        }
+
+                        const { data: news, error } = await supabaseClient
+                            .from('newsTable')
+                            .select('id, created_at, titulo, conteudo, versao, categoria, impacto, status')
+                            .order('created_at', { ascending: false })
+                            .limit(20);
+                            
+                        if (error) {
+                            console.error('❌ Erro ao buscar notícias:', error);
+                            return;
+                        }
+                            
+                        if (news && news.length > 0) {
+                            // Processa dados para garantir formato correto
+                            this.newsList = news.map(n => ({
+                                id: n.id,
+                                titulo: n.titulo || 'Sem título',
+                                conteudo: n.conteudo || 'Sem conteúdo',
+                                versao: n.versao || 'N/A',
+                                categoria: n.categoria || null,
+                                impacto: n.impacto || null,
+                                status: n.status || 'ativo',
+                                created_at: n.created_at
+                            }));
+                            localStorage.setItem('cache_news', JSON.stringify(this.newsList));
+                            console.log('✅ ' + this.newsList.length + ' notícias carregadas');
+                        } else {
+                            this.newsList = [];
+                            console.log('📄 Nenhuma notícia encontrada na tabela');
+                        }
+                    } catch (err) {
+                        console.error('❌ Erro ao carregar notícias:', err);
+                        if (cached) {
+                            this.newsList = JSON.parse(cached);
+                        } else {
+                            this.newsList = [];
+                        }
+                    }
+                },
+
+                // ============================================
+                // FILTROS
+                // ============================================
+                get filteredReports() {
+                    const q = this.searchQueryReports.toLowerCase();
+                    return q
+                        ? this.reportsList.filter(
+                            (r) =>
+                                r.nome?.toLowerCase().includes(q) ||
+                                r.area?.toLowerCase().includes(q)
+                        )
+                        : this.reportsList;
+                },
+
+                get filteredUsers() {
+                    const q = this.searchQueryUsers.toLowerCase();
+                    return q
+                        ? this.usersList.filter(
+                            (u) =>
+                                u.nome_completo?.toLowerCase().includes(q) ||
+                                u.email?.toLowerCase().includes(q)
+                        )
+                        : this.usersList;
+                },
+
+                get filteredAuditLogs() {
+                    const q = this.searchQueryAudit.toLowerCase();
+                    const action = this.filterAuditAction;
+                    return this.auditLogs.filter((log) => {
+                        const matches = !q ||
+                            String(log.acao || '').toLowerCase().includes(q) ||
+                            String(log.alvo || '').toLowerCase().includes(q) ||
+                            String(log.admin_email || '').toLowerCase().includes(q);
+                        const actionMatch = !action || String(log.acao || '').includes(action);
+                        return matches && actionMatch;
+                    });
+                },
+
+                // ============================================
+                // RELATÓRIOS
+                // ============================================
+                openReportModal(mode, report = null) {
+                    this.modalMode = mode;
+                    this.formReport = report
+                        ? JSON.parse(JSON.stringify(report))
+                        : { nome: '', area: '', link: '', descricao: '' };
+                    this.showReportModal = true;
+                },
+
+                async saveReport() {
+                    try {
+                        if (!this.formReport.nome || !this.formReport.area || !this.formReport.link) {
+                            Swal.fire('Aviso', 'Preencha todos os campos obrigatórios.', 'warning');
+                            return;
+                        }
+
+                        if (!isValidUrl(this.formReport.link)) {
+                            Swal.fire('Aviso', 'URL inválida.', 'warning');
+                            return;
+                        }
+
+                        const client = supabaseClient;
+                        let payload = JSON.parse(JSON.stringify(this.formReport));
+
+                        const toast = Swal.fire({
+                            title: 'Salvando...',
+                            allowOutsideClick: false,
+                            didOpen: async () => {
+                                Swal.showLoading();
+                                try {
+                                    if (this.modalMode === 'create') {
+                                        delete payload.id;
+                                        await client.from('reportsTable').insert([payload]);
+                                    } else {
+                                        const { id, ...update } = payload;
+                                        await client.from('reportsTable').update(update).eq('id', id);
+                                    }
+                                    
+                                    // Limpa cache
+                                    localStorage.removeItem('cache_reports');
+                                    
+                                    this.showReportModal = false;
+                                    await this.loadInitialData();
+                                    
+                                    Swal.fire('Sucesso!', 'Relatório salvo com sucesso.', 'success');
+                                } catch (err) {
+                                    Swal.fire('Erro', 'Falha ao salvar: ' + err.message, 'error');
+                                }
+                            }
+                        });
+                    } catch (err) {
+                        console.error('❌ Erro:', err);
+                        Swal.fire('Erro', 'Falha ao processar.', 'error');
+                    }
+                },
+
+                async deleteReport(id) {
+                    const confirm = await Swal.fire({
+                        title: 'Confirmar exclusão?',
+                        text: 'Não pode ser desfeito.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        background: '#030712',
+                        color: '#fff',
+                        confirmButtonColor: '#dc2626',
+                    });
+
+                    if (confirm.isConfirmed) {
+                        try {
+                            await supabaseClient.from('reportsTable').delete().eq('id', id);
+                            await this.loadInitialData();
+                            Swal.fire('Sucesso!', 'Relatório removido.', 'success');
+                        } catch (err) {
+                            Swal.fire('Erro', 'Falha ao remover.', 'error');
+                        }
+                    }
+                },
+
+                // ============================================
+                // USUÁRIOS
+                // ============================================
+                openUserModal(mode, user = null) {
+                    this.modalMode = mode;
+                    this.formUser = user
+                        ? JSON.parse(JSON.stringify(user))
+                        : { nome_completo: '', email: '', cargo: '', setor: '' };
+                    this.showUserModal = true;
+                },
+
+                async saveUser() {
+                    try {
+                        if (!this.formUser.nome_completo || !this.formUser.email || !this.formUser.cargo) {
+                            Swal.fire('Aviso', 'Preencha campos obrigatórios.', 'warning');
+                            return;
+                        }
+
+                        if (!isValidEmail(this.formUser.email)) {
+                            Swal.fire('Aviso', 'E-mail inválido.', 'warning');
+                            return;
+                        }
+
+                        const client = supabaseClient;
+                        const payload = JSON.parse(JSON.stringify(this.formUser));
+
+                        Swal.fire({
+                            title: 'Salvando...',
+                            allowOutsideClick: false,
+                            didOpen: async () => {
+                                Swal.showLoading();
+                                try {
+                                    if (this.modalMode === 'create') {
+                                        await client.from('acessTable').insert([payload]);
+                                    } else {
+                                        await client.from('acessTable').update(payload).eq('email', payload.email);
+                                    }
+
+                                    localStorage.removeItem('cache_users');
+                                    this.showUserModal = false;
+                                    await this.loadInitialData();
+                                    Swal.fire('Sucesso!', 'Usuário salvo com sucesso.', 'success');
+                                } catch (err) {
+                                    Swal.fire('Erro', 'Falha ao salvar: ' + err.message, 'error');
+                                }
+                            }
+                        });
+                    } catch (err) {
+                        console.error('❌ Erro:', err);
+                        Swal.fire('Erro', 'Falha ao processar.', 'error');
+                    }
+                },
+
+                async deleteUser(email) {
+                    const confirm = await Swal.fire({
+                        title: 'Confirmar remoção?',
+                        text: 'Não pode ser desfeito.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        background: '#030712',
+                        color: '#fff',
+                        confirmButtonColor: '#dc2626',
+                    });
+
+                    if (confirm.isConfirmed) {
+                        try {
+                            await supabaseClient.from('acessTable').delete().eq('email', email);
+                            await this.loadInitialData();
+                            Swal.fire('Sucesso!', 'Usuário removido.', 'success');
+                        } catch (err) {
+                            Swal.fire('Erro', 'Falha ao remover.', 'error');
+                        }
+                    }
+                },
+
+                async loadAuditLogs() {
+                    try {
+                        this.isLoadingAudit = true;
+                        const { data } = await supabaseClient
+                            .from('audit_logs')
+                            .select('*')
+                            .order('created_at', { ascending: false })
+                            .limit(100);
+                        this.auditLogs = data || [];
+                        localStorage.setItem('cache_audit', JSON.stringify(data));
+                    } catch (err) {
+                        console.error('❌ Erro ao carregar logs:', err);
+                        Swal.fire('Erro', 'Falha ao sincronizar auditoria.', 'error');
+                    } finally {
+                        this.isLoadingAudit = false;
+                    }
+                },
+            };
+        }
+    </script>
+
+    <!-- AVISO DE MANUTENÇÃO -->
+    <script>
+        console.warn(`
+╔═════════════════════════════════════════════════════════════╗
+║         🚧 REFATORAÇÃO EM PROGRESSO                         ║
+╠═════════════════════════════════════════════════════════════╣
+║                                                             ║
+║ Este index.html foi refatorado para separar:               ║
+║  ✅ CSS → css/styles.css                                   ║
+║  ✅ Config → js/config.js                                  ║
+║  ✅ Utils → js/utils.js                                    ║
+║  ✅ Supabase → js/supabase.js                              ║
+║  ✅ App Logic → js/app.js                                  ║
+║                                                             ║
+║ PRÓXIMOS PASSOS:                                            ║
+║  1. Instale um bundler (Vite recomendado)                  ║
+║  2. Configure import maps ou use module-based imports      ║
+║  3. Coloque o código inline com referências dos módulos    ║
+║  4. Configure variáveis de ambiente (.env.local)           ║
+║                                                             ║
+║ ARQUIVOS CRIADOS:                                           ║
+║  • .env.example (copie para .env.local)                    ║
+║  • .gitignore                                              ║
+║  • js/config.js                                            ║
+║  • js/utils.js                                             ║
+║  • js/supabase.js                                          ║
+║  • js/app.js                                               ║
+║  • css/styles.css                                          ║
+║  • README.md (próximo passo)                               ║
+║                                                             ║
+╚═════════════════════════════════════════════════════════════╝
+        `);
     </script>
 </body>
 </html>
