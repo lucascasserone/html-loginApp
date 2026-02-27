@@ -308,10 +308,32 @@
                 </div>
 
                 <!-- TAB: NOTÍCIAS -->
-                <div x-show="tab === 'news'" class="max-w-5xl mx-auto">
+                <section x-show="tab === 'news'" class="max-w-5xl mx-auto" aria-labelledby="news-h1">
                     <div class="mb-12">
                         <h2 class="text-4xl font-black italic mb-3 uppercase">� Novidades do Sistema</h2>
                         <p class="text-sm opacity-60 font-bold uppercase tracking-widest">Últimas atualizações e melhorias</p>
+                    </div>
+
+                <div class="mb-8 glass-container p-6 rounded-[32px] space-y-4">
+                        <div>
+                            <label for="news-search" class="text-xs font-black uppercase mb-2 block opacity-60">Buscar</label>
+                            <input 
+                                id="news-search"
+                                type="text" 
+                                x-model.debounce.300ms="searchQueryNews" 
+                                placeholder="Busque por titulo ou descricao..."
+                                class="w-full p-3 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition text-sm"
+                            >
+                        </div>
+                        <div>
+                            <label class="text-xs font-black uppercase mb-2 block opacity-60">Filtrar por Impacto</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button x-on:click="filterNewsImpacto = ''" :class="filterNewsImpacto === '' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-white/5 text-slate-300 border border-white/10'" class="px-3 py-1.5 rounded-full text-xs font-black uppercase transition">Todos</button>
+                                <button x-on:click="filterNewsImpacto = 'Alto'" :class="filterNewsImpacto === 'Alto' ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/30' : 'bg-white/5 text-slate-300 border border-white/10'" class="px-3 py-1.5 rounded-full text-xs font-black uppercase transition">Alto</button>
+                                <button x-on:click="filterNewsImpacto = 'Medio'" :class="filterNewsImpacto === 'Medio' ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-600/30' : 'bg-white/5 text-slate-300 border border-white/10'" class="px-3 py-1.5 rounded-full text-xs font-black uppercase transition">Medio</button>
+                                <button x-on:click="filterNewsImpacto = 'Baixo'" :class="filterNewsImpacto === 'Baixo' ? 'bg-green-600 text-white shadow-lg shadow-green-600/30' : 'bg-white/5 text-slate-300 border border-white/10'" class="px-3 py-1.5 rounded-full text-xs font-black uppercase transition">Baixo</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div x-show="newsList.length === 0" class="glass-container p-12 rounded-[40px] text-center">
@@ -319,41 +341,92 @@
                     </div>
 
                     <div class="space-y-4">
-                        <template x-for="(news, idx) in newsList" :key="news.id">
-                            <div class="glass-container p-6 rounded-[32px] border-l-[6px] border-blue-600 hover:shadow-lg transition-all duration-300 flex gap-6 group">
-                                <!-- TIMELINE INDICATOR -->
-                                <div class="flex flex-col items-center pt-1 min-w-fit">
-                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-lg">
-                                        <span x-show="idx === 0">✨</span>
-                                        <span x-show="idx !== 0" x-text="idx + 1"></span>
+                        <template x-for="(news, idx) in filteredNewsItems" :key="news.id">
+                            <article 
+                                class="glass-container p-6 rounded-[32px] border-l-[6px] hover:shadow-lg transition-all duration-300"
+                                :class="{
+                                    'border-orange-500': news.impacto === 'Alto',
+                                    'border-yellow-500': news.impacto === 'Medio',
+                                    'border-green-500': news.impacto === 'Baixo',
+                                    'border-blue-600': !news.impacto
+                                }"
+                                :aria-labelledby="'news-title-' + news.id"
+                                role="article"
+                            >
+                                <div class="flex items-start gap-4 mb-3">
+                                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-black text-xs shadow-lg">
+                                        <span x-show="idx === 0" title="Atualizacao mais recente">NEW</span>
+                                        <span x-show="idx !== 0" x-text="idx + 1" :title="'Atualizacao ' + (idx + 1)"></span>
                                     </div>
-                                    <div x-show="idx < newsList.length - 1" class="w-1 h-8 bg-gradient-to-b from-blue-500 to-transparent mt-1"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <h2 :id="'news-title-' + news.id" class="text-lg font-black uppercase tracking-tight" x-text="news.titulo"></h2>
+                                    </div>
                                 </div>
 
-                                <!-- CONTEÚDO -->
-                                <div class="flex-1 py-1">
-                                    <div class="flex items-start justify-between mb-3 gap-4 flex-wrap">
-                                        <div class="flex-1">
-                                            <h3 class="text-xl font-black uppercase tracking-tight mb-1" x-text="news.titulo"></h3>
-                                            <p class="text-xs opacity-50 font-bold uppercase tracking-widest" x-text="formatDateTime(news.created_at)"></p>
-                                        </div>
-                                        <div class="flex gap-2 flex-wrap justify-end">
-                                            <span class="text-xs font-black bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/30 uppercase tracking-widest" x-text="'v' + news.versao"></span>
-                                            <span x-show="news.categoria" class="text-xs font-black bg-slate-700/40 text-slate-200 px-3 py-1.5 rounded-full border border-slate-600/30 uppercase tracking-widest" x-text="news.categoria"></span>
-                                        </div>
+                                <div class="mb-3 ml-12">
+                                    <p 
+                                        class="opacity-75 leading-relaxed text-sm"
+                                        :class="news._expanded ? '' : 'line-clamp-3'"
+                                        x-text="news.conteudo"
+                                    ></p>
+                                    <button 
+                                        x-show="news.conteudo && news.conteudo.split(' ').length > 30"
+                                        @click="toggleNewsExpand(news.id)"
+                                        class="text-xs text-blue-400 hover:text-blue-300 font-bold mt-2 uppercase transition"
+                                        :aria-expanded="news._expanded"
+                                    >
+                                        <span x-text="news._expanded ? 'Ver menos' : 'Ver mais'"></span>
+                                    </button>
+                                </div>
+
+                                <div class="ml-12 space-y-3">
+                                    <div class="flex flex-wrap gap-2">
+                                        <button 
+                                            @click="copyToClipboard('news/' + news.id)" 
+                                            title="Clique para copiar link"
+                                            class="text-xs font-black bg-blue-600/20 text-blue-400 px-2.5 py-1 rounded-full border border-blue-500/30 uppercase tracking-widest hover:bg-blue-600/40 transition cursor-pointer"
+                                        >
+                                            <span x-text="'v' + news.versao"></span>
+                                        </button>
+                                        
+                                        <button 
+                                            x-show="news.categoria"
+                                            @click="filterNewsArea = news.categoria"
+                                            :class="getAffiliationColor(news.categoria)"
+                                            class="text-xs font-black px-2.5 py-1 rounded-full border uppercase tracking-widest cursor-pointer"
+                                        >
+                                            <span x-text="news.categoria"></span>
+                                        </button>
                                     </div>
-                                    <p class="opacity-75 leading-relaxed text-sm mb-4" x-text="news.conteudo"></p>
+
                                     <div class="flex items-center justify-between text-xs">
-                                        <div class="flex gap-2">
-                                            <span x-show="news.impacto" class="bg-green-500/20 text-green-300 px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider border border-green-500/30">🎯 <span x-text="news.impacto"></span></span>
+                                        <div class="flex gap-2 items-center">
+                                            <span 
+                                                x-show="news.impacto"
+                                                class="px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider border flex items-center gap-1"
+                                                :class="{
+                                                    'bg-orange-500/20 text-orange-300 border-orange-500/30': news.impacto === 'Alto',
+                                                    'bg-yellow-500/20 text-yellow-300 border-yellow-500/30': news.impacto === 'Medio',
+                                                    'bg-green-500/20 text-green-300 border-green-500/30': news.impacto === 'Baixo'
+                                                }"
+                                            >
+                                                <span x-text="news.impacto"></span>
+                                            </span>
                                         </div>
-                                        <div x-show="news.status" class="font-bold uppercase tracking-widest" :class="news.status === 'ativo' ? 'text-green-400 news-status-ativo' : 'text-slate-400 news-status-arquivado'">
-                                            <span x-text="news.status === 'ativo' ? '🟢 Ativo' : '📌 Arquivado'"></span>
+                                        <div class="flex gap-3 items-center">
+                                            <time class="opacity-40 font-mono text-[10px]" :title="new Date(news.created_at).toLocaleString('pt-BR')" x-text="formatDateTime(news.created_at)"></time>
+                                            <div x-show="news.status" class="font-bold uppercase tracking-widest" :class="news.status === 'ativo' ? 'text-green-400' : 'text-slate-400'">
+                                                <span x-text="news.status"></span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </article>
                         </template>
+                    </div>
+
+                    <div class="text-center mt-8 text-sm opacity-60">
+                        <span x-text="`${filteredNewsItems.length} de ${newsList.length} noticias`"></span>
                     </div>
                 </div>
             </main>
@@ -877,6 +950,72 @@
                             this.newsList = [];
                         }
                     }
+                },
+
+                // ============================================
+                // ESTADO PARA NOTÍCIAS
+                // ============================================
+                searchQueryNews: '',
+                filterNewsImpacto: '',
+                filterNewsArea: '',
+                newsExpandedIds: new Set(),
+
+                toggleNewsExpand(newsId) {
+                    if (this.newsExpandedIds.has(newsId)) {
+                        this.newsExpandedIds.delete(newsId);
+                    } else {
+                        this.newsExpandedIds.add(newsId);
+                    }
+                    // Force Alpine to detect this change
+                    this.$nextTick(() => {
+                        this.$refresh();
+                    });
+                },
+
+                getAffiliationColor(categoria) {
+                    if (!categoria) return 'bg-slate-700/40 text-slate-200 border-slate-600/30';
+                    const colors = {
+                        'Qualidade': 'bg-purple-600/20 text-purple-300 border-purple-500/30',
+                        'Backend': 'bg-indigo-600/20 text-indigo-300 border-indigo-500/30',
+                        'Produto': 'bg-blue-600/20 text-blue-400 border-blue-500/30'
+                    };
+                    return colors[categoria] || 'bg-slate-700/40 text-slate-200 border-slate-600/30';
+                },
+
+                copyToClipboard(text) {
+                    navigator.clipboard.writeText(window.location.origin + '?id=' + text).then(() => {
+                        Swal.fire('Copiado!', 'Link copiado para área de transferência', 'success');
+                    }).catch(() => {
+                        Swal.fire('Erro', 'Não foi possível copiar o link', 'error');
+                    });
+                },
+
+                get filteredNewsItems() {
+                    let filtered = this.newsList.map(news => ({
+                        ...news,
+                        _expanded: this.newsExpandedIds.has(news.id)
+                    }));
+                    
+                    // Filtro de search
+                    if (this.searchQueryNews) {
+                        const q = this.searchQueryNews.toLowerCase();
+                        filtered = filtered.filter(n =>
+                            n.titulo?.toLowerCase().includes(q) ||
+                            n.conteudo?.toLowerCase().includes(q)
+                        );
+                    }
+                    
+                    // Filtro de impacto
+                    if (this.filterNewsImpacto) {
+                        filtered = filtered.filter(n => n.impacto === this.filterNewsImpacto);
+                    }
+                    
+                    // Filtro de área
+                    if (this.filterNewsArea) {
+                        filtered = filtered.filter(n => n.categoria === this.filterNewsArea);
+                    }
+                    
+                    return filtered;
                 },
 
                 // ============================================
