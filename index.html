@@ -208,8 +208,7 @@
                                 <span class="absolute left-4 top-3.5 opacity-30" aria-hidden="true">🔍</span>
                             </div>
                             <button @click="console.log('clicked'); showUserModal = !showUserModal" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white" title="Adicionar novo usuário">TEST: Toggle Modal</button>
-                            <button @click="modalMode = 'create'; formUser = { nome_completo: '', email: '', cargo: '', setor: '' }; showUserModal = true" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white" title="Adicionar novo usuário">+ Novo Usuário</button>
-                        </div>
+                            <button @click="openUserCreateModal()
                     </div>
                     <div class="glass-container rounded-[40px] overflow-hidden">
                         <table class="w-full text-left">
