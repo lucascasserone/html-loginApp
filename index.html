@@ -173,7 +173,7 @@
                                 <input type="text" x-model.debounce.300ms="searchQueryReports" placeholder="Filtrar relatórios..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition" aria-label="Buscar relatórios">
                                 <span class="absolute left-4 top-3.5 opacity-30" aria-hidden="true">🔍</span>
                             </div>
-                            <button @click="openReportCreateModal()text-xs uppercase text-white shadow-lg" title="Criar novo relatório">+ Novo Report</button>
+                            <button @click="openReportCreateModal()" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white shadow-lg" title="Criar novo relatório">+ Novo Report</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -185,7 +185,7 @@
                                 <div class="flex gap-2">
                                     <a :href="report.link" target="_blank" rel="noopener noreferrer" class="flex-1 bg-blue-600 hover:bg-blue-700 text-center py-2.5 rounded-xl text-xs font-bold uppercase transition text-white" title="Abrir relatório em nova aba">Acessar</a>
                                     <button @click="modalMode = 'edit'; formReport = report ? JSON.parse(JSON.stringify(report)) : { nome: '', area: '', link: '', descricao: '' }; showReportModal = true" class="p-2 bg-white/5 hover:bg-blue-500/30 border border-white/10 rounded-xl transition" aria-label="Editar relatório" title="Editar">✏️</button>
-                                    <button x-show="isAdmin" @click="deleteReport(report.id)" class="p-2 bg-red-500/5 hover:bg-red-600 border border-red-500/20 rounded-xl transition" aria-label="Deletar relatório" title="Deletar">🗑️</button>
+                                    <button x-show="openReportEditModal(report.id) relatório" title="Deletar">🗑️</button>
                                 </div>
                             </div>
                         </template>
@@ -207,10 +207,8 @@
                                 <input type="text" x-model.debounce.300ms="searchQueryUsers" placeholder="Buscar colaborador..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs outline-none focus:border-blue-500 transition" aria-label="Buscar usuários">
                                 <span class="absolute left-4 top-3.5 opacity-30" aria-hidden="true">🔍</span>
                             </div>
-                            <button @click="console.log('clicked'); showUserModal = !showUserModal" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white" title="Adicionar novo usuário">TEST: Toggle Modal</button>
-                            <button @click="openUserCreateModal()
-                    </div>
-                    <div class="glass-container rounded-[40px] overflow-hidden">
+                            <button @click="openUserCreateModal()" class="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-2xl font-black text-xs uppercase text-white" title="Adicionar novo usuário">+ Novo Usuário</button>
+                        <div class="glass-container rounded-[40px] overflow-hidden">
                         <table class="w-full text-left">
                             <thead class="bg-white/5 text-xs font-black uppercase border-b border-white/10">
                                 <tr>
@@ -240,7 +238,7 @@
                                         <td x-show="isAdmin" class="p-8 text-right">
                                             <div class="flex justify-end gap-2">
                                                 <button @click="modalMode = 'edit'; formUser = user ? JSON.parse(JSON.stringify(user)) : { nome_completo: '', email: '', cargo: '', setor: '' }; showUserModal = true" class="p-2.5 bg-white/5 rounded-xl hover:bg-blue-600 transition" aria-label="Editar usuário" title="Editar">✏️</button>
-                                                <button @click="deleteUser(user.email)" class="p-2.5 bg-white/5 rounded-xl hover:bg-red-600 transition" aria-label="Deletar usuário" title="Deletar">🗑️</button>
+                                                <button @click="openUserEditModal(user.email)
                                             </div>
                                         </td>
                                     </tr>
@@ -1139,44 +1137,32 @@
                 // ============================================
                 
                 openReportCreateModal() {
-                    console.log('🔓 Abrindo modal de novo relatório');
                     this.modalMode = 'create';
                     this.formReport = { nome: '', area: '', link: '', descricao: '' };
                     this.showReportModal = true;
-                    console.log('✅ showReportModal:', this.showReportModal);
                 },
 
                 openReportEditModal(reportId) {
-                    console.log('🔓 Abrindo modal de edição para relatório:', reportId);
                     const report = this.reportsList.find(r => r.id === reportId);
                     if (report) {
                         this.modalMode = 'edit';
                         this.formReport = JSON.parse(JSON.stringify(report));
                         this.showReportModal = true;
-                        console.log('✅ showReportModal:', this.showReportModal, 'formReport:', this.formReport);
-                    } else {
-                        console.error('❌ Relatório não encontrado:', reportId);
                     }
                 },
 
                 openUserCreateModal() {
-                    console.log('🔓 Abrindo modal de novo usuário');
                     this.modalMode = 'create';
                     this.formUser = { nome_completo: '', email: '', cargo: '', setor: '' };
                     this.showUserModal = true;
-                    console.log('✅ showUserModal:', this.showUserModal);
                 },
 
                 openUserEditModal(userEmail) {
-                    console.log('🔓 Abrindo modal de edição para usuário:', userEmail);
                     const user = this.usersList.find(u => u.email === userEmail);
                     if (user) {
                         this.modalMode = 'edit';
                         this.formUser = JSON.parse(JSON.stringify(user));
                         this.showUserModal = true;
-                        console.log('✅ showUserModal:', this.showUserModal, 'formUser:', this.formUser);
-                    } else {
-                        console.error('❌ Usuário não encontrado:', userEmail);
                     }
                 },
 
