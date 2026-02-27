@@ -176,7 +176,7 @@
                                 <p class="text-xs opacity-60 mb-5 line-clamp-2 h-9" x-text="report.descricao || 'Sem descrição.'"></p>
                                 <div class="flex gap-2">
                                     <a :href="report.link" target="_blank" rel="noopener noreferrer" class="flex-1 bg-blue-600 hover:bg-blue-700 text-center py-2.5 rounded-xl text-xs font-bold uppercase transition text-white" title="Abrir relatório em nova aba">Acessar</a>
-                                    <button x-show="isAdmin" @click="openReportModal('edit', report)" class="p-2 bg-white/5 hover:bg-blue-500/30 border border-white/10 rounded-xl transition" aria-label="Editar relatório" title="Editar">✏️</button>
+                                    <button @click="openReportModal('edit', report)" class="p-2 bg-white/5 hover:bg-blue-500/30 border border-white/10 rounded-xl transition" aria-label="Editar relatório" title="Editar">✏️</button>
                                     <button x-show="isAdmin" @click="deleteReport(report.id)" class="p-2 bg-red-500/5 hover:bg-red-600 border border-red-500/20 rounded-xl transition" aria-label="Deletar relatório" title="Deletar">🗑️</button>
                                 </div>
                             </div>
@@ -1098,13 +1098,11 @@
                 // RELATÓRIOS
                 // ============================================
                 openReportModal(mode, report = null) {
-                    console.log('🔵 openReportModal called with mode:', mode);
                     this.modalMode = mode;
                     this.formReport = report
                         ? JSON.parse(JSON.stringify(report))
                         : { nome: '', area: '', link: '', descricao: '' };
                     this.showReportModal = true;
-                    console.log('✅ showReportModal is now:', this.showReportModal);
                 },
 
                 async saveReport() {
@@ -1180,13 +1178,11 @@
                 // USUÁRIOS
                 // ============================================
                 openUserModal(mode, user = null) {
-                    console.log('🔵 openUserModal called with mode:', mode);
                     this.modalMode = mode;
                     this.formUser = user
                         ? JSON.parse(JSON.stringify(user))
                         : { nome_completo: '', email: '', cargo: '', setor: '' };
                     this.showUserModal = true;
-                    console.log('✅ showUserModal is now:', this.showUserModal);
                 },
 
                 async saveUser() {
