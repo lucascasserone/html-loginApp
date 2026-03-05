@@ -22,7 +22,7 @@
             transition: all 0.3s ease;
         }
 
-        /* Correções de Contraste e Tema */
+        /* Temas */
         .theme-light body { background-color: #f8fafc; color: #0f172a; }
         .theme-dark body { background-color: #0a0c10; color: #f1f5f9; }
         
@@ -34,31 +34,28 @@
         .theme-dark header { background-color: #0a0c10; color: #ffffff; }
 
         .glass-card { 
-            background: rgba(255, 255, 255, 0.8); 
+            background: rgba(255, 255, 255, 0.03); 
             backdrop-filter: blur(12px); 
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.2s ease, border-color 0.2s ease;
         }
-        .theme-dark .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-
-        /* Fix para texto no tema light */
-        .theme-light .glass-card h2, .theme-light .glass-card h3, .theme-light .glass-card h4, 
-        .theme-light .glass-card p, .theme-light header p, .theme-light header h3 {
-            color: #0f172a !important;
+        .theme-light .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0,0,0,0.05);
         }
 
         .sidebar-item.active { background-color: #262626; color: white; border-left: 4px solid var(--accent); }
         .theme-light .sidebar-item.active { background-color: #f1f5f9; color: var(--accent); }
 
         .notification-badge {
-            position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
-            background: #f97316; border: 2px solid white; border-radius: 50%;
+            position: absolute; top: -2px; right: -2px; width: 10px; height: 10px;
+            background: #f97316; border: 2px solid #0a0c10; border-radius: 50%;
         }
+        .theme-light .notification-badge { border-color: white; }
         
         .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .theme-light .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
         
         input, textarea { 
             background: white !important; border: 1px solid #e2e8f0 !important; color: #0f172a !important; 
@@ -89,7 +86,6 @@
                         <span x-show="!loading">Acessar Portal</span>
                         <span x-show="loading">Autenticando...</span>
                     </button>
-                    <button type="button" @click="Swal.fire('Aviso', 'Contate o TI para redefinir sua senha.', 'info')" class="w-full text-center text-[10px] text-slate-400 uppercase font-bold mt-4 hover:text-white transition">Esqueceu sua senha?</button>
                 </form>
             </div>
         </div>
@@ -137,7 +133,7 @@
                                 <div x-show="newsList.length > 0" class="notification-badge"></div>
                             </button>
                             <div x-show="notificationsOpen" @click.away="notificationsOpen = false" x-cloak class="absolute right-0 mt-4 w-96 glass-card rounded-3xl shadow-2xl p-6 z-[60] border border-blue-500/20">
-                                <h4 class="font-black text-sm uppercase tracking-widest mb-6">Novidades do Sistema</h4>
+                                <h4 class="font-black text-xs uppercase tracking-widest mb-6">Novidades</h4>
                                 <div class="space-y-4 max-h-[400px] overflow-y-auto custom-scroll pr-2">
                                     <template x-for="news in newsList" :key="news.id">
                                         <div class="p-4 bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5">
@@ -150,14 +146,14 @@
                                         </div>
                                     </template>
                                 </div>
-                                <div class="grid grid-cols-2 gap-3 mt-6">
-                                    <button @click="notificationsOpen = false" class="py-3 border border-emerald-500/30 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition">Marcar Lidas</button>
-                                    <button @click="notificationsOpen = false" class="py-3 border border-red-500/30 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition">Limpar</button>
-                                </div>
+                                <button @click="notificationsOpen = false" class="w-full mt-6 py-3 border border-blue-500/30 text-blue-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition">Fechar</button>
                             </div>
                         </div>
 
-                        <button @click="theme = (theme === 'dark' ? 'light' : 'dark')" class="w-10 h-10 rounded-full border dark:border-white/10 flex items-center justify-center text-slate-500"><i class="ph-bold" :class="theme === 'dark' ? 'ph-sun' : 'ph-moon'"></i></button>
+                        <button @click="theme = (theme === 'dark' ? 'light' : 'dark')" class="w-10 h-10 rounded-full border dark:border-white/10 flex items-center justify-center text-slate-500">
+                            <i class="ph-bold" :class="theme === 'dark' ? 'ph-sun' : 'ph-moon'"></i>
+                        </button>
+                        
                         <div class="h-8 w-px bg-slate-200 dark:bg-white/10 mx-2"></div>
                         
                         <button @click="tab = 'profile'" class="flex items-center gap-3 pl-2 group">
@@ -172,22 +168,106 @@
 
                 <div class="flex-1 overflow-y-auto p-8 custom-scroll">
                     
+                    <div x-show="tab === 'news'" x-transition>
+                        <div class="flex justify-between items-end mb-10">
+                            <div>
+                                <h2 class="text-3xl font-black italic tracking-tighter uppercase">Command Center</h2>
+                                <p class="text-slate-500 text-sm">Monitorização global de inteligência e governança diferencial.</p>
+                            </div>
+                            <button x-show="isAdmin" @click="saveNewsModal()" class="bg-orange-600 px-6 py-3 rounded-2xl font-bold text-[10px] uppercase text-white shadow-lg shadow-orange-600/20 hover:bg-orange-700 transition">
+                                <i class="ph-bold ph-megaphone-simple mr-2"></i>Postar Novidade
+                            </button>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-[24px] border-dashed border-blue-500/30 mb-8 flex items-center gap-6">
+                            <div class="w-14 h-14 bg-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/50">
+                                <i class="ph-fill ph-lightning text-blue-500 text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-black uppercase tracking-widest">Status Heuriskien</span>
+                                    <span class="bg-blue-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">ATIVO</span>
+                                </div>
+                                <p class="text-xs text-slate-500">Sincronização em tempo real com Supabase estabelecida.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+                            <div class="glass-card p-6 rounded-3xl">
+                                <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Relatórios</p>
+                                <h4 class="text-2xl font-black" x-text="reportsList.length">0</h4>
+                            </div>
+                            <div class="glass-card p-6 rounded-3xl">
+                                <p class="text-[10px] font-bold text-emerald-500 uppercase mb-1">Equipe</p>
+                                <h4 class="text-2xl font-black" x-text="usersList.length">0</h4>
+                            </div>
+                            <div class="glass-card p-6 rounded-3xl">
+                                <p class="text-[10px] font-bold text-blue-500 uppercase mb-1">Registros Audit</p>
+                                <h4 class="text-2xl font-black" x-text="auditList.length">0</h4>
+                            </div>
+                            <div class="glass-card p-6 rounded-3xl">
+                                <p class="text-[10px] font-bold text-orange-500 uppercase mb-1">Comunicados</p>
+                                <h4 class="text-2xl font-black" x-text="newsList.length">0</h4>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="glass-card rounded-[32px] p-8">
+                                <h4 class="font-black uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
+                                    <i class="ph-bold ph-rss text-orange-500"></i> Últimos Comunicados
+                                </h4>
+                                <div class="space-y-4 max-h-[300px] overflow-y-auto custom-scroll pr-4">
+                                    <template x-for="news in newsList" :key="news.id">
+                                        <div class="p-4 bg-black/5 dark:bg-white/5 rounded-2xl border border-transparent hover:border-orange-500/20 transition group">
+                                            <div class="flex justify-between items-start">
+                                                <p class="text-xs font-black uppercase tracking-tight" x-text="news.titulo"></p>
+                                                <button x-show="isAdmin" @click="deleteNews(news.id)" class="opacity-0 group-hover:opacity-100 text-red-500 transition"><i class="ph ph-trash"></i></button>
+                                            </div>
+                                            <p class="text-[10px] text-slate-500 mt-1" x-text="news.conteudo"></p>
+                                            <span class="text-[9px] text-orange-500 font-bold mt-2 block" x-text="new Date(news.created_at).toLocaleDateString()"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="glass-card rounded-[32px] p-8">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h4 class="font-black uppercase text-xs tracking-widest">Execuções Recentes</h4>
+                                    <span class="text-[10px] font-bold text-blue-500">Live Activity</span>
+                                </div>
+                                <table class="w-full text-left text-[11px]">
+                                    <tbody>
+                                        <template x-for="log in auditList.slice(0, 5)" :key="log.id">
+                                            <tr class="border-b border-black/5 dark:border-white/5 last:border-0">
+                                                <td class="py-4 font-bold" x-text="log.acao"></td>
+                                                <td class="py-4 text-slate-400" x-text="log.admin_email"></td>
+                                                <td class="py-4 text-right">
+                                                    <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-full font-bold">OK</span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <div x-show="tab === 'reports'" x-transition>
                         <div class="flex justify-between items-end mb-10">
                             <h2 class="text-3xl font-black italic tracking-tighter uppercase">Hub de Inteligência</h2>
                             <button x-show="isAdmin" @click="saveReportModal()" class="bg-blue-600 px-6 py-3 rounded-2xl font-bold text-[10px] uppercase text-white shadow-lg">Novo Relatório</button>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <template x-for="report in reportsList" :key="report.id">
-                                <div class="glass-card p-6 rounded-[28px] group transition-all">
+                                <div class="glass-card p-6 rounded-[28px]">
                                     <h4 class="text-lg font-bold mb-2" x-text="report.nome"></h4>
                                     <p class="text-xs text-slate-500 mb-8 h-10 line-clamp-2" x-text="report.descricao"></p>
-                                    <div class="flex gap-2">
-                                        <a :href="report.link" target="_blank" class="flex-1 bg-blue-600 text-white py-3 rounded-xl text-center text-[10px] font-black uppercase tracking-widest">Acessar</a>
+                                    <div class="flex flex-col gap-2">
+                                        <a :href="report.link" target="_blank" class="w-full bg-blue-600 text-white py-3 rounded-xl text-center text-[10px] font-black uppercase transition hover:bg-blue-700">Acessar</a>
                                         <template x-if="isAdmin">
-                                            <div class="flex gap-1">
-                                                <button @click="saveReportModal(report)" class="p-3 bg-slate-100 dark:bg-white/5 rounded-xl hover:text-blue-500 transition"><i class="ph ph-pencil-simple"></i></button>
-                                                <button @click="deleteReport(report.id)" class="p-3 bg-red-500/10 rounded-xl text-red-500 transition"><i class="ph ph-trash"></i></button>
+                                            <div class="flex gap-2">
+                                                <button @click="saveReportModal(report)" class="flex-1 bg-slate-500/10 text-slate-500 py-3 rounded-xl text-[10px] font-black uppercase hover:bg-slate-500/20 transition">Editar</button>
+                                                <button @click="deleteReport(report.id)" class="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20"><i class="ph ph-trash"></i></button>
                                             </div>
                                         </template>
                                     </div>
@@ -199,28 +279,28 @@
                     <div x-show="tab === 'team'" x-transition>
                         <div class="flex justify-between items-end mb-8">
                             <h2 class="text-3xl font-black italic uppercase">Gestão de Equipe</h2>
-                            <button x-show="isAdmin" @click="saveUserModal()" class="bg-blue-600 px-6 py-3 rounded-2xl font-bold text-[10px] uppercase text-white shadow-lg">Adicionar Membro</button>
+                            <button x-show="isAdmin" @click="saveUserModal()" class="bg-blue-600 px-6 py-3 rounded-2xl font-bold text-[10px] uppercase text-white">Adicionar Membro</button>
                         </div>
                         <div class="glass-card rounded-[32px] overflow-hidden">
                             <table class="w-full text-left">
                                 <thead class="bg-slate-50 dark:bg-white/5">
-                                    <tr>
-                                        <th class="p-6 text-[10px] font-bold uppercase tracking-widest text-slate-500">Membro</th>
-                                        <th class="p-6 text-[10px] font-bold uppercase tracking-widest text-slate-500">E-mail</th>
-                                        <th class="p-6 text-[10px] font-bold uppercase tracking-widest text-slate-500">Cargo</th>
-                                        <th x-show="isAdmin" class="p-6 text-[10px] font-bold uppercase tracking-widest text-slate-500">Ações</th>
+                                    <tr class="text-[10px] font-bold uppercase text-slate-500">
+                                        <th class="p-6">Membro</th>
+                                        <th class="p-6">E-mail</th>
+                                        <th class="p-6">Cargo</th>
+                                        <th x-show="isAdmin" class="p-6">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                                <tbody>
                                     <template x-for="u in usersList" :key="u.email">
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition">
+                                        <tr class="border-t border-black/5 dark:border-white/5">
                                             <td class="p-6 font-bold text-sm" x-text="u.nome_completo"></td>
                                             <td class="p-6 text-sm text-slate-500" x-text="u.email"></td>
-                                            <td class="p-6"><span class="px-3 py-1 bg-blue-500/10 text-blue-600 rounded-full text-[9px] font-black uppercase" x-text="u.cargo"></span></td>
+                                            <td class="p-6"><span class="px-3 py-1 bg-blue-500/10 text-blue-600 rounded-full text-[9px] font-black" x-text="u.cargo"></span></td>
                                             <td x-show="isAdmin" class="p-6">
-                                                <div class="flex gap-2">
-                                                    <button @click="saveUserModal(u)" class="text-blue-500 hover:text-blue-600"><i class="ph ph-pencil-simple text-lg"></i></button>
-                                                    <button @click="deleteUser(u.email)" class="text-red-500 hover:text-red-600"><i class="ph ph-trash text-lg"></i></button>
+                                                <div class="flex gap-3">
+                                                    <button @click="saveUserModal(u)" class="text-blue-500 hover:text-blue-700 transition"><i class="ph ph-pencil-simple text-lg"></i></button>
+                                                    <button @click="deleteUser(u.email)" class="text-red-500 hover:text-red-700 transition"><i class="ph ph-trash text-lg"></i></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -247,7 +327,7 @@
                                         <tr class="border-t border-black/5 dark:border-white/5 text-[11px]">
                                             <td class="p-6 text-slate-500" x-text="new Date(log.created_at).toLocaleString()"></td>
                                             <td class="p-6 font-bold text-blue-500" x-text="log.acao"></td>
-                                            <td class="p-6 font-mono text-slate-400" x-text="log.alvo"></td>
+                                            <td class="p-6 text-slate-400" x-text="log.alvo"></td>
                                             <td class="p-6 text-slate-500" x-text="log.admin_email"></td>
                                         </tr>
                                     </template>
@@ -262,13 +342,13 @@
                             <h3 class="text-3xl font-black uppercase" x-text="currentUserData.nome_completo"></h3>
                             <p class="text-blue-500 font-bold uppercase tracking-widest text-sm mt-2" x-text="currentUserData.cargo"></p>
                             
-                            <div class="mt-12 grid grid-cols-1 gap-4 text-left">
+                            <div class="mt-12 space-y-4 text-left">
                                 <div class="p-6 bg-black/5 dark:bg-white/5 rounded-2xl">
-                                    <p class="text-[10px] font-bold uppercase text-slate-500 mb-1">E-mail Corporativo</p>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase">E-mail Corporativo</p>
                                     <p class="font-bold" x-text="currentUserData.email"></p>
                                 </div>
                                 <div class="p-6 bg-black/5 dark:bg-white/5 rounded-2xl">
-                                    <p class="text-[10px] font-bold uppercase text-slate-500 mb-1">Status da Conta</p>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase">Status da Conta</p>
                                     <p class="font-bold text-emerald-500">Ativa</p>
                                 </div>
                             </div>
@@ -301,8 +381,12 @@
 
                 async init() {
                     const { data: { session } } = await sb.auth.getSession();
-                    if (session) { await this.loadSessionData(session.user); this.view = 'dashboard'; }
+                    if (session) { 
+                        await this.loadSessionData(session.user); 
+                        this.view = 'dashboard'; 
+                    }
                     setTimeout(() => { this.initialized = true; }, 1200);
+                    this.$watch('theme', val => localStorage.setItem('heur-theme', val));
                 },
 
                 async loadSessionData(user) {
@@ -310,27 +394,58 @@
                     if (profile) {
                         this.currentUserData = profile;
                         this.isAdmin = ['CEO', 'Diretor', 'ADMIN'].includes(profile.cargo);
-                        this.fetchData();
+                        await this.fetchData();
                     }
                 },
 
                 async fetchData() {
-                    const { data: reps } = await sb.from('reportsTable').select('*').order('nome');
-                    this.reportsList = reps || [];
-                    const { data: team } = await sb.from('acessTable').select('*').order('nome_completo');
-                    this.usersList = team || [];
-                    const { data: news } = await sb.from('newsTable').select('*').order('created_at', { ascending: false });
-                    this.newsList = news || [];
-                    if (this.isAdmin) {
-                        const { data: audit } = await sb.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
-                        this.auditList = audit || [];
+                    const [reps, team, news, audit] = await Promise.all([
+                        sb.from('reportsTable').select('*').order('nome'),
+                        sb.from('acessTable').select('*').order('nome_completo'),
+                        sb.from('newsTable').select('*').order('created_at', { ascending: false }),
+                        sb.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50)
+                    ]);
+                    this.reportsList = reps.data || [];
+                    this.usersList = team.data || [];
+                    this.newsList = news.data || [];
+                    this.auditList = audit.data || [];
+                },
+
+                // CRUD NOVIDADES (Restaurado)
+                async saveNewsModal() {
+                    const { value: form } = await Swal.fire({
+                        title: 'Postar Comunicado',
+                        html: `
+                            <input id="n_t" class="swal2-input" placeholder="Título da Novidade">
+                            <textarea id="n_c" class="swal2-textarea" placeholder="Conteúdo da mensagem"></textarea>
+                            <input id="n_cat" class="swal2-input" placeholder="Categoria (ex: Sistema, Alerta)">
+                        `,
+                        preConfirm: () => ({ 
+                            titulo: document.getElementById('n_t').value, 
+                            conteudo: document.getElementById('n_c').value,
+                            categoria: document.getElementById('n_cat').value 
+                        })
+                    });
+                    if (form && form.titulo) {
+                        await sb.from('newsTable').insert([form]);
+                        await this.logAudit('POSTAR', `Novidade: ${form.titulo}`);
+                        this.fetchData();
                     }
                 },
 
-                // CRUD de Relatórios
+                async deleteNews(id) {
+                    const res = await Swal.fire({ title: 'Remover comunicado?', icon: 'warning', showCancelButton: true });
+                    if (res.isConfirmed) {
+                        await sb.from('newsTable').delete().eq('id', id);
+                        await this.logAudit('DELETAR', `Novidade ID: ${id}`);
+                        this.fetchData();
+                    }
+                },
+
+                // CRUD RELATÓRIOS
                 async saveReportModal(report = null) {
                     const { value: form } = await Swal.fire({
-                        title: report ? 'Editar Report' : 'Novo Report',
+                        title: report ? 'Editar Relatório' : 'Novo Relatório',
                         html: `
                             <input id="r_n" class="swal2-input" placeholder="Nome" value="${report?.nome || ''}">
                             <input id="r_l" class="swal2-input" placeholder="Link Superset" value="${report?.link || ''}">
@@ -338,7 +453,7 @@
                         `,
                         preConfirm: () => ({ nome: document.getElementById('r_n').value, link: document.getElementById('r_l').value, descricao: document.getElementById('r_d').value })
                     });
-                    if (form) {
+                    if (form && form.nome) {
                         if (report) await sb.from('reportsTable').update(form).eq('id', report.id);
                         else await sb.from('reportsTable').insert([form]);
                         await this.logAudit(report ? 'EDITAR' : 'CRIAR', `Relatório: ${form.nome}`);
@@ -355,7 +470,7 @@
                     }
                 },
 
-                // CRUD de Usuários
+                // CRUD MEMBROS
                 async saveUserModal(user = null) {
                     const { value: form } = await Swal.fire({
                         title: user ? 'Editar Membro' : 'Novo Membro',
@@ -366,7 +481,7 @@
                         `,
                         preConfirm: () => ({ nome_completo: document.getElementById('u_n').value, email: document.getElementById('u_e').value, cargo: document.getElementById('u_c').value })
                     });
-                    if (form) {
+                    if (form && form.email) {
                         if (user) await sb.from('acessTable').update(form).eq('email', user.email);
                         else await sb.from('acessTable').insert([form]);
                         await this.logAudit(user ? 'EDITAR' : 'CRIAR', `Membro: ${form.email}`);
@@ -383,14 +498,22 @@
                     }
                 },
 
+                // AUTH & LOGS
                 async handleLogin() {
                     this.loading = true;
                     const { error } = await sb.auth.signInWithPassword({ email: this.loginEmail, password: this.loginPassword });
-                    if (error) { Swal.fire('Erro', 'Verifique suas credenciais.', 'error'); this.loading = false; }
-                    else { window.location.reload(); }
+                    if (error) { 
+                        Swal.fire('Erro', 'Verifique suas credenciais.', 'error'); 
+                        this.loading = false; 
+                    } else { 
+                        window.location.reload(); 
+                    }
                 },
 
-                async handleLogout() { await sb.auth.signOut(); window.location.reload(); },
+                async handleLogout() { 
+                    await sb.auth.signOut(); 
+                    window.location.reload(); 
+                },
 
                 async logAudit(acao, alvo) {
                     await sb.from('audit_logs').insert([{ acao, alvo, admin_email: this.currentUserData.email }]);
