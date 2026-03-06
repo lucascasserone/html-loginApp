@@ -1,0 +1,2652 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Workforce Intelligence — Diagnóstico estratégico de competências com IA. McKinsey 7-S, Skill Taxonomy, Confidence Scores, ROI Calculator e Talent Marketplace.">
+  <meta name="keywords" content="análise de skills, IA RH, radar de competências, gap análise corporativa, workforce planning, skill benchmarking">
+  <meta name="author" content="Workforce Intelligence • Powered by AI">
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Strategic Talent Intelligence — Workforce Intelligence">
+  <meta property="og:description" content="Plataforma enterprise: diagnóstico IA → skill gap heatmap → recomendações estratégicas → ROI quantificado">
+  <meta property="og:url" content="https://workforce-intelligence.com.br/app">
+  
+  <title>Workforce Intelligence — Strategic Edition</title>
+  <style>
+    :root {
+      --bg:#0f172a; --card:#111827; --card-2:#1e293b;
+      --muted:#94a3b8; --text:#e5e7eb;
+      --accent:#22c55e; --accent-2:#38bdf8; --accent-3:#f59e0b; --accent-4:#8b5cf6;
+      --danger:#ef4444; --border: rgba(148,163,184,.15);
+      --glass: rgba(255, 255, 255, 0.03);
+    }
+    html[data-theme="light"] {
+      --bg:#f8fafc; --card:#ffffff; --card-2:#f1f5f9; --muted:#475569; --text:#0f172a;
+      --border: rgba(0,0,0,0.1);
+    }
+    html[data-theme="light"] .navbar-global {
+      background: linear-gradient(135deg, rgba(71, 85, 105, 0.95), rgba(30, 41, 59, 0.92)) !important;
+      border-bottom-color: #0f172a !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
+    html[data-theme="light"] .navbar-logo,
+    html[data-theme="light"] .navbar-links a,
+    html[data-theme="light"] .navbar-button {
+      color: #ffffff !important;
+    }
+    html[data-theme="light"] .navbar-links a::after {
+      background: #ffffff !important;
+    }
+    html[data-theme="light"] .navbar-button {
+      border-color: #ffffff !important;
+    }
+    html[data-theme="light"] .navbar-button:hover {
+      background: #ffffff !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="light"] .page-title,
+    html[data-theme="light"] .page-subtitle,
+    html[data-theme="light"] .page-badge,
+    html[data-theme="light"] .breadcrumb-refined {
+      color: #0f172a;
+    }
+    html[data-theme="light"] .page-badge {
+      background: #f1f5f9;
+      border-color: rgba(0,0,0,0.12);
+      color: #475569;
+    }
+    @media print {
+      html { background: white; }
+      body { background: white; }
+      .navbar-global, .global-progress-bar, .footer, .stepper-v2, .upload-card, #modalJustify { display: none !important; }
+      .container { padding-top: 20px !important; }
+      .page-header { padding: 0; }
+    }
+    body { margin:0; font-family: 'Inter', system-ui, -apple-system; background: var(--bg); color:var(--text); transition: 0.3s; line-height: 1.5; }
+    .container { max-width:1100px; margin:0 auto; padding:20px; padding-top: 140px; }
+
+    /* --- GLOBAL NAVBAR (FIXED TOP) --- */
+    .navbar-global { position: fixed; top: 0; left: 0; right: 0; height: 64px; background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(17,24,39,0.98)); border-bottom: 2px solid var(--accent-2); backdrop-filter: blur(12px); z-index: 1000; display: flex; align-items: center; box-shadow: 0 4px 12px rgba(56,189,248,0.1); }
+    .navbar-content { display: flex; align-items: center; justify-content: space-between; max-width: 1140px; width: 100%; margin: 0 auto; padding: 0 20px; }
+    .navbar-left { display: flex; align-items: center; gap: 32px; }
+    .navbar-logo { font-size: 18px; font-weight: 900; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .navbar-logo span { background: linear-gradient(135deg, var(--accent-2), var(--accent-3)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+    .navbar-links { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
+    .navbar-links a { text-decoration: none; color: var(--text); font-size: 13px; font-weight: 600; transition: 0.3s; position: relative; padding-bottom: 4px; }
+    .navbar-links a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent-2); transition: 0.3s; }
+    .navbar-links a:hover { color: var(--accent-2); }
+    .navbar-links a:hover::after { width: 100%; }
+    .navbar-right { display: flex; align-items: center; gap: 20px; }
+    .navbar-button { padding: 10px 18px; border-radius: 8px; border: 2px solid var(--accent-2); background: transparent; color: var(--accent-2); cursor: pointer; font-size: 12px; font-weight: 700; transition: 0.3s; }
+    .navbar-button:hover { background: var(--accent-2); color: var(--bg); }
+    .navbar-user { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-2), var(--accent-3)); display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.3s; }
+    .navbar-user:hover { transform: scale(1.1); }
+
+    /* --- PAGE HEADER SECTION --- */
+    .page-header { padding: 20px 0 0 0; margin-bottom: 0; }
+    .page-title { font-size: 32px; font-weight: 900; color: var(--text); margin: 0 0 8px 0; letter-spacing: -0.5px; }
+    .page-title-accent { color: var(--accent-2); }
+    .page-subtitle { font-size: 14px; color: var(--muted); margin: 0 0 16px 0; font-weight: 400; line-height: 1.6; }
+    .page-badges { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .page-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--card-2); border: 1px solid var(--border); border-radius: 6px; font-size: 10px; color: var(--muted); font-weight: 600; }
+    .page-badge-accent { color: var(--accent-2); border-color: var(--accent-2); }
+    .page-divider { height: 3px; background: linear-gradient(90deg, var(--accent-2) 0%, var(--accent) 50%, var(--accent-3) 100%); border-radius: 3px; margin: 20px 0 30px 0; max-width: 200px; }
+    .breadcrumb-refined { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); margin-bottom: 20px; }
+    .breadcrumb-refined a { color: var(--accent-2); text-decoration: none; font-weight: 600; }
+
+    /* --- STEPPER CARDS (V2 ENTERPRISE) --- */
+    .stepper-v2 { display: flex; justify-content: space-between; gap: 16px; margin: 30px 0; position: relative; }
+    .step-card { flex: 1; position: relative; z-index: 1; }
+    .step-card-content { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; transition: 0.3s; cursor: pointer; }
+    .step-card-content:hover:not(.disabled) { border-color: var(--accent-2); background: var(--glass); }
+    .step-card-content.active { border-color: var(--accent-2); background: rgba(56, 189, 248, 0.08); }
+    .step-card-content.completed { border-color: var(--accent); background: rgba(34, 197, 94, 0.08); }
+    .step-card-number { width: 36px; height: 36px; margin: 0 auto 12px; border-radius: 50%; background: var(--card-2); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: var(--muted); border: 2px solid var(--border); transition: 0.3s; }
+    .step-card-content.active .step-card-number { background: var(--accent-2); color: var(--bg); border-color: var(--accent-2); }
+    .step-card-content.completed .step-card-number { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .step-card-title { font-size: 12px; font-weight: 700; color: var(--text); margin: 0; }
+    .step-card-status { font-size: 10px; color: var(--muted); margin-top: 6px; }
+    .step-card-content.active .step-card-status { color: var(--accent-2); font-weight: 600; }
+    .step-card-content.completed .step-card-status { color: var(--accent); font-weight: 600; }
+    .step-card-content.disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* LEGACY STEPPER - HIDDEN */
+    .stepper-container { display: none; }
+
+    /* CARDS E UI */
+    .card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .upload-card { border: 2px dashed var(--border); padding: 60px 40px; text-align: center; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+    .upload-card:hover { border-color: var(--accent-2); background: var(--glass); transform: translateY(-2px); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; border: none; padding: 14px 28px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+    .btn-primary:disabled { filter: grayscale(1); cursor: not-allowed; }
+    .pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; background: var(--card-2); border: 1px solid var(--border); color: var(--text); cursor: pointer; }
+    .pill.active { border-color: var(--accent-2); color: var(--accent-2); }
+    
+    /* RADAR E TABELAS */
+    .radar-container { display: flex; justify-content: center; align-items: center; min-height: 300px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 12px; color: var(--muted); padding: 10px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 10px; border-bottom: 1px solid var(--border); }
+    input[type="range"] { width: 100px; accent-color: var(--accent-2); }
+
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .critical { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+    .aligned { background: rgba(34, 197, 94, 0.15); color: var(--accent); border: 1px solid var(--accent); }
+
+    /* TIMELINE & PDI */
+    .timeline { position: relative; padding-left: 30px; margin: 20px 0; border-left: 2px solid var(--border); }
+    .timeline-item { position: relative; margin-bottom: 25px; }
+    .timeline-dot { position: absolute; left: -36px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-2); border: 3px solid var(--bg); }
+    
+    .pdi-card { background: var(--card-2); border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; gap: 15px; }
+    .impact-high { border-left: 4px solid var(--danger); }
+    .impact-medium { border-left: 4px solid var(--accent-3); }
+
+    /* UTILITÁRIOS */
+    .hidden { display: none; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+    .text-center { text-align: center; }
+    .loading-bar { width: 100%; height: 6px; background: var(--border); border-radius: 10px; overflow: hidden; margin-top: 15px; display: none; }
+    .loading-progress { height: 100%; width: 0%; background: var(--accent-2); transition: 0.3s; }
+
+    /* BREADCRUMB */
+    .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 12px; color: var(--muted); }
+    .breadcrumb a { color: var(--accent-2); text-decoration: none; font-weight: 600; transition: 0.2s; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* FOOTER */
+    .footer { background: var(--card-2); border-top: 1px solid var(--border); padding: 30px 0 15px; margin-top: 40px; }
+    .footer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 20px; font-size: 11px; padding: 0 20px; }
+    .footer-section h4 { color: var(--text); font-weight: 700; margin-bottom: 10px; font-size: 12px; }
+    .footer-section a { color: var(--muted); text-decoration: none; display: block; margin-bottom: 6px; transition: 0.2s; }
+    .footer-section a:hover { color: var(--accent-2); }
+    .footer-bottom { border-top: 1px solid var(--border); padding: 15px 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--muted); }
+    @media (max-width: 768px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } .footer-bottom { flex-direction: column; gap: 10px; text-align: center; } }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+    .modal { background: var(--card); padding: 30px; border-radius: 24px; width: 90%; max-width: 450px; border: 1px solid var(--border); }
+
+    /* NOVOS ESTILOS - PADRÃO CONSULTING */
+    .executive-summary { background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(56,189,248,0.05)); border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--accent); }
+    .metric-card { background: var(--card-2); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
+    .metric-value { font-size: 28px; font-weight: 800; color: var(--accent-2); margin: 4px 0; }
+    .metric-label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+    .metric-delta { font-size: 11px; color: var(--accent); margin-top: 4px; font-weight: 600; }
+
+    /* SKILL TAXONOMY */
+    .taxonomy-tree { padding-left: 20px; border-left: 2px solid var(--border); }
+    .taxonomy-level { margin: 12px 0; font-size: 12px; }
+    .taxonomy-level.l1 { font-weight: 800; color: var(--accent-2); }
+    .taxonomy-level.l2 { font-weight: 600; color: var(--text); margin-left: 15px; }
+    .taxonomy-level.l3 { color: var(--muted); margin-left: 30px; font-size: 11px; }
+    .taxonomy-level.l4 { color: var(--muted); margin-left: 45px; font-size: 10px; font-style: italic; }
+
+    /* CONFIDENCE SCORE VISUAL - IMPROVED */
+    .confidence-badge { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      padding: 10px 16px; 
+      border-radius: 10px; 
+      background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(34,197,94,0.05)); 
+      border: 1px solid rgba(56,189,248,0.2); 
+      font-size: 12px; 
+      font-weight: 700;
+      transition: all 0.3s;
+    }
+    .confidence-badge:hover {
+      background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(34,197,94,0.1));
+      border-color: rgba(56,189,248,0.4);
+    }
+    .confidence-bar { 
+      height: 6px; 
+      background: var(--border); 
+      border-radius: 3px; 
+      overflow: hidden; 
+      min-width: 60px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .confidence-fill { 
+      height: 100%; 
+      background: linear-gradient(90deg, var(--danger), var(--accent-3), var(--accent), var(--accent-2)); 
+      border-radius: 3px;
+      box-shadow: 0 0 8px rgba(56,189,248,0.3);
+    }
+
+    /* HEATMAP & MATRIX */
+    .heatmap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 15px 0; }
+    .heatmap-cell { padding: 12px; border-radius: 10px; border: 1px solid var(--border); text-align: center; font-size: 11px; }
+    .heatmap-critical { background: rgba(239,68,68,0.15); border-color: var(--danger); }
+    .heatmap-high { background: rgba(245,158,11,0.15); border-color: var(--accent-3); }
+    .heatmap-medium { background: rgba(168,85,247,0.15); border-color: var(--accent-4); }
+    .heatmap-low { background: rgba(34,197,94,0.15); border-color: var(--accent); }
+
+    /* DONUT / PIE CHARTS */
+    .chart-indicator { display: inline-block; width: 120px; height: 120px; border-radius: 50%; position: relative; margin: 10px auto; }
+    .chart-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .chart-value { font-size: 18px; font-weight: 800; }
+    .chart-label { font-size: 10px; color: var(--muted); }
+
+    /* BENCHMARKING */
+    .benchmark-bar { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+    .benchmark-label { min-width: 100px; font-size: 11px; font-weight: 600; }
+    .benchmark-track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .benchmark-progress { height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+
+    /* REASONING BOX */
+    .reasoning-box { 
+      background: linear-gradient(135deg, var(--card-2), rgba(30,41,59,0.7)); 
+      padding: 16px; 
+      border-radius: 12px; 
+      border-left: 4px solid var(--accent-2); 
+      margin: 14px 0; 
+      font-size: 12px; 
+      line-height: 1.7;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .reasoning-box:hover {
+      border-left-color: var(--accent);
+      box-shadow: 0 4px 16px rgba(56,189,248,0.1);
+      transform: translateX(2px);
+    }
+    .reasoning-title { 
+      font-weight: 700; 
+      color: var(--accent-2); 
+      margin-bottom: 0; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    /* LEARNING MATURITY */
+    .maturity-level { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--card-2); border-radius: 8px; margin: 8px 0; border: 1px solid var(--border); }
+    .maturity-badge { min-width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: white; }
+    .m-beginner { background: rgba(239,68,68,0.3); color: var(--danger); }
+    .m-operational { background: rgba(245,158,11,0.3); color: var(--accent-3); }
+    .m-professional { background: rgba(168,85,247,0.3); color: var(--accent-4); }
+    .m-expert { background: rgba(34,197,94,0.3); color: var(--accent); }
+    .m-mastery { background: rgba(56,189,248,0.3); color: var(--accent-2); }
+    .maturity-text { flex: 1; }
+    .maturity-text strong { display: block; font-size: 12px; }
+    .maturity-text span { font-size: 10px; color: var(--muted); }
+
+    /* MCKINSKY 7-S */
+    .framework-7s { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
+    .framework-item { background: var(--card-2); padding: 16px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
+    .framework-icon { font-size: 24px; margin-bottom: 8px; }
+    .framework-item h4 { margin: 8px 0 4px; font-size: 12px; color: var(--accent-2); font-weight: 700; }
+    .framework-item p { font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4; }
+
+    /* TABS E NAVEGAÇÃO - IMPROVED */
+    .tab-nav { 
+      display: flex; 
+      gap: 12px; 
+      border-bottom: 2px solid var(--border); 
+      margin-bottom: 28px;
+      overflow-x: auto;
+      padding-bottom: 0;
+      flex-wrap: wrap;
+    }
+    .tab-btn { 
+      padding: 14px 20px; 
+      font-size: 13px; 
+      font-weight: 700; 
+      color: var(--muted); 
+      background: none; 
+      border: none; 
+      cursor: pointer; 
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      color: var(--accent-2);
+      border-bottom-color: rgba(56,189,248,0.3);
+    }
+    .tab-btn.active { 
+      color: var(--accent-2); 
+      border-bottom-color: var(--accent-2);
+      background: rgba(56,189,248,0.05);
+      border-radius: 8px 8px 0 0;
+    }
+    .tab-content { 
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      animation: fadeInUp 0.4s ease-out;
+    }
+    .tab-content.active { 
+      display: block;
+    }
+
+    /* ROI / METRICS */
+    .roi-cell { background: linear-gradient(135deg, rgba(34,197,94,0.05), rgba(56,189,248,0.05)); padding: 16px; border-radius: 10px; border: 1px solid var(--border); margin: 8px 0; }
+    .roi-value { font-size: 20px; font-weight: 800; color: var(--accent); }
+    .roi-desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* EMPLEABILIDADE */
+    .employability-ring { position: relative; width: 160px; height: 160px; margin: 0 auto; }
+    .employability-circle { position: absolute; inset: 0; border-radius: 50%; }
+    .employability-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .employability-text strong { font-size: 18px; font-weight: 800; }
+    .employability-text span { font-size: 10px; color: var(--muted); }
+
+    /* GIGS / MARKETPLACE */
+    .gig-card { background: var(--card-2); padding: 14px; border-radius: 10px; margin: 8px 0; border: 1px solid var(--border); }
+    .gig-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+    .gig-title { font-weight: 700; font-size: 12px; }
+    .gig-tag { font-size: 9px; padding: 2px 6px; background: var(--accent-2); color: var(--bg); border-radius: 4px; font-weight: 700; }
+    .gig-meta { font-size: 10px; color: var(--muted); }
+    .gig-skills { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+    .gig-skill { font-size: 9px; padding: 2px 6px; background: var(--border); border-radius: 4px; }
+
+    /* AUDITORIA / COMPLIANCE */
+    .audit-log { background: var(--card-2); padding: 12px; border-radius: 8px; font-size: 10px; color: var(--muted); font-family: 'Monaco', monospace; margin: 8px 0; border: 1px solid var(--border); }
+    .audit-item { padding: 4px 0; border-bottom: 1px solid var(--border); }
+    .audit-item:last-child { border: none; }
+
+    /* STORYTELLING */
+    .pyramid-container { background: linear-gradient(135deg, var(--card), var(--card-2)); padding: 30px; border-radius: 12px; border: 1px solid var(--border); margin: 20px 0; }
+    .pyramid-level { margin: 12px 0; }
+    .pyramid-level.level-1 { font-size: 16px; font-weight: 900; color: var(--accent-2); margin-bottom: 15px; text-align: center; }
+    .pyramid-level.level-2 { font-size: 13px; font-weight: 700; color: var(--accent-3); }
+    .pyramid-level.level-3 { font-size: 11px; font-weight: 600; color: var(--text); margin-top: 8px; }
+    .pyramid-level.level-3 li { margin: 4px 0; }
+
+    /* ANIMAÇÕES PREMIUM */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+      50% { box-shadow: 0 0 0 10px rgba(34,197,94,0); }
+    }
+    @keyframes shimmer-loading {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+    @keyframes pulse-border {
+      0%, 100% { border-left-color: var(--accent-2); }
+      50% { border-left-color: var(--accent); }
+    }
+    @keyframes slide-checkmark {
+      0% { opacity: 0; transform: translateX(-20px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    
+    /* UPLOAD STATUS - ANIMATED */
+    .upload-status-container {
+      background: var(--card-2);
+      padding: 14px;
+      border-radius: 10px;
+      border-left: 4px solid var(--accent-2);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: pulse-border 1.5s ease-in-out infinite;
+      box-shadow: 0 0 12px rgba(56,189,248,0.1);
+    }
+    .upload-status-container.complete {
+      animation: none;
+      border-left-color: var(--accent);
+      box-shadow: 0 0 16px rgba(34,197,94,0.2);
+    }
+    .upload-status-icon {
+      font-size: 18px;
+      min-width: 24px;
+      text-align: center;
+      animation: slide-checkmark 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .upload-status-content {
+      flex: 1;
+    }
+    .upload-status-title {
+      color: var(--accent-2);
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .upload-status-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent), var(--accent-2), var(--accent-2));
+      background-size: 200% 100%;
+      border-radius: 2px;
+      animation: shimmer-loading 2s infinite;
+      box-shadow: 0 0 8px rgba(56,189,248,0.4);
+    }
+    .upload-status-filename {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 11px;
+    }
+
+    /* EXPLAINABILITY BOX - COMPONENTE PREMIUM */
+    .explainability-box {
+      background: linear-gradient(135deg, rgba(56,189,248,0.05), rgba(34,197,94,0.05));
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      border-left: 4px solid var(--accent-2);
+      animation: fadeInUp 0.6s ease-out;
+    }
+    .explainability-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: var(--accent-2);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .explainability-content {
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .evidence-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 6px 0;
+    }
+    .evidence-item strong { color: var(--accent-2); min-width: 40px; }
+
+    /* EXPERT BADGES */
+    .expert-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(168,85,247,0.15);
+      color: var(--accent-4);
+      border: 1px solid var(--accent-4);
+    }
+    .expert-badge.trending {
+      background: rgba(245,158,11,0.15);
+      color: var(--accent-3);
+      border-color: var(--accent-3);
+    }
+    .expert-badge.critical {
+      background: rgba(239,68,68,0.15);
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+    .expert-badge.high-impact {
+      background: rgba(34,197,94,0.15);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* CAREER PATHLINE */
+    .career-pathline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px;
+      background: var(--card-2);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin: 20px 0;
+      animation: slideInLeft 0.7s ease-out;
+    }
+    .career-step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+    .career-step-badge {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      background: var(--card);
+      border: 2px solid var(--border);
+    }
+    .career-step.current .career-step-badge {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: white;
+      border-color: var(--accent-2);
+      animation: pulse-glow 2s infinite;
+    }
+    .career-step.target .career-step-badge {
+      background: var(--card);
+      border-color: var(--accent-3);
+    }
+    .career-step-label { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .career-step-title { font-size: 10px; color: var(--muted); }
+    .career-connector {
+      flex: 0.5;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      position: relative;
+    }
+    .career-step.completed .career-step-badge {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* PROGRESS INDICATOR GLOBAL */
+    .global-progress-bar {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: var(--border);
+      z-index: 99;
+      display: none;
+    }
+    .global-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+      transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 20px rgba(34,197,94,0.5);
+    }
+
+    /* LOADING STATES PREMIUM */
+    .loading-skeleton {
+      background: linear-gradient(90deg, var(--card-2), var(--card), var(--card-2));
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+      border-radius: 8px;
+      height: 20px;
+      margin: 8px 0;
+    }
+    .loading-message {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--accent-2);
+      font-weight: 600;
+    }
+    .loading-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* QUICK VALUE STATEMENT */
+    .value-statement {
+      background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(56,189,248,0.08));
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .value-statement-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .value-statement-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-2);
+      line-height: 1.5;
+    }
+
+    /* COMPARISON MINI CHART */
+    .mini-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 15px 0;
+    }
+    .comparison-item {
+      background: var(--card-2);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .comparison-label { font-size: 10px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+    .comparison-value { font-size: 20px; font-weight: 800; color: var(--accent-2); }
+    .comparison-delta { font-size: 10px; color: var(--accent); margin-top: 4px; font-weight: 600; }
+
+    /* PROGRESSIVE DISCLOSURE */
+    .disclosure-item {
+      margin: 12px 0;
+      animation: fadeInUp 0.5s ease-out;
+    }
+    .disclosure-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-2);
+      transition: 0.2s;
+    }
+    .disclosure-trigger:hover { color: var(--accent-3); }
+    .disclosure-toggler {
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+    .disclosure-toggler.open { transform: rotate(90deg); }
+    .disclosure-content {
+      display: none;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+      padding-left: 16px;
+      margin-top: 8px;
+      border-left: 2px solid var(--accent-2);
+    }
+    .disclosure-content.open {
+      display: block;
+      max-height: 500px;
+      opacity: 1;
+    }
+
+    /* AI PROCESSING ANIMATION */
+    .ai-processing {
+      background: var(--card-2);
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ai-processing-bars {
+      display: flex;
+      gap: 3px;
+      align-items: flex-end;
+    }
+    .ai-bar {
+      width: 3px;
+      height: 20px;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      border-radius: 2px;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+    .ai-bar:nth-child(2) { animation-delay: 0.1s; }
+    .ai-bar:nth-child(3) { animation-delay: 0.2s; }
+    .ai-bar:nth-child(4) { animation-delay: 0.3s; }
+    @keyframes wave {
+      0%, 100% { height: 8px; }
+      50% { height: 20px; }
+    }
+
+    /* ACCORDION CARDS - TAXONOMY PREMIUM - IMPROVED VERTICAL LAYOUT */
+    .accordion-item {
+      background: linear-gradient(135deg, var(--card-2), var(--card));
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      animation: fadeInUp 0.5s ease-out;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .accordion-item:hover {
+      border-color: var(--accent-2);
+      box-shadow: 0 8px 24px rgba(56,189,248,0.2);
+      transform: translateY(-4px);
+      background: linear-gradient(135deg, rgba(56,189,248,0.05), var(--card));
+    }
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: linear-gradient(90deg, var(--card-2), transparent);
+    }
+    .accordion-header:hover { 
+      background: linear-gradient(90deg, rgba(56,189,248,0.1), transparent);
+    }
+    .accordion-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+    .accordion-icon {
+      font-size: 28px; 
+      min-width: 32px; 
+      text-align: center;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+    .accordion-title {
+      display: flex; 
+      flex-direction: column; 
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+    .accordion-title strong { 
+      font-size: 14px; 
+      color: var(--text); 
+      font-weight: 700;
+      word-break: break-word;
+    }
+    .accordion-subtitle { 
+      font-size: 12px; 
+      color: var(--muted); 
+      font-weight: 500;
+    }
+    .accordion-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .accordion-level { 
+      font-weight: 800; 
+      font-size: 18px; 
+      color: var(--accent-2); 
+      min-width: 40px; 
+      text-align: center;
+      background: rgba(56,189,248,0.15);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(56,189,248,0.3);
+    }
+    .accordion-badges { 
+      display: flex; 
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 160px;
+    }
+    .accordion-toggle {
+      width: 32px; 
+      height: 32px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      transition: all 0.3s; 
+      color: var(--accent-2);
+      background: rgba(56,189,248,0.12);
+      border-radius: 8px;
+      font-weight: 700;
+      border: 1px solid rgba(56,189,248,0.2);
+    }
+    .accordion-toggle:hover {
+      background: rgba(56,189,248,0.2);
+    }
+    .accordion-toggle.open { 
+      transform: rotate(180deg);
+      background: rgba(56,189,248,0.25);
+      border-color: rgba(56,189,248,0.4);
+    }
+    .accordion-body {
+      display: none;
+      max-height: 0; 
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      opacity: 0;
+      flex-direction: column;
+      border-top: 2px solid var(--border);
+    }
+    .accordion-body.open {
+      display: flex;
+      max-height: 1200px; 
+      opacity: 1;
+      padding: 18px;
+      background: linear-gradient(135deg, rgba(56,189,248,0.05), rgba(34,197,94,0.03));
+    }
+    .accordion-content { 
+      font-size: 12px; 
+      line-height: 1.8;
+      color: var(--text);
+      flex: 1;
+    }
+    .accordion-confidence {
+      background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(34,197,94,0.05));
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 14px;
+      border-left: 4px solid var(--accent-2);
+      font-size: 11px;
+      border: 1px solid rgba(56,189,248,0.15);
+    }
+    .accordion-confidence strong { 
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    /* BARRAS ANALÍTICAS COM INSIGHTS - IMPROVED VERTICAL LAYOUT */
+    .insight-bar {
+      background: linear-gradient(135deg, var(--card-2), rgba(30,41,59,0.7));
+      padding: 18px;
+      border-radius: 14px;
+      margin: 16px 0;
+      border: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .insight-bar:hover {
+      border-color: var(--accent-2);
+      box-shadow: 0 8px 24px rgba(56,189,248,0.15);
+      transform: translateY(-2px);
+    }
+    .insight-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .insight-label { 
+      font-size: 13px; 
+      font-weight: 700; 
+      color: var(--text);
+      flex: 1;
+      min-width: 150px;
+    }
+    .insight-value { 
+      font-size: 16px; 
+      font-weight: 800; 
+      color: var(--accent-2);
+      background: rgba(56,189,248,0.1);
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+    .insight-chart {
+      display: flex; 
+      align-items: flex-end; 
+      gap: 12px; 
+      margin: 8px 0;
+      flex-wrap: wrap;
+    }
+    .insight-track {
+      flex: 1; 
+      min-width: 150px;
+      height: 8px; 
+      background: var(--border); 
+      border-radius: 4px; 
+      overflow: hidden; 
+      position: relative;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .insight-fill {
+      height: 100%; 
+      background: linear-gradient(90deg, var(--accent-2), var(--accent)); 
+      border-radius: 4px;
+      box-shadow: 0 0 12px rgba(56,189,248,0.4);
+    }
+    .insight-average-line {
+      position: absolute; 
+      width: 3px; 
+      height: 120%;
+      background: var(--danger); 
+      left: 0; 
+      top: -10%;
+      box-shadow: 0 -8px 0 rgba(239,68,68,0.8);
+      border-radius: 2px;
+    }
+    .insight-value-text { 
+      font-weight: 700; 
+      font-size: 13px; 
+      min-width: 50px; 
+      text-align: center;
+      background: rgba(56,189,248,0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .insight-delta {
+      font-size: 11px; 
+      font-weight: 700; 
+      color: var(--accent);
+      padding: 4px 10px; 
+      background: rgba(34,197,94,0.15); 
+      border-radius: 6px;
+      border: 1px solid rgba(34,197,94,0.3);
+    }
+    .insight-delta.negative {
+      color: var(--danger); 
+      background: rgba(239,68,68,0.15);
+      border-color: rgba(239,68,68,0.3);
+    }
+
+    /* INSIGHT AUTOMÁTICO COM NARRATIVA - IMPROVED VERTICAL LAYOUT */
+    .auto-insight {
+      background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(34,197,94,0.08));
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 18px 0;
+      border-left: 5px solid var(--accent-2);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .auto-insight:hover {
+      border-color: var(--accent-2);
+      box-shadow: 0 8px 24px rgba(56,189,248,0.15);
+      transform: translateY(-2px);
+    }
+    .auto-insight-title {
+      font-size: 13px; 
+      font-weight: 700; 
+      color: var(--accent-2); 
+      margin-bottom: 2px; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+    }
+    .auto-insight-content { 
+      font-size: 12px; 
+      line-height: 1.8; 
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .auto-insight-item {
+      display: flex; 
+      align-items: flex-start; 
+      gap: 10px; 
+      margin: 0;
+      padding: 10px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-2);
+      transition: all 0.2s;
+    }
+    .auto-insight-item:hover {
+      background: rgba(56,189,248,0.05);
+      padding-left: 12px;
+    }
+    .auto-insight-item-icon { 
+      font-size: 16px; 
+      min-width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .auto-insight-item-text { 
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .auto-insight-item-text strong { 
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    /* PROGRESS BAR INTELIGENTE - MATURITY */
+    .maturity-progress-container {
+      background: var(--card-2);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin: 20px 0;
+    }
+    .maturity-current {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+    }
+    .maturity-current-label { font-size: 11px; font-weight: 700; color: var(--muted); }
+    .maturity-current-badge {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: white; padding: 6px 12px; border-radius: 6px;
+      font-size: 11px; font-weight: 700;
+    }
+    .maturity-bars {
+      display: flex; gap: 8px; align-items: flex-end; margin-bottom: 20px;
+    }
+    .maturity-bar-item {
+      flex: 1; text-align: center; cursor: pointer; transition: 0.3s;
+    }
+    .maturity-bar-track {
+      height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 6px; position: relative; overflow: hidden;
+    }
+    .maturity-bar-fill {
+      height: 100%; background: linear-gradient(180deg, var(--accent-2), var(--accent)); border-radius: 3px;
+    }
+    .maturity-bar-item.completed .maturity-bar-fill { background: var(--accent); }
+    .maturity-bar-item.current .maturity-bar-track { border: 1px solid var(--accent-2); }
+    .maturity-bar-item.future .maturity-bar-track { background: rgba(148,163,184,0.1); }
+    .maturity-bar-label { font-size: 9px; font-weight: 700; color: var(--muted); transition: 0.2s; }
+    .maturity-bar-item.current .maturity-bar-label { color: var(--accent-2); }
+    .maturity-recommendations {
+      background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(56,189,248,0.08));
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .maturity-rec-item { margin: 6px 0; }
+    .maturity-rec-item strong { color: var(--accent-2); }
+
+    /* TOOLTIP PREMIUM */
+    .tooltip-trigger {
+      position: relative;
+      cursor: help;
+      border-bottom: 1px dotted var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tooltip-box {
+      position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 10px;
+      color: var(--text);
+      white-space: nowrap;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .tooltip-trigger:hover .tooltip-box { opacity: 1; }
+    .tooltip-box::after {
+      content: ''; position: absolute; top: 100%;
+      left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid var(--card);
+    }
+
+    /* STEP PROGRESS COM MOTIVAÇÃO */
+    .step-motivation {
+      background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(56,189,248,0.1));
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-2);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .step-eta {
+      font-size: 10px; color: var(--muted); margin-top: 6px;
+    }
+
+    /* MASTERY CARD ESPECIAL */
+    .mastery-special {
+      position: relative; background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(245,158,11,0.1));
+      border: 2px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 20px;
+      text-align: center; box-shadow: inset 0 0 20px rgba(245,158,11,0.05);
+    }
+    .mastery-glow {
+      position: absolute; top: 10px; right: 10px;
+      font-size: 16px; opacity: 0.6; animation: pulse 2s ease-in-out infinite;
+    }
+    .mastery-badge-top { font-size: 24px; margin-bottom: 10px; }
+    .mastery-title { font-size: 13px; font-weight: 800; color: var(--accent-3); margin-bottom: 6px; }
+    .mastery-subtitle { font-size: 11px; color: var(--muted); font-style: italic; }
+
+    @media (max-width: 768px) { 
+      .framework-7s { grid-template-columns: 1fr; }
+      .heatmap-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }
+      .career-pathline { flex-direction: column; gap: 8px; }
+      .career-connector { width: 100%; height: 2px; flex: 1; }
+      .mini-comparison { grid-template-columns: 1fr; }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR GLOBAL (FIXED TOP) -->
+<nav class="navbar-global">
+  <div class="navbar-content">
+    <div class="navbar-left">
+      <div class="navbar-logo">🎯 Workforce <span>Intelligence</span></div>
+      <ul class="navbar-links">
+        <li><a href="checkout.html">💰 Planos</a></li>
+      </ul>
+    </div>
+    <div class="navbar-right">
+      <button id="themeToggle" style="background:none; border:none; cursor:pointer; font-size:18px; color:var(--text);">🌙</button>
+      <div class="navbar-user">👤</div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="global-progress-bar" id="globalProgressBar">
+    <div class="global-progress-fill" id="globalProgressFill"></div>
+  </div>
+
+  <!-- PAGE HEADER WITH CONTEXT -->
+  <section class="page-header">
+    <div class="breadcrumb-refined">
+      <a href="lp.html">Home</a>
+      <span>›</span>
+      <a href="checkout.html">Planos</a>
+      <span>›</span>
+      <span>Strategic Analysis</span>
+    </div>
+    
+    <h1 class="page-title">Análise <span class="page-title-accent">Estratégica</span></h1>
+    <p class="page-subtitle">Insights executivos sobre suas competências, gaps críticos e oportunidades de crescimento com recomendações quantificadas.</p>
+    
+    <div class="page-badges">
+      <div class="page-badge page-badge-accent">⚡ LLM v4.0</div>
+      <div class="page-badge">🔐 End-to-End</div>
+      <div class="page-badge">📊 Taxonomia ESCO</div>
+      <div class="page-badge">📈 Benchmarking Global</div>
+    </div>
+    
+    <div class="page-divider"></div>
+  </section>
+
+  <!-- ENHANCED STEPPER (V2) -->
+  <nav class="stepper-v2">
+    <div class="step-card" id="step-card-1" onclick="handleStepClick(1)">
+      <div class="step-card-content active">
+        <div class="step-card-number">1</div>
+        <h4 class="step-card-title">Entrada</h4>
+        <div class="step-card-status">Em foco</div>
+      </div>
+    </div>
+    <div class="step-card" id="step-card-2" onclick="handleStepClick(2)">
+      <div class="step-card-content disabled">
+        <div class="step-card-number">2</div>
+        <h4 class="step-card-title">Análise IA</h4>
+        <div class="step-card-status">Aguardando</div>
+      </div>
+    </div>
+    <div class="step-card" id="step-card-3" onclick="handleStepClick(3)">
+      <div class="step-card-content disabled">
+        <div class="step-card-number">3</div>
+        <h4 class="step-card-title">Insights</h4>
+        <div class="step-card-status">Aguardando</div>
+      </div>
+    </div>
+    <div class="step-card" id="step-card-4" onclick="handleStepClick(4)">
+      <div class="step-card-content disabled">
+        <div class="step-card-number">4</div>
+        <h4 class="step-card-title">Plano</h4>
+        <div class="step-card-status">Aguardando</div>
+      </div>
+    </div>
+    <div class="step-card" id="step-card-5" onclick="handleStepClick(5)">
+      <div class="step-card-content disabled">
+        <div class="step-card-number">5</div>
+        <h4 class="step-card-title">ROI</h4>
+        <div class="step-card-status">Aguardando</div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section id="step-1" class="app-step">
+      <!-- VALUE PROPOSITION -->
+      <div class="value-statement">
+        <div class="value-statement-icon">🚀</div>
+        <div class="value-statement-text">
+          Use IA para descobrir em segundos o que levaria semanas para mapear. Análise profunda de competências + Recomendações estratégicas de carreira.
+        </div>
+      </div>
+
+      <div class="upload-card" id="dropZone">
+        <div style="font-size:48px; margin-bottom:15px; animation: fadeInUp 0.6s ease-out;">📄</div>
+        <h3>Faça Upload de Seu Currículo</h3>
+        <p class="muted">PDF, DOCX ou TXT — A IA analisará suas competências instantaneamente.</p>
+        <div id="cvPreview" style="margin: 15px 0; display: none;">
+          <div style="background:var(--card-2); padding:12px; border-radius:8px; border-left:3px solid var(--accent-2); font-size:11px;">
+            <div style="color:var(--accent-2); font-weight:700;">✓ Arquivo carregado</div>
+            <div id="cvFileName" style="color:var(--muted); margin-top:4px;"></div>
+          </div>
+        </div>
+        <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx,.txt">
+        
+        <div class="loading-bar" id="loadingBar">
+          <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+        
+        <div id="aiProcessing" class="ai-processing" style="display:none; margin-top:15px;">
+          <div class="ai-processing-bars">
+            <div class="ai-bar"></div>
+            <div class="ai-bar"></div>
+            <div class="ai-bar"></div>
+            <div class="ai-bar"></div>
+          </div>
+          <div class="loading-message">
+            <span id="processingText">A IA está analisando mais de 20.000 possibilidades de carreira para você...</span>
+          </div>
+        </div>
+
+        <div id="uploadStatus" style="margin-top:15px; font-weight:600; color:var(--accent);" class="hidden"></div>
+      </div>
+      
+      <div class="card" style="margin-top:25px;">
+        <h4 style="margin-top:0; color:var(--accent-2); font-size:12px;">Defina Sua Trajetória</h4>
+        <div class="grid-2">
+            <div>
+                <label class="step-microcopy">Cargo Atual</label>
+                <select id="roleActual" class="card" style="width:100%; margin-top:5px; padding:12px; background:var(--card-2); color:var(--text); border:1px solid var(--border);">
+                    <option value="">Selecione seu cargo...</option>
+                    <option value="planner">📊 Planner Jr</option>
+                    <option value="planner-mid">📊 Planner Pleno</option>
+                    <option value="analyst">📈 Analista de Dados Jr</option>
+                    <option value="analyst-mid">📈 Analista de Dados Pleno</option>
+                    <option value="analyst-senior">📈 Analista de Dados Sênior</option>
+                    <option value="specialist">🎯 Especialista em RH</option>
+                    <option value="specialist-data">🎯 Especialista em Data</option>
+                    <option value="coordinator">📋 Coordenador de Talento</option>
+                    <option value="manager-hr">👔 Gerente de RH</option>
+                    <option value="manager-marketing">💼 Gerente de Marketing</option>
+                    <option value="manager-product">🚀 Gerente de Produto</option>
+                    <option value="tech-lead">⚙️ Tech Lead</option>
+                    <option value="developer-mid">👨‍💻 Desenvolvedor Pleno</option>
+                    <option value="designer-mid">🎨 Designer UI/UX</option>
+                </select>
+            </div>
+            <div>
+                <label class="step-microcopy">Seu Objetivo</label>
+                <select id="roleTarget" class="card" style="width:100%; margin-top:5px; padding:12px; background:var(--card-2); color:var(--text); border:1px solid var(--border);">
+                    <option value="">Selecione seu objetivo...</option>
+                    <option value="planner-senior">🎯 Planner Sênior</option>
+                    <option value="manager">👔 Gerente de Marketing</option>
+                    <option value="analyst-senior">📈 Analista Sênior</option>
+                    <option value="specialist-data">🎯 Especialista em Data Science</option>
+                    <option value="manager-hr">👑 Gerente de RH</option>
+                    <option value="director">🏆 Diretor de Talento</option>
+                    <option value="tech-lead">⚙️ Tech Lead</option>
+                    <option value="architect">🏗️ Arquiteto de Software</option>
+                    <option value="product-manager">📱 Product Manager</option>
+                    <option value="vp-people">💎 VP de Pessoas</option>
+                    <option value="consultant">📊 Consultor Sênior</option>
+                    <option value="startup-founder">🚀 Founder</option>
+                    <option value="freelancer">🎨 Freelancer Especializado</option>
+                    <option value="trainer">🎓 Instrutor/Trainer</option>
+                </select>
+            </div>
+        </div>
+        <button id="btnProcess" class="btn-primary" style="width:100%; margin-top:20px;" disabled>🎯 Iniciar Análise Estratégica</button>
+        <p class="text-center" style="font-size:11px; margin-top:15px; color:var(--muted);">⚡ Análise em tempo real com IA. Resultados personalizados para sua função.</p>
+      </div>
+    </section>
+
+    <section id="step-2" class="app-step hidden">
+      <!-- STORYTELLING EXECUTIVO -->
+      <div class="executive-summary">
+        <h3 style="margin-top:0; color:var(--accent-2);">📊 Seu Diagnóstico Estratégico</h3>
+        <div id="executiveNarrative" style="font-size:13px; font-weight:600; line-height:1.8; margin:15px 0; color:var(--text);">
+          <div style="margin-bottom:10px;">
+            <span style="font-size:18px; font-weight:800; color:var(--accent-2);" id="matchScore">62%</span>
+            <span style="font-size:13px; color:var(--text);"> de alinhamento com sua função alvo</span>
+          </div>
+          <div id="executiveInsight" style="color:var(--muted); font-size:12px;">
+            Detectamos 14 competências. Você está no <strong style="color:var(--accent-2);">top 28% da sua área</strong> — mas há 3 oportunidades prioritárias.
+          </div>
+        </div>
+        
+        <div class="grid-2" style="margin-top:15px;">
+          <div class="metric-card" style="animation: fadeInUp 0.5s ease-out;">
+            <div class="metric-label">Alinhamento</div>
+            <div class="metric-value" style="color:var(--accent-3);" id="alignmentPct">67%</div>
+            <div class="metric-delta">vs Cargo Alvo</div>
+          </div>
+          <div class="metric-card" style="animation: fadeInUp 0.6s ease-out;">
+            <div class="metric-label">Gaps Críticos</div>
+            <div class="metric-value" style="color:var(--danger);" id="criticalGaps">3</div>
+            <div class="metric-delta">Reduzíveis em 6 meses</div>
+          </div>
+          <div class="metric-card" style="animation: fadeInUp 0.7s ease-out;">
+            <div class="metric-label">Confiança (IA)</div>
+            <div class="metric-value" style="color:var(--accent);" id="confidenceScore">82%</div>
+            <div class="metric-delta">Baseado em evidências CV</div>
+          </div>
+          <div class="metric-card" style="animation: fadeInUp 0.8s ease-out;">
+            <div class="metric-label">Empleabilidade</div>
+            <div class="metric-value" style="color:var(--accent-2);" id="employabilityScore">74%</div>
+            <div class="metric-delta">Competitivo no mercado</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB NAVIGATION -->
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('taxonomy')">Taxonomia de Skills</button>
+        <button class="tab-btn" onclick="switchTab('confidence')">Confiança & Evidências</button>
+        <button class="tab-btn" onclick="switchTab('radar')">Radar Visual</button>
+        <button class="tab-btn" onclick="switchTab('benchmarking')">Benchmarking</button>
+      </div>
+
+      <!-- TAB: TAXONOMY -->
+      <div id="tab-taxonomy" class="tab-content active card">
+        <h3 style="margin-top:0;">📚 Skill Taxonomy (4 Camadas)</h3>
+        <p class="muted" style="font-size:11px;">Estrutura: Competência → Skill → Subskill → Evidências. Clique para expandir.</p>
+        <div id="taxonomyContainer" style="display:flex; flex-direction:column; gap:14px; margin-top:16px;"></div>
+        <button class="pill" style="width:100%; margin-top:20px; text-align:center; padding:12px; cursor:pointer; border-color:var(--accent-2); color:var(--accent-2); font-weight:600;">📥 Exportar Árvore de Skills</button>
+      </div>
+
+      <!-- TAB: CONFIDENCE -->
+      <div id="tab-confidence" class="tab-content card">
+        <h3 style="margin-top:0;">🧠 AI Reasoning Layer</h3>
+        <p class="muted" style="font-size:11px;">Como a IA chegou a cada conclusão — com evidências do seu CV</p>
+        <div id="reasoningContainer" style="display:flex; flex-direction:column; gap:14px; margin-top:16px;"></div>
+      </div>
+
+      <!-- TAB: RADAR -->
+      <div id="tab-radar" class="tab-content card">
+        <h3 style="margin-top:0;">🎯 Radar de Competências</h3>
+        <p class="muted" style="font-size:11px;">Azul: seu nível atual • Verde: cargo alvo • A distância = seu gap</p>
+        <div class="grid-2" style="margin-top:20px;">
+          <div style="display:flex; justify-content:center; align-items:center;">
+            <div id="radarBox" class="radar-container"></div>
+          </div>
+          <div>
+            <div style="display:flex; gap:5px; margin-bottom:12px; flex-wrap:wrap;">
+              <button class="pill active" onclick="filterSkills('all', this)">Todas (5)</button>
+              <button class="pill" onclick="filterSkills('critical', this)">Críticas (3)</button>
+              <button class="pill" onclick="filterSkills('high', this)">Alta Confiança</button>
+            </div>
+            <table id="skillTable" style="font-size:11px; max-height:300px; overflow-y:auto; display:block;">
+              <thead style="display:block; width:100%;"><tr><th style="width:40%;">Habilidade</th><th style="width:20%;">Nível</th><th style="width:20%;">Conf.</th><th style="width:20%;">Gap</th></tr></thead>
+              <tbody id="skillBody" style="display:block; width:100%;"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: BENCHMARKING -->
+      <div id="tab-benchmarking" class="tab-content card">
+        <h3 style="margin-top:0;">🌍 Benchmarking Externo</h3>
+        <p class="muted" style="font-size:11px;">Como você se posiciona vs mercado nacional e pares da sua área</p>
+        <div id="benchmarkingContainer" style="display:flex; flex-direction:column; gap:14px; margin-top:16px;"></div>
+        <div id="benchmarkingInsight" style="margin-top:24px;"></div>
+      </div>
+
+      <div style="text-align:right; margin-top:20px;">
+        <button class="btn-primary" onclick="goToStep(3)">Análise Estratégica ➡</button>
+      </div>
+    </section>
+
+    <section id="step-3" class="app-step hidden">
+      <!-- MCKINSEY 7-S FRAMEWORK -->
+      <div class="card">
+        <h3 style="margin-top:0;">🎯 McKinsey 7-S: Seu Alinhamento Estratégico</h3>
+        <p class="muted" style="margin-bottom:20px;">Como a plataforma conecta sua evolução à estratégia corporativa</p>
+        
+        <div class="framework-7s">
+          <div class="framework-item">
+            <div class="framework-icon">📋</div>
+            <h4>Strategy</h4>
+            <p>Upskilling para reduzir skill gaps críticos e acelerar reskilling interno</p>
+          </div>
+          <div class="framework-item">
+            <div class="framework-icon">🏗️</div>
+            <h4>Structure</h4>
+            <p>RH → BI → L&D → Lideranças. Fluxo integrado de inteligência de talento</p>
+          </div>
+          <div class="framework-item">
+            <div class="framework-icon">⚙️</div>
+            <h4>Systems</h4>
+            <p>LLM + OCR + Skill Grid + Motor de Recomendação baseado em IA</p>
+          </div>
+          <div class="framework-item">
+            <div class="framework-icon">👥</div>
+            <h4>Staff</h4>
+            <p>Suporta colaboradores, gestores e áreas com déficit de talento</p>
+          </div>
+          <div class="framework-item">
+            <div class="framework-icon">🎓</div>
+            <h4>Skills</h4>
+            <p>Core • Role • Edge • Future — Classificações de competências</p>
+          </div>
+          <div class="framework-item">
+            <div class="framework-icon">👨‍💼</div>
+            <h4>Style</h4>
+            <p>Recomendações de liderança baseadas em gaps e potencial</p>
+          </div>
+          <div class="framework-item" style="grid-column: span 2;">
+            <div class="framework-icon">💎</div>
+            <h4>Shared Values</h4>
+            <p>Conexão com cultura corporativa, diversidade de skills e meritocracia baseada em competências reais</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEATMAP CORPORATIVO -->
+      <div class="card" style="margin-top:20px;">
+        <h3>🔥 Skill Gap Heatmap — Visão Corporativa</h3>
+        <p class="muted">Áreas com maior defasagem (simulação para sua função)</p>
+        <div class="heatmap-grid" id="heatmapContainer"></div>
+      </div>
+
+      <!-- LEARNING MATURITY -->
+      <div class="card" style="margin-top:20px;">
+        <h3>📈 Learning Path Maturity Levels</h3>
+        <p class="muted">Sua evolução esperada nesta skill até Mastery</p>
+        <div id="maturityContainer"></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:20px;">
+        <button class="pill" onclick="goToStep(2)">⬅ Ajustar Skills</button>
+        <button class="btn-primary" onclick="goToStep(4)">Oportunidades & Marketplace ➡</button>
+      </div>
+    </section>
+
+    <section id="step-4" class="app-step hidden">
+      <!-- EMPLOYABILITY SCORE -->
+      <div class="card text-center">
+        <h3>📊 Score de Empleabilidade (BCG Talent Lighthouse)</h3>
+        <p class="muted">Sua competitividade para próximas oportunidades</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; align-items:center; margin:20px 0;">
+          <div class="employability-ring">
+            <svg width="160" height="160" style="position:absolute; inset:0;">
+              <circle cx="80" cy="80" r="70" fill="none" stroke="var(--border)" stroke-width="8"/>
+              <circle cx="80" cy="80" r="70" fill="none" stroke="url(#employgrad)" stroke-width="8" 
+                stroke-dasharray="329.87" stroke-dashoffset="85.8" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="employgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:var(--accent);stop-opacity:1" />
+                  <stop offset="50%" style="stop-color:var(--accent-2);stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:var(--accent-3);stop-opacity:1" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <strong style="font-size:24px;">74%</strong>
+              <span style="font-size:10px; color:var(--muted);">Competitivo</span>
+            </div>
+          </div>
+          <div>
+            <h4 style="margin-bottom:15px; font-size:13px;">Sua Posição de Mercado</h4>
+            <div class="benchmark-bar">
+              <div class="benchmark-label">Skills Critic.</div>
+              <div class="benchmark-track"><div class="benchmark-progress" style="width:85%;"></div></div>
+              <span style="min-width:25px;font-weight:700;">85%</span>
+            </div>
+            <div class="benchmark-bar">
+              <div class="benchmark-label">Competências</div>
+              <div class="benchmark-track"><div class="benchmark-progress" style="width:72%;"></div></div>
+              <span style="min-width:25px;font-weight:700;">72%</span>
+            </div>
+            <div class="benchmark-bar">
+              <div class="benchmark-label">Seniority</div>
+              <div class="benchmark-track"><div class="benchmark-progress" style="width:68%;"></div></div>
+              <span style="min-width:25px;font-weight:700;">68%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TALENT MARKETPLACE -->
+      <div class="grid-2" style="margin-top:20px;">
+        <div class="card">
+          <h3>🎯 Talent Marketplace (Gigs Internos)</h3>
+          <p class="muted" style="font-size:11px;">Projetos e squads recomendados para fechar gaps</p>
+          <div id="gigList"></div>
+        </div>
+        
+        <div class="card">
+          <h3>📚 Learning Paths Customizados</h3>
+          <p class="muted" style="font-size:11px;">Trilhas com ROI e tempo de dedicação</p>
+          <div id="courseList"></div>
+        </div>
+      </div>
+
+      <div style="text-align:right; margin-top:20px;">
+        <button class="pill" onclick="goToStep(3)">⬅ Voltar</button>
+        <button class="btn-primary" onclick="goToStep(5)">ROI & Impacto Financeiro ➡</button>
+      </div>
+    </section>
+
+    <section id="step-5" class="app-step hidden">
+      <!-- MCKINSEY PYRAMID PRINCIPLE -->
+      <div class="pyramid-container">
+        <div class="pyramid-level level-1">
+          💡 Você reduziria skill gaps em 40% e aceleraria upskilling em 6x
+        </div>
+        <div class="pyramid-level level-2">Três pilares de impacto:</div>
+        <div class="pyramid-level level-3">
+          <ul style="margin:0; padding-left:20px;">
+            <li><strong>Diagnóstico Automático:</strong> IA detecta competências e gaps vs futuro cargo</li>
+            <li><strong>Gap Analysis Corporativa:</strong> Referência com padrões de mercado e interno</li>
+            <li><strong>Trilhas Recomendadas:</strong> Cursos + Gigs + Mentoria com impacto quantificado</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ROI CALCULATOR -->
+      <div class="card">
+        <h3>💰 ROI Calculator — Impacto Financeiro</h3>
+        <p class="muted">Economia estimada com seu upskilling (metodologia Bain & Company)</p>
+        
+        <div class="grid-2" style="margin-top:20px;">
+          <div class="roi-cell">
+            <div class="roi-value" style="color:var(--accent);">R$ 485.000</div>
+            <div class="roi-desc">Economia anual: Reskilling interno vs contratação externa</div>
+          </div>
+          <div class="roi-cell">
+            <div class="roi-value" style="color:var(--accent-2);">6 meses</div>
+            <div class="roi-desc">Redução no tempo até full productivity (vs 12 meses)</div>
+          </div>
+          <div class="roi-cell">
+            <div class="roi-value" style="color:var(--accent-3);">40%</div>
+            <div class="roi-desc">Redução de turnover por carreira interna clara</div>
+          </div>
+          <div class="roi-cell">
+            <div class="roi-value" style="color:var(--accent-4);">-3</div>
+            <div class="roi-desc">Gaps críticos reduzidos com PDI em 12 meses</div>
+          </div>
+        </div>
+
+        <div style="background:var(--card-2); padding:16px; border-radius:10px; margin-top:20px; border:1px solid var(--border);">
+          <h4 style="margin-top:0; color:var(--accent-2); font-size:13px;">📊 Detalhamento do Impacto</h4>
+          <table style="width:100%; font-size:11px;">
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px;">Redução de horas de recrutamento</td>
+              <td style="text-align:right; font-weight:700; color:var(--accent);">R$ 120.000</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px;">Economia de treinamento (onboarding)</td>
+              <td style="text-align:right; font-weight:700; color:var(--accent-2);">R$ 185.000</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px;">Redução de turnover interno</td>
+              <td style="text-align:right; font-weight:700; color:var(--accent-3);">R$ 180.000</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- SKILL GOVERNANCE & COMPLIANCE -->
+      <div class="card" style="margin-top:20px;">
+        <h3>🏛️ Governança & Compliance</h3>
+        <p class="muted" style="font-size:11px;">Rastreabilidade, auditoria e controles de viés (Enterprise-Ready)</p>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px;">
+          <div style="background:var(--card-2); padding:12px; border-radius:8px; border:1px solid var(--border);">
+            <strong style="font-size:11px; color:var(--accent);">v2.1.0 — 2026-03-06</strong>
+            <div style="font-size:10px; color:var(--muted); margin-top:4px;">Taxonomia de Skills • Modelo de Confiança: v1.8</div>
+          </div>
+          <div style="background:var(--card-2); padding:12px; border-radius:8px; border:1px solid var(--border);">
+            <strong style="font-size:11px; color:var(--accent);">27 Ajustes</strong>
+            <div style="font-size:10px; color:var(--muted); margin-top:4px;">Rastreados & Auditados • 0 vieses detectados</div>
+          </div>
+        </div>
+
+        <div class="audit-log" style="margin-top:15px;">
+          <div class="audit-item">[2026-03-06 14:32:15] Análise IA concluída • Confiança: 82%</div>
+          <div class="audit-item">[2026-03-06 14:30:42] Competência "Análise de Dados" detectada (3/5) • Freq: alta</div>
+          <div class="audit-item">[2026-03-06 14:29:18] CV processado • 847 palavras-chave extraídas • LLM v4.0</div>
+          <div class="audit-item">[2026-03-06 14:28:05] Usuário: marco.baldassari@empresa.com • Cargo: Planner</div>
+        </div>
+      </div>
+
+      <div class="card text-center" style="background:linear-gradient(rgba(34,197,94,0.1), transparent); margin-top:30px; margin-bottom:30px;">
+        <h2 style="margin-bottom:10px;">✅ Seu Plano Estratégico está Pronto</h2>
+        <p class="muted">Diagnóstico + Insights + Oportunidades + Impacto Quantificado</p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+          <button class="btn-primary" onclick="exportPDFReport()">📥 Exportar Relatório PDF</button>
+          <button class="pill" style="padding:14px 28px;">📧 Enviar para RH</button>
+          <button class="pill" style="padding:14px 28px;">🔄 Reiniciar Análise</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="modalJustify" class="modal-overlay">
+    <div class="modal">
+        <h3>Justificar Ajuste</h3>
+        <p class="muted" style="font-size:13px;">A IA sugeriu este nível com base no seu currículo. Por que você está alterando?</p>
+        <textarea id="justText" placeholder="Ex: Fiz um curso recente não listado no currículo..." style="width:100%; height:100px; background:var(--card-2); color:white; border-radius:12px; padding:12px; border:1px solid var(--border); font-family:inherit;"></textarea>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-primary" style="flex:1" onclick="saveAjuste()">Confirmar</button>
+            <button class="pill" style="flex:1" onclick="closeModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* --- ADVANCED WORKFORCE INTELLIGENCE SYSTEM --- */
+const STORAGE_KEY = 'wi_strategic_data';
+const $ = id => document.getElementById(id);
+
+// SKILL TAXONOMY DATA (4 CAMADAS - PADRÃO DELOITTE)
+const SKILL_TAXONOMY = {
+    's1': {
+        name: 'Estratégia de Mídia',
+        competency: 'Marketing Estratégico',
+        skills: ['Planejamento de Mídia', 'Análise de Sinergia'],
+        subskills: {
+            'Planejamento de Mídia': ['Briefing Analysis', 'Media Mix Modeling', 'Budget Allocation'],
+            'Análise de Sinergia': ['Holistic Approach', 'Channel Integration', 'Brand Synergy']
+        },
+        confidenceFactors: {
+            frequency: 0.85,      // Freq: alta
+            recency: 0.90,        // Mencionado em 3 projetos
+            depth: 0.78,          // Descrição detalhada
+            evidence: 'Mencionado em 3 projetos. KPIs consistentes 2 anos. Certificação "Media Strategy 360".'
+        }
+    },
+    's2': {
+        name: 'Análise de Dados',
+        competency: 'Data & Analytics',
+        skills: ['SQL/Python', 'Estatística', 'Visualização'],
+        subskills: {
+            'SQL/Python': ['Query Building', 'Data Wrangling', 'Automation'],
+            'Estatística': ['Descriptive Analytics', 'Predictive Modeling', 'A/B Testing'],
+            'Visualização': ['Tableau', 'Power BI', 'Dashboard Design']
+        },
+        confidenceFactors: {
+            frequency: 0.65,
+            recency: 0.72,
+            depth: 0.58,
+            evidence: 'Mencionado em 2 projetos. Certificação "Data Science Fundamentals" (2024).'
+        }
+    },
+    's3': {
+        name: 'Storytelling',
+        competency: 'Comunicação Executiva',
+        skills: ['Narrativa de Dados', 'Apresentação Visual'],
+        subskills: {
+            'Narrativa de Dados': ['Insight Extraction', 'Business Translation', 'Message Hierarchy'],
+            'Apresentação Visual': ['Slide Design', 'Color Theory', 'Infographic Creation']
+        },
+        confidenceFactors: {
+            frequency: 0.88,
+            recency: 0.92,
+            depth: 0.82,
+            evidence: 'Consistentemente mencionado. Feedbacks positivos em apresentações internas.'
+        }
+    },
+    's4': {
+        name: 'Liderança de Times',
+        competency: 'Gestão & Liderança',
+        skills: ['Feedback', 'Delegação', 'Desenvolvimento'],
+        subskills: {
+            'Feedback': ['1-on-1 Coaching', 'Performance Reviews', 'Constructive Criticism'],
+            'Delegação': ['Task Breakdown', 'Empowerment', 'Accountability'],
+            'Desenvolvimento': ['Mentoring', 'Succession Planning', 'Career Pathing']
+        },
+        confidenceFactors: {
+            frequency: 0.35,      // Pouco mencionado
+            recency: 0.40,
+            depth: 0.32,
+            evidence: 'Pouco evidenciado no CV. Sugerido pelo cargo alvo.'
+        }
+    },
+    's5': {
+        name: 'Gestão de Verba',
+        competency: 'Gestão Financeira',
+        skills: ['Orçamentação', 'ROI Tracking', 'Justificativa'],
+        subskills: {
+            'Orçamentação': ['Budget Planning', 'Cost Control', 'Forecast'],
+            'ROI Tracking': ['KPI Monitoring', 'Performance Analytics', 'Variance Analysis'],
+            'Justificativa': ['Business Case', 'Cost-Benefit Analysis', 'Executive Reporting']
+        },
+        confidenceFactors: {
+            frequency: 0.72,
+            recency: 0.68,
+            depth: 0.65,
+            evidence: 'Responsável por orçamentos de R$ 1.2M+ nos últimos 2 anos.'
+        }
+    }
+};
+
+// CONFIDENCE SCORE CALCULATOR (TÉCNICA MCKINSEY)
+function calculateConfidenceScore(skillId) {
+    const factors = SKILL_TAXONOMY[skillId].confidenceFactors;
+    return Math.round(
+        (factors.frequency * 0.3) +
+        (factors.recency * 0.25) +
+        (factors.depth * 0.25) +
+        (0.8 * 0.2)  // contexto
+    ) * 100;
+}
+
+// LEARNING MATURITY LEVELS (CMM INSPIRED)
+const MATURITY_LEVELS = [
+    { level: 1, name: 'Iniciante', desc: 'Trilhas básicas e conceitos fundamentais', duration: '2-4 semanas', icon: '🌱', class: 'm-beginner' },
+    { level: 2, name: 'Operacional', desc: 'Cursos aplicados e projetos práticos', duration: '4-8 semanas', icon: '🚀', class: 'm-operational' },
+    { level: 3, name: 'Profissional', desc: 'Projetos complexos e squads autônomos', duration: '3-6 meses', icon: '⚙️', class: 'm-professional' },
+    { level: 4, name: 'Especialista', desc: 'Certificações avançadas e mentoria de outros', duration: '6-12 meses', icon: '🎖️', class: 'm-expert' },
+    { level: 5, name: 'Mastery', desc: 'Liderança técnica, mentoria + gigs internos', duration: '12+ meses', icon: '👑', class: 'm-mastery' }
+];
+
+// SKILL BENCHMARKING DATABASE (MERCADO NACIONAL)
+const BENCHMARK_MARKET = {
+    's1': { market: 72, intern: 65, peer: 70 },
+    's2': { market: 78, intern: 60, peer: 75 },
+    's3': { market: 68, intern: 70, peer: 72 },
+    's4': { market: 85, intern: 55, peer: 80 },
+    's5': { market: 71, intern: 68, peer: 70 }
+};
+
+let state = {
+    step: 1,
+    isAnalyzed: false,
+    skills: [],
+    justifications: {},
+    roleActual: 'planner',
+    roleTarget: 'planner-senior',
+    currentTab: 'taxonomy'
+};
+
+const DB = {
+    'planner': [
+        {id:'s1', name:'Estratégia de Mídia', level:3, target:5},
+        {id:'s2', name:'Análise de Dados', level:2, target:4},
+        {id:'s3', name:'Storytelling', level:4, target:5},
+        {id:'s4', name:'Liderança de Times', level:1, target:3},
+        {id:'s5', name:'Gestão de Verba', level:3, target:4}
+    ],
+    'courses': [
+        {skillId:'s2', title:'Data Science Mastery', provider:'Coursera', impact:'high', duration:'8 weeks', roi: 'R$ 185.000'},
+        {skillId:'s4', title:'Liderança & Gestão de Pessoas', provider:'LinkedIn Learning', impact:'medium', duration:'12 weeks', roi: 'R$ 95.000'},
+        {skillId:'s1', title:'Media Strategy 360', provider:'Udacity', impact:'high', duration:'6 weeks', roi: 'R$ 142.000'}
+    ],
+    'gigs': [
+        {title:'Squad de Analytics (Marketing)', skills:['s2','s1'], hours:'4h/semana', duration:'3 meses', maturity: 2},
+        {title:'Projeto de Rebranding Corporativo', skills:['s3','s1'], hours:'6h/semana', duration:'4 meses', maturity: 3},
+        {title:'Liderança Técnica - Mentoria Junior', skills:['s4','s3'], hours:'2h/semana', duration:'6 meses', maturity: 4}
+    ]
+};
+
+// HEAT MAP CORPORATIVO
+function renderHeatmap() {
+    const heatmapAreas = [
+        { area: 'L&D', gapLevel: 'critical', gap: 45 },
+        { area: 'Recrutamento', gapLevel: 'high', gap: 32 },
+        { area: 'Retenção', gapLevel: 'high', gap: 28 },
+        { area: 'Sucessão', gapLevel: 'medium', gap: 18 },
+        { area: 'Performance', gapLevel: 'low', gap: 8 },
+        { area: 'Engajamento', gapLevel: 'low', gap: 5 }
+    ];
+    
+    $('heatmapContainer').innerHTML = heatmapAreas.map(h => `
+        <div class="heatmap-cell heatmap-${h.gapLevel}">
+            <strong>${h.area}</strong>
+            <div style="font-size:20px; font-weight:800; margin:8px 0;">${h.gap}%</div>
+            <div style="font-size:9px; color:var(--muted);">Gap Corporativo</div>
+        </div>
+    `).join('');
+}
+
+// RENDER LEARNING MATURITY COM PROGRESS INTELIGENTE
+function renderMaturityLevels() {
+    const criticalSkills = state.skills.filter(s => s.target > s.level);
+    const firstGap = criticalSkills[0];
+    if(!firstGap) return;
+    
+    const currentMaturity = 2;
+    const targetMaturity = 3;
+    
+    let html = `<div class="maturity-progress-container">
+      <div class="maturity-current">
+        <div class="maturity-current-label">Seu Nível Atual:</div>
+        <div class="maturity-current-badge">${MATURITY_LEVELS[currentMaturity-1].name}</div>
+      </div>
+      
+      <div class="maturity-bars">
+    `;
+    
+    MATURITY_LEVELS.forEach((m, idx) => {
+        const isCompleted = idx < currentMaturity;
+        const isCurrent = idx === currentMaturity;
+        const classTerm = isCompleted ? 'completed' : isCurrent ? 'current' : 'future';
+        
+        html += `
+        <div class="maturity-bar-item ${classTerm}">
+          <div class="maturity-bar-track">
+            <div class="maturity-bar-fill" style="width:${isCompleted ? 100 : isCurrent ? 60 : 0}%;"></div>
+          </div>
+          <div class="maturity-bar-label">${m.level}. ${m.name.split(' ')[0]}</div>
+        </div>
+        `;
+    });
+    
+    html += `
+      </div>
+      
+      <div class="maturity-recommendations">
+        <div style="font-weight:700; margin-bottom:8px; color:var(--accent-2);">📍 Seu Roadmap até Profissional</div>
+        <div class="maturity-rec-item">⏱️ <strong>Tempo:</strong> 6-10 semanas (4-6h/semana)</div>
+        <div class="maturity-rec-item">📚 <strong>Curso:</strong> Data Science Mastery (Coursera)</div>
+        <div class="maturity-rec-item">🚀 <strong>Projeto:</strong> Squad de Analytics</div>
+        <div class="maturity-rec-item" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+          💡 <strong>Salário nível 3:</strong> R$ 8.500 - R$ 10.200/mês
+        </div>
+      </div>
+    </div>
+    
+    <div class="mastery-special">
+      <div class="mastery-glow">✨</div>
+      <div class="mastery-badge-top">👑</div>
+      <div class="mastery-title">Mastery = Top 10%</div>
+      <div class="mastery-subtitle">Especialistas que lideram times e mentoram em sua área</div>
+    </div>
+    `;
+    
+    $('maturityContainer').innerHTML = html;
+}
+
+// UPDATE GLOBAL PROGRESS
+function updateGlobalProgress() {
+    const steps = { 1: 0, 2: 20, 3: 40, 4: 70, 5: 100 };
+    const barEl = $('globalProgressFill');
+    const barContainer = $('globalProgressBar');
+    
+    if(state.isAnalyzed) {
+        barContainer.style.display = 'block';
+        barEl.style.width = steps[state.step] + '%';
+    }
+}
+
+// STEP PROGRESSION LOGIC COM MOTIVAÇÃO
+function goToStep(stepNum) {
+    state.step = stepNum;
+    updateGlobalProgress();
+    
+    // Update step indicator
+    document.querySelectorAll('.step-indicator').forEach((el, idx) => {
+        if(idx + 1 <= stepNum) {
+            el.classList.add('active');
+            if(idx + 1 < stepNum) {
+                el.classList.add('completed');
+            }
+        } else {
+            el.classList.remove('active', 'completed');
+        }
+    });
+    
+    // Update step container
+    document.querySelectorAll('.step-container').forEach((el, idx) => {
+        if(idx + 1 === stepNum) {
+            el.style.display = 'block';
+            el.style.animation = 'fadeInUp 0.6s ease-out';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+    
+    // Render appropriate content
+    if(stepNum === 2) {
+        renderTaxonomy();
+        renderBenchmarking();
+        renderMaturityLevels();
+    }
+}
+
+// STEP MOTIVATION MESSAGES
+function getStepMotivation() {
+    const mottos = {
+        1: "📤 Comece! Envie seu CV para análise inteligente",
+        2: "🔍 Analisando suas competências e tendências de mercado",
+        3: "🎯 Construindo seu plano de desenvolvimento estruturado",
+        4: "📊 Visualizando seu potencial e oportunidades de crescimento",
+        5: "✨ Seu perfil profissional completo e otimizado!"
+    };
+    return mottos[state.step] || mottos[1];
+}
+
+// RENDER TAXONOMY (4 LAYERS)
+function renderTaxonomy() {
+    let html = '';
+    state.skills.forEach((skill, idx) => {
+        const tax = SKILL_TAXONOMY[skill.id];
+        if(!tax) return;
+        
+        const confidence = calculateConfidenceScore(skill.id);
+        const gap = skill.target - skill.level;
+        
+        let badgeHtml = '';
+        if(gap >= 2) badgeHtml += '<span class="expert-badge critical">🔴 GAP</span>';
+        else if(gap === 1) badgeHtml += '<span class="expert-badge trending">🟠 MOD</span>';
+        else badgeHtml += '<span class="expert-badge high-impact">🟢 OK</span>';
+        
+        if(gap >= 2) badgeHtml += '<span class="expert-badge trending">⚡ ALTO IMPACTO</span>';
+        
+        const compLevel = Math.round(confidence / 20);
+        
+        html += `
+        <div class="accordion-item" onclick="toggleAccordion(this)">
+          <div class="accordion-header">
+            <div class="accordion-left">
+              <div class="accordion-icon">${['📦','📊','📈','👥','💰'][idx % 5]}</div>
+              <div class="accordion-title">
+                <strong>${tax.name}</strong>
+                <span class="accordion-subtitle">${tax.competency}</span>
+              </div>
+            </div>
+            <div class="accordion-right">
+              <div class="accordion-badges">${badgeHtml}</div>
+              <div class="accordion-level">${skill.level}</div>
+              <div class="accordion-toggle">▼</div>
+            </div>
+          </div>
+          <div class="accordion-body">
+            <div class="accordion-content">
+              <div style="margin-bottom:12px;">
+                <strong style="color:var(--accent-2); font-size:12px;">Detalhes</strong>
+                ${tax.skills.map(s => `
+                  <div style="margin:6px 0; font-size:11px;">
+                    • <strong>${s}</strong>
+                    ${tax.subskills[s] ? `<div style="margin-left:12px; color:var(--muted); font-size:10px;">
+                      ${tax.subskills[s].map(sub => `◦ ${sub}`).join('<br>')}
+                    </div>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+              <div class="accordion-confidence">
+                <strong>🧠 Confiança IA: ${confidence}%</strong>
+                <div style="margin-top:6px; font-size:10px; line-height:1.6;">
+                  ✓ Evidências: ${Math.floor(Math.random() * 25) + 8}<br>
+                  ✓ Frequência: ${Math.round(tax.confidenceFactors.frequency * 100)}%<br>
+                  ✓ Risco IA: Baixo
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        `;
+    });
+    
+    $('taxonomyContainer').innerHTML = html;
+}
+
+function toggleAccordion(el) {
+    const body = el.querySelector('.accordion-body');
+    const toggle = el.querySelector('.accordion-toggle');
+    
+    body.classList.toggle('open');
+    toggle.classList.toggle('open');
+}
+
+// RENDER CONFIDENCE SCORES with AI REASONING
+function renderConfidence() {
+    let html = '';
+    state.skills.forEach(skill => {
+        const tax = SKILL_TAXONOMY[skill.id];
+        if(!tax) return;
+        const confidence = calculateConfidenceScore(skill.id);
+        
+        html += `
+        <div style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <strong style="font-size:12px;">${skill.name}</strong>
+                <span class="confidence-badge">
+                    <span>Confiança: ${confidence}%</span>
+                    <div class="confidence-bar"><div class="confidence-fill" style="width:${confidence}%;"></div></div>
+                </span>
+            </div>
+            <div class="reasoning-box">
+                <div class="reasoning-title">🧠 Por que essa atribuição?</div>
+                <div style="font-size:11px; line-height:1.6;">
+                    <div>✓ <strong>Frequência:</strong> Mencionada em ${Math.round(tax.confidenceFactors.frequency*100)}% do CV</div>
+                    <div>✓ <strong>Recência:</strong> Evidência de ${Math.round(tax.confidenceFactors.recency*100)}% de atualidade</div>
+                    <div>✓ <strong>Profundidade:</strong> Descrição em ${Math.round(tax.confidenceFactors.depth*100)}% dos detalhes</div>
+                    <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border); color:var(--accent-2);">
+                        📍 ${tax.confidenceFactors.evidence}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    });
+    
+    $('reasoningContainer').innerHTML = html;
+}
+
+// RENDER BENCHMARKING COM ANALYTICS & AUTO-INSIGHTS
+function renderBenchmarking() {
+    let html = '';
+    let insights = [];
+    
+    state.skills.forEach((skill, idx) => {
+        const bench = BENCHMARK_MARKET[skill.id];
+        if(!bench) return;
+        
+        const delta = Math.round(skill.level * 20) - bench.market;
+        const isPeerBetter = bench.peer > (skill.level * 20);
+        
+        html += `
+        <div class="insight-bar">
+          <div class="insight-header">
+            <div class="insight-label">${skill.name}</div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <div class="tooltip-trigger">
+                🛈
+                <div class="tooltip-box">
+                  Comparado vs profissionais similares
+                </div>
+              </div>
+              <span class="insight-value">${skill.level}/5</span>
+            </div>
+          </div>
+          <div class="insight-chart">
+            <div class="insight-track">
+              <div class="insight-fill" style="width:${skill.level * 20}%;"></div>
+              <div class="insight-average-line" style="left:${bench.market}%;"></div>
+            </div>
+            <span class="insight-value-text">${bench.market}%</span>
+            <span class="insight-delta ${delta < 0 ? 'negative' : ''}">${delta >= 0 ? '+' : ''}${delta}</span>
+          </div>
+          <div style="font-size:10px; color:var(--muted); margin-top:6px;">
+            Você: ${Math.round(skill.level * 20)}% • Mercado: ${bench.market}% • Pares: ${bench.peer}%
+          </div>
+        </div>
+        `;
+        
+        if(delta < 0) {
+          insights.push({ type: 'below', skill: skill.name, delta: Math.abs(delta), peer: isPeerBetter });
+        } else if(delta > 10) {
+          insights.push({ type: 'above', skill: skill.name, delta: delta });
+        }
+    });
+    
+    $('benchmarkingContainer').innerHTML = html;
+    
+    let insightHtml = `<div class="auto-insight">
+      <div class="auto-insight-title">🔍 O que isso significa?</div>
+      <div class="auto-insight-content">
+    `;
+    
+    insights.forEach(ins => {
+        if(ins.type === 'above') {
+            insightHtml += `
+            <div class="auto-insight-item">
+              <div class="auto-insight-item-icon">✅</div>
+              <div class="auto-insight-item-text">Você está <strong>+${ins.delta} pts acima</strong> da média em <strong>${ins.skill}</strong>.</div>
+            </div>
+            `;
+        } else {
+            insightHtml += `
+            <div class="auto-insight-item">
+              <div class="auto-insight-item-icon">⚠️</div>
+              <div class="auto-insight-item-text">Gap de <strong>${ins.delta} pts</strong> em <strong>${ins.skill}</strong>. Prioridade no PDI.</div>
+            </div>
+            `;
+        }
+    });
+    
+    insightHtml += `
+      <div class="auto-insight-item" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+        <div class="auto-insight-item-icon">🎯</div>
+        <div class="auto-insight-item-text">Aumento de <strong>1 nível</strong> em Estratégia coloca você top 35% do mercado.</div>
+      </div>
+    </div>
+    `;
+    
+    $('benchmarkingInsight').innerHTML = insightHtml;
+}
+
+/* --- NAVEGAÇÃO & STEPS --- */
+function goToStep(n) {
+    if(n > 1 && !state.isAnalyzed) return;
+    state.step = n;
+    
+    document.querySelectorAll('.app-step').forEach(s => s.classList.add('hidden'));
+    $(`step-${n}`).classList.remove('hidden');
+    
+    updateStepper(n);
+    $('progress-fill').style.width = (n * 20) + '%';
+    updateGlobalProgress();
+    
+    // Show step motivation
+    const motivationBox = document.createElement('div');
+    motivationBox.className = 'step-motivation';
+    motivationBox.innerHTML = getStepMotivation();
+    const container = $(`step-${n}`);
+    if(container && !container.querySelector('.step-motivation')) {
+        container.insertAdjacentElement('afterbegin', motivationBox);
+    }
+    
+    window.scrollTo(0,0);
+    save();
+}
+
+function updateStepper(n) {
+    for(let i=1; i<=5; i++) {
+        const card = $(`step-card-${i}`);
+        if(!card) continue;
+        
+        const content = card.querySelector('.step-card-content');
+        const status = card.querySelector('.step-card-status');
+        
+        content.classList.remove('active', 'completed', 'disabled');
+        
+        if(i < n) {
+            content.classList.add('completed');
+            status.innerText = '✓ Concluído';
+        } else if(i === n) {
+            content.classList.add('active');
+            status.innerText = 'Em foco';
+        } else {
+            if(!state.isAnalyzed) content.classList.add('disabled');
+            status.innerText = 'Aguardando';
+        }
+    }
+}
+
+function handleStepClick(n) { if(state.isAnalyzed) goToStep(n); }
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    $(`tab-${tabName}`).classList.add('active');
+    state.currentTab = tabName;
+}
+
+/* --- FILE UPLOAD COM CV PREVIEW & AI ANIMATION --- */
+$('dropZone').onclick = () => $('fileInput').click();
+$('fileInput').onchange = (e) => {
+    if(e.target.files.length) {
+        const file = e.target.files[0];
+        
+        // Show CV preview
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const cvPreview = $('cvPreview');
+            if(cvPreview) {
+                cvPreview.style.backgroundImage = `url('${evt.target.result}')`;
+                cvPreview.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+        
+        // Show AI processing animation
+        $('aiProcessing').style.display = 'block';
+        $('uploadStatus').style.display = 'block';
+        
+        // Simulate AI processing with wave bars
+        let step = 0;
+        const waves = document.querySelectorAll('.ai-wave-bar');
+        const messages = [
+            '⚙️ Extraindo skills do currículo...',
+            '📊 Analisando contexto profissional...',
+            '🔍 Calculando scores de confiança...',
+            '📈 Gerando benchmarking de mercado...',
+            '✨ Finalizando perfil de talentos...'
+        ];
+        
+        const interval = setInterval(() => {
+            if(step < messages.length) {
+                // Animate wave
+                if(waves[step % waves.length]) {
+                    waves[step % waves.length].classList.add('wave-animate');
+                    setTimeout(() => waves[step % waves.length].classList.remove('wave-animate'), 500);
+                }
+                $('processingText').innerText = messages[step];
+                step++;
+            } else {
+                clearInterval(interval);
+                $('processingText').innerText = '✓ Currículo processado pela IA (LLM v4.0)';
+                $('btnProcess').disabled = false;
+            }
+        }, 800);
+    }
+};
+
+/* --- ANÁLISE PRINCIPAL --- */
+$('btnProcess').onclick = () => {
+    state.isAnalyzed = true;
+    state.roleActual = $('roleActual').value;
+    state.roleTarget = $('roleTarget').value;
+    state.skills = JSON.parse(JSON.stringify(DB['planner']));
+    renderAll();
+    goToStep(2);
+};
+
+function renderAll() {
+    renderRadar();
+    renderTable();
+    renderTaxonomy();
+    renderConfidence();
+    renderBenchmarking();
+    renderHeatmap();
+    renderMaturityLevels();
+    renderPDI();
+    updateMetrics();
+}
+
+/* --- EXPORT SKILLS TO JSON --- */
+function exportSkills() {
+    const exportData = {
+        date: new Date().toISOString(),
+        profile: {
+            roleActual: state.roleActual,
+            roleTarget: state.roleTarget
+        },
+        skills: state.skills.map(s => ({
+            id: s.id,
+            name: SKILL_TAXONOMY[s.id]?.name,
+            currentLevel: s.level,
+            targetLevel: s.target,
+            confidence: calculateConfidenceScore(s.id),
+            taxonomyData: SKILL_TAXONOMY[s.id]
+        })),
+        metadatagenerated: new Date().toLocaleDateString('pt-BR')
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Skills_${state.roleActual?.replace(/\s/g, '_')}_${new Date().toISOString().slice(0,10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+/* --- EXPORT COMPREHENSIVE PDF REPORT --- */
+function exportPDFReport() {
+    const date = new Date();
+    const dateStr = date.toLocaleDateString('pt-BR');
+    const timeStr = date.toLocaleTimeString('pt-BR');
+    
+    // Calcular métricas
+    const totalTarget = state.skills.reduce((a,b) => a + b.target, 0);
+    const totalCurrent = state.skills.reduce((a,b) => a + b.level, 0);
+    const alignment = Math.round((totalCurrent / totalTarget) * 100);
+    const gaps = state.skills.filter(s => s.target - s.level >= 2).length;
+    const avgConfidence = Math.round(state.skills.reduce((a,b) => a + calculateConfidenceScore(b.id), 0) / state.skills.length);
+    
+    // Criar container temporário para impressão
+    const printContainer = document.createElement('div');
+    printContainer.id = 'print-report-container';
+    printContainer.style.cssText = 'display:none; position:absolute; left:-9999px;';
+    
+    // Gerar tabela de skills detalhada
+    let skillsTableHTML = '<table style="width:100%; border-collapse:collapse; margin-bottom:20px;"><thead><tr style="background:#f5f5f5; border-bottom:2px solid #333;"><th style="padding:8px; text-align:left; font-weight:bold;">Competência</th><th style="padding:8px; text-align:center; font-weight:bold;">Nível Atual</th><th style="padding:8px; text-align:center; font-weight:bold;">Nível Alvo</th><th style="padding:8px; text-align:center; font-weight:bold;">Gap</th><th style="padding:8px; text-align:center; font-weight:bold;">Confiança</th></tr></thead><tbody>';
+    
+    state.skills.forEach(s => {
+        const conf = calculateConfidenceScore(s.id);
+        const gap = s.target - s.level;
+        const gapClass = gap >= 2 ? 'Critical' : gap > 0 ? 'Moderate' : 'Aligned';
+        skillsTableHTML += `<tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px;">${SKILL_TAXONOMY[s.id]?.name || s.name}</td>
+            <td style="padding:8px; text-align:center;">${s.level}/5</td>
+            <td style="padding:8px; text-align:center;">${s.target}/5</td>
+            <td style="padding:8px; text-align:center; font-weight:bold; color:${gap >= 2 ? '#ef4444' : gap > 0 ? '#f59e0b' : '#22c55e'};">${gap >= 0 ? '+' : ''}${gap}</td>
+            <td style="padding:8px; text-align:center;">${conf}%</td>
+        </tr>`;
+    });
+    
+    skillsTableHTML += '</tbody></table>';
+    
+    // Gerar recomendações
+    let recommendationsHTML = '<div style="margin-top:20px;"><h3 style="font-size:16px; font-weight:bold; margin-bottom:10px;">📋 Recomendações Priorizado (Top 5)</h3>';
+    const topGaps = state.skills
+        .filter(s => s.target - s.level > 0)
+        .sort((a, b) => (b.target - b.level) - (a.target - a.level))
+        .slice(0, 5);
+    
+    topGaps.forEach((s, i) => {
+        const taxonomy = SKILL_TAXONOMY[s.id];
+        recommendationsHTML += `
+            <div style="margin-bottom:12px; padding:10px; background:#f0f0f0; border-left:3px solid #38bdf8; border-radius:4px;">
+                <strong>${i+1}. ${taxonomy?.name}</strong><br/>
+                <small>Nível atual: ${s.level}/5 → Alvo: ${s.target}/5 | Impacto: Alto</small><br/>
+                <small style="color:#666;">Caminho: ${taxonomy?.skills?.join(' → ') || 'Desenvolvimento contínuo'}</small>
+            </div>
+        `;
+    });
+    recommendationsHTML += '</div>';
+    
+    // Montar relatório completo
+    printContainer.innerHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Relatório de Análise Estratégica - Workforce Intelligence</title>
+            <style>
+                @media print {
+                    body { margin:0; padding:20px; }
+                    .page-break { page-break-after:always; }
+                    table { border-collapse:collapse; }
+                    th, td { border:1px solid #ddd; }
+                }
+                body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6; color:#333; max-width:800px; margin:0 auto; }
+                .header { text-align:center; margin-bottom:30px; border-bottom:2px solid #0f172a; padding-bottom:20px; }
+                .header h1 { font-size:24px; color:#0f172a; margin:0; }
+                .header-info { font-size:12px; color:#666; margin-top:8px; }
+                .section { margin-bottom:30px; }
+                .section h2 { font-size:18px; color:#0f172a; border-bottom:1px solid #38bdf8; padding-bottom:8px; margin-bottom:15px; }
+                .metrics { display:grid; grid-template-columns:repeat(4, 1fr); gap:15px; margin-bottom:20px; }
+                .metric-box { padding:15px; background:#f9f9f9; border-left:3px solid #38bdf8; text-align:center; border-radius:4px; }
+                .metric-value { font-size:24px; font-weight:bold; color:#38bdf8; }
+                .metric-label { font-size:11px; color:#666; margin-top:5px; text-transform:uppercase; }
+                .profile-info { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+                .info-block { padding:10px; background:#f5f5f5; border-radius:4px; }
+                .info-label { font-weight:bold; color:#0f172a; }
+                .info-value { color:#666; margin-top:3px; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🎯 Relatório de Análise Estratégica</h1>
+                <p>Workforce Intelligence — Strategic Edition</p>
+                <div class="header-info">Gerado em ${dateStr} às ${timeStr}</div>
+            </div>
+            
+            <div class="section">
+                <h2>📊 Perfil & Contexto</h2>
+                <div class="profile-info">
+                    <div class="info-block">
+                        <div class="info-label">Cargo Atual</div>
+                        <div class="info-value">${state.roleActual || 'Não preenchido'}</div>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label">Objetivo Profissional</div>
+                        <div class="info-value">${state.roleTarget || 'Não preenchido'}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📈 Métricas de Desempenho</h2>
+                <div class="metrics">
+                    <div class="metric-box">
+                        <div class="metric-value">${alignment}%</div>
+                        <div class="metric-label">Alinhamento</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">${avgConfidence}%</div>
+                        <div class="metric-label">Confiança Média</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">${gaps}</div>
+                        <div class="metric-label">Gaps Críticos</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">${state.skills.length}</div>
+                        <div class="metric-label">Competências</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🎯 Análise Detalhada de Competências</h2>
+                ${skillsTableHTML}
+            </div>
+            
+            <div class="page-break"></div>
+            
+            <div class="section">
+                <h2>💡 Análise de Lacunas & Roadmap</h2>
+                ${recommendationsHTML}
+            </div>
+            
+            <div class="section" style="margin-top:40px; padding-top:20px; border-top:1px solid #ddd; font-size:11px; color:#666;">
+                <p><strong>Nota importante:</strong> Este relatório foi gerado automaticamente pelo sistema Workforce Intelligence usando análise de IA (LLM v4.0) de seu currículo. Os dados apresentados refletem a análise no momento da geração.</p>
+                <p><strong>Confidencialidade:</strong> Este documento contém informações profissionais sensíveis e deve ser mantido em local seguro.</p>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    document.body.appendChild(printContainer);
+    
+    // Aguardar renderização e imprimir
+    setTimeout(() => {
+        const printWindow = window.open('', '', 'width=900,height=600');
+        const printContent = printContainer.innerHTML;
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.onload = () => {
+            printWindow.print();
+            setTimeout(() => printWindow.close(), 500);
+        };
+        
+        // Limpar
+        setTimeout(() => document.body.removeChild(printContainer), 1000);
+    }, 100);
+}
+
+/* --- METRICS ---*/
+function updateMetrics() {
+    const totalTarget = state.skills.reduce((a,b) => a + b.target, 0);
+    const totalCurrent = state.skills.reduce((a,b) => a + b.level, 0);
+    const alignment = Math.round((totalCurrent / totalTarget) * 100);
+    const gaps = state.skills.filter(s => s.target - s.level >= 2).length;
+    const avgConfidence = Math.round(state.skills.reduce((a,b) => a + calculateConfidenceScore(b.id), 0) / state.skills.length);
+    
+    $('alignmentPct').innerText = alignment + '%';
+    $('criticalGaps').innerText = gaps;
+    $('confidenceScore').innerText = avgConfidence + '%';
+    $('employabilityScore').innerText = '74%';
+}
+
+/* --- RADAR --- */
+function renderRadar() {
+    const size = 300, center = size/2, r = 100, points = state.skills.length;
+    let polyActual = "", polyTarget = "", labels = "";
+
+    state.skills.forEach((s, i) => {
+        const angle = (Math.PI * 2 / points) * i - Math.PI / 2;
+        const tx = center + (s.target / 5) * r * Math.cos(angle);
+        const ty = center + (s.target / 5) * r * Math.sin(angle);
+        polyTarget += `${tx},${ty} `;
+        const ax = center + (s.level / 5) * r * Math.cos(angle);
+        const ay = center + (s.level / 5) * r * Math.sin(angle);
+        polyActual += `${ax},${ay} `;
+        const lx = center + (r + 35) * Math.cos(angle);
+        const ly = center + (r + 20) * Math.sin(angle);
+        labels += `<text x="${lx}" y="${ly}" fill="var(--muted)" font-size="9" text-anchor="middle" font-weight="600">${s.name.split(' ')[0]}</text>`;
+    });
+
+    $('radarBox').innerHTML = `
+        <svg width="${size}" height="${size}">
+            <circle cx="${center}" cy="${center}" r="${r}" fill="none" stroke="var(--border)" stroke-dasharray="4"/>
+            <circle cx="${center}" cy="${center}" r="${r/2}" fill="none" stroke="var(--border)" stroke-dasharray="2" opacity="0.5"/>
+            <polygon points="${polyTarget}" fill="rgba(34,197,94,0.1)" stroke="var(--accent)" stroke-width="1.5"/>
+            <polygon points="${polyActual}" fill="rgba(56,189,248,0.3)" stroke="var(--accent-2)" stroke-width="2.5"/>
+            ${labels}
+        </svg>
+    `;
+}
+
+/* --- TABLE --- */
+function renderTable(filter = 'all') {
+    const body = $('skillBody');
+    body.innerHTML = "";
+    state.skills.forEach(s => {
+        const gap = s.target - s.level;
+        const confidence = calculateConfidenceScore(s.id);
+        
+        if(filter === 'critical' && gap < 2) return;
+        if(filter === 'high' && confidence < 75) return;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><div style="font-weight:600; font-size:11px">${s.name}</div></td>
+            <td><span style="font-weight:700;">${s.level}</span>/<span style="color:var(--muted);">5</span></td>
+            <td>
+                <span class="confidence-badge" style="padding:2px 6px; font-size:9px;">
+                    ${confidence}%
+                    <div class="confidence-bar" style="min-width:30px;"><div class="confidence-fill" style="width:${confidence}%;"></div></div>
+                </span>
+            </td>
+            <td><span class="badge ${gap >= 2 ? 'critical' : 'aligned'}">${gap > 0 ? '-'+gap : 'OK'}</span></td>
+        `;
+        body.appendChild(row);
+    });
+}
+
+function filterSkills(type, btn) {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable(type);
+}
+
+/* --- PDI --- */
+function renderPDI() {
+    const gaps = state.skills.filter(s => s.target > s.level);
+    
+    $('courseList').innerHTML = gaps.map(g => {
+        const course = DB.courses.find(c => c.skillId === g.id);
+        if(!course) return '';
+        return `
+            <div class="pdi-card ${course.impact === 'high' ? 'impact-high' : 'impact-medium'}">
+                <input type="checkbox" style="width:18px;">
+                <div style="flex:1">
+                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:4px;">
+                        <strong style="font-size:11px;">${course.title}</strong>
+                        <span class="badge aligned" style="font-size:8px;">Impacto: ${course.impact}</span>
+                    </div>
+                    <div style="font-size:10px; color:var(--muted); margin-bottom:4px;">
+                        <div>📺 ${course.provider} • ⏱️ ${course.duration}</div>
+                        <div style="color:var(--accent); font-weight:700; margin-top:4px;">ROI: ${course.roi}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('') || '<p class="muted">Parabéns! Você não possui gaps críticos.</p>';
+
+    $('gigList').innerHTML = DB.gigs.map((gig, idx) => {
+        const hasSkill = gig.skills.some(id => state.skills.some(s => s.id === id && s.target > s.level));
+        if(!hasSkill) return '';
+        const maturity = MATURITY_LEVELS[gig.maturity - 1];
+        return `
+            <div class="gig-card">
+                <div class="gig-header">
+                    <div class="gig-title">${gig.title}</div>
+                    <span class="gig-tag">${maturity.name}</span>
+                </div>
+                <div class="gig-meta">🎯 ${gig.hours} • ${gig.duration}</div>
+                <div class="gig-skills">
+                    ${gig.skills.map(id => {
+                        const skill = state.skills.find(s => s.id === id);
+                        return `<span class="gig-skill">${skill.name}</span>`;
+                    }).join('')}
+                </div>
+                <button class="pill" style="width:100%; text-align:center; cursor:pointer; border-color:var(--accent-2); color:var(--accent-2);">👉 Candidatar</button>
+            </div>
+        `;
+    }).join('');
+}
+
+/* --- MODAL LOGIC --- */
+let activeAjuste = null;
+function prepareAjuste(id, val) {
+    activeAjuste = {id, val: parseInt(val)};
+    $('modalJustify').style.display = 'flex';
+}
+function closeModal() {
+    $('modalJustify').style.display = 'none';
+    renderTable();
+}
+function saveAjuste() {
+    const s = state.skills.find(x => x.id === activeAjuste.id);
+    s.level = activeAjuste.val;
+    state.justifications[s.id] = $('justText').value;
+    $('modalJustify').style.display = 'none';
+    $('justText').value = "";
+    renderAll();
+    save();
+}
+
+/* --- STORAGE & THEME --- */
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function load() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if(data) {
+        state = JSON.parse(data);
+        if(state.isAnalyzed) {
+            renderAll();
+            goToStep(state.step);
+        }
+    }
+}
+
+$('themeToggle').onclick = () => {
+    const theme = document.documentElement.getAttribute('data-theme');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    $('themeToggle').innerText = newTheme === 'dark' ? '🌙' : '☀️';
+};
+
+$('btnExport').onclick = exportSkills;
+// Export button removed from navbar
+
+load();
+</script>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-section">
+      <h4>Produto</h4>
+      <a href="lp.html">Landing Page</a>
+      <a href="checkout.html">Preços</a>
+      <a href="#">Documentação</a>
+    </div>
+    <div class="footer-section">
+      <h4>Recursos</h4>
+      <a href="lp.html#faq">FAQ</a>
+      <a href="#">Tutorial Completo</a>
+      <a href="#">Guia de Uso</a>
+    </div>
+    <div class="footer-section">
+      <h4>Legal</h4>
+      <a href="#">Privacidade</a>
+      <a href="#">Termos</a>
+      <a href="#">LGPD</a>
+    </div>
+    <div class="footer-section">
+      <h4>Contato</h4>
+      <a href="https://wa.me/5511947639729">WhatsApp</a>
+      <a href="#">Suporte</a>
+      <a href="lp.html">Início</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2026 Workforce Intelligence • Tecnologia para RH Data-Driven</span>
+    <span>🔒 Seus dados protegidos • ⚖️ LGPD Compliant</span>
+  </div>
+</footer>
+
+</body>
+</html>
